@@ -1,0 +1,1080 @@
+DIGEST aee3dd1fc3a224421f4e9c0fda82a80c
+Fbpf.comm.val
+R15:20 Coq.ZArith.ZArith <> <> lib
+R22:25 Coq.Lists.List <> <> lib
+R43:48 compcert.lib.Coqlib <> <> lib
+R50:54 compcert.lib.Zbits <> <> lib
+R90:97 compcert.lib.Integers <> <> lib
+R115:126 bpf.comm.rBPFCommType <> <> lib
+def 141:155 <> sub_overflowi32
+R168:170 bpf.comm.rBPFCommType <> u32 def
+binder 158:158 <> x:1
+binder 160:160 <> y:2
+binder 162:164 <> bin:3
+R175:177 bpf.comm.rBPFCommType <> u32 def
+R224:227 Coq.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R242:242 Coq.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R193:193 Coq.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R206:210 Coq.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R223:223 Coq.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R194:203 compcert.lib.Integers Int signed def
+R205:205 bpf.comm.val <> x:1 var
+R211:220 compcert.lib.Integers Int signed def
+R222:222 bpf.comm.val <> y:2 var
+R228:237 compcert.lib.Integers Int signed def
+R239:241 bpf.comm.val <> bin:3 var
+binder 188:188 <> s:4
+R280:283 Coq.Init.Datatypes <> ::bool_scope:x_'&&'_x not
+R252:256 Coq.ZArith.BinInt Z leb def
+R259:268 compcert.lib.Integers Int signed def
+R270:276 bpf.comm.rBPFCommType <> i32_MIN def
+R279:279 bpf.comm.val <> s:4 var
+R284:288 Coq.ZArith.BinInt Z leb def
+R290:290 bpf.comm.val <> s:4 var
+R293:302 compcert.lib.Integers Int signed def
+R304:310 bpf.comm.rBPFCommType <> i32_MAX def
+R346:353 compcert.lib.Integers Int repr def
+R323:330 compcert.lib.Integers Int repr def
+R368:382 bpf.comm.val <> sub_overflowi32 def
+R385:392 compcert.lib.Integers Int repr def
+R407:414 compcert.lib.Integers Int repr def
+R422:429 compcert.lib.Integers Int repr def
+R456:465 compcert.lib.Integers Int signed def
+R468:475 compcert.lib.Integers Int repr def
+def 498:512 <> sub_overflowi64
+R525:527 bpf.comm.rBPFCommType <> u64 def
+binder 515:515 <> x:5
+binder 517:517 <> y:6
+binder 519:521 <> bin:7
+R532:534 bpf.comm.rBPFCommType <> u64 def
+R585:588 Coq.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R605:605 Coq.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R550:550 Coq.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R565:569 Coq.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R584:584 Coq.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R551:562 compcert.lib.Integers Int64 signed def
+R564:564 bpf.comm.val <> x:5 var
+R570:581 compcert.lib.Integers Int64 signed def
+R583:583 bpf.comm.val <> y:6 var
+R589:600 compcert.lib.Integers Int64 signed def
+R602:604 bpf.comm.val <> bin:7 var
+binder 545:545 <> s:8
+R645:648 Coq.Init.Datatypes <> ::bool_scope:x_'&&'_x not
+R615:619 Coq.ZArith.BinInt Z leb def
+R622:633 compcert.lib.Integers Int64 signed def
+R635:641 bpf.comm.rBPFCommType <> i64_MIN def
+R644:644 bpf.comm.val <> s:8 var
+R649:653 Coq.ZArith.BinInt Z leb def
+R655:655 bpf.comm.val <> s:8 var
+R658:669 compcert.lib.Integers Int64 signed def
+R671:677 bpf.comm.rBPFCommType <> i64_MAX def
+R715:724 compcert.lib.Integers Int64 repr def
+R690:699 compcert.lib.Integers Int64 repr def
+ind 740:742 <> val
+constr 758:763 <> Vundef
+constr 775:779 <> Vbyte
+constr 797:802 <> Vshort
+constr 821:824 <> Vint
+constr 843:847 <> Vlong
+R767:769 bpf.comm.val <> val:9 ind
+R785:788 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R783:784 bpf.comm.rBPFCommType <> u8 def
+R789:791 bpf.comm.val <> val:9 ind
+R809:812 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R806:808 bpf.comm.rBPFCommType <> u16 def
+R813:815 bpf.comm.val <> val:9 ind
+R831:834 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R828:830 bpf.comm.rBPFCommType <> u32 def
+R835:837 bpf.comm.val <> val:9 ind
+R854:857 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R851:853 bpf.comm.rBPFCommType <> u64 def
+R858:860 bpf.comm.val <> val:9 ind
+R870:877 bpf.comm.rBPFCommType Word rol def
+def 892:896 <> rol16
+R905:907 bpf.comm.val <> val ind
+binder 899:899 <> v:11
+binder 901:901 <> n:12
+R912:914 bpf.comm.val <> val ind
+R930:930 bpf.comm.val <> n:12 var
+R927:927 bpf.comm.val <> v:11 var
+R941:946 bpf.comm.val <> Vshort constr
+R952:956 bpf.comm.val <> Vbyte constr
+R970:975 bpf.comm.val <> Vshort constr
+R978:985 bpf.comm.rBPFCommType Word rol def
+R991:999 bpf.comm.rBPFCommType Word repr def
+R1002:1002 Coq.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R1019:1024 Coq.ZArith.BinInt <> ::Z_scope:x_'mod'_x not
+R1003:1015 compcert.lib.Integers Byte unsigned def
+R1043:1048 bpf.comm.val <> Vundef constr
+def 1069:1073 <> add16
+R1084:1086 bpf.comm.val <> val ind
+binder 1076:1077 <> v1:15
+binder 1079:1080 <> v2:16
+R1091:1093 bpf.comm.val <> val ind
+R1110:1111 bpf.comm.val <> v2:16 var
+R1106:1107 bpf.comm.val <> v1:15 var
+R1122:1127 bpf.comm.val <> Vshort constr
+R1134:1139 bpf.comm.val <> Vshort constr
+R1154:1159 bpf.comm.val <> Vshort constr
+R1162:1169 bpf.comm.rBPFCommType Word add def
+R1192:1197 bpf.comm.val <> Vundef constr
+def 1218:1237 <> long_of_int_unsigned
+R1244:1246 bpf.comm.val <> val ind
+binder 1240:1240 <> v:19
+R1251:1253 bpf.comm.val <> val ind
+R1266:1266 bpf.comm.val <> v:19 var
+R1277:1280 bpf.comm.val <> Vint constr
+R1295:1299 bpf.comm.val <> Vlong constr
+R1302:1311 compcert.lib.Integers Int64 repr def
+R1314:1325 compcert.lib.Integers Int unsigned def
+R1341:1346 bpf.comm.val <> Vundef constr
+def 1367:1384 <> long_of_int_signed
+R1391:1393 bpf.comm.val <> val ind
+binder 1387:1387 <> v:21
+R1398:1400 bpf.comm.val <> val ind
+R1413:1413 bpf.comm.val <> v:21 var
+R1424:1427 bpf.comm.val <> Vint constr
+R1444:1454 compcert.lib.Integers Int testbit def
+R1574:1578 bpf.comm.val <> Vlong constr
+R1581:1590 compcert.lib.Integers Int64 repr def
+R1593:1604 compcert.lib.Integers Int unsigned def
+R1475:1479 bpf.comm.val <> Vlong constr
+R1482:1489 compcert.lib.Integers Int64 or def
+R1492:1501 compcert.lib.Integers Int64 repr def
+R1504:1515 compcert.lib.Integers Int unsigned def
+R1523:1532 compcert.lib.Integers Int64 repr def
+R1620:1625 bpf.comm.val <> Vundef constr
+def 1646:1660 <> int_of_long_low
+R1667:1669 bpf.comm.val <> val ind
+binder 1663:1663 <> v:23
+R1674:1676 bpf.comm.val <> val ind
+R1689:1689 bpf.comm.val <> v:23 var
+R1700:1704 bpf.comm.val <> Vlong constr
+R1718:1721 bpf.comm.val <> Vint constr
+R1724:1731 compcert.lib.Integers Int repr def
+R1734:1747 compcert.lib.Integers Int64 unsigned def
+R1763:1768 bpf.comm.val <> Vundef constr
+R1784:1792 compcert.lib.Integers Int64 shr def
+def 1807:1822 <> int_of_long_high
+R1829:1831 bpf.comm.val <> val ind
+binder 1825:1825 <> v:25
+R1836:1838 bpf.comm.val <> val ind
+R1851:1851 bpf.comm.val <> v:25 var
+R1862:1866 bpf.comm.val <> Vlong constr
+R1880:1883 bpf.comm.val <> Vint constr
+R1886:1893 compcert.lib.Integers Int repr def
+R1896:1909 compcert.lib.Integers Int64 unsigned def
+R1912:1932 bpf.comm.rBPFCommType <> bit_right_shift_int64 def
+R1952:1957 bpf.comm.val <> Vundef constr
+def 1978:1985 <> signex32
+R1992:1994 bpf.comm.val <> val ind
+binder 1988:1988 <> v:27
+R1999:2001 bpf.comm.val <> val ind
+R2014:2014 bpf.comm.val <> v:27 var
+R2025:2028 bpf.comm.val <> Vint constr
+R2042:2057 bpf.comm.val <> int_of_long_high def
+R2060:2077 bpf.comm.val <> long_of_int_signed def
+R2079:2079 bpf.comm.val <> v:27 var
+R2091:2096 bpf.comm.val <> Vundef constr
+def 2117:2121 <> neg32
+R2128:2130 bpf.comm.val <> val ind
+binder 2124:2124 <> v:29
+R2135:2137 bpf.comm.val <> val ind
+R2150:2150 bpf.comm.val <> v:29 var
+R2161:2164 bpf.comm.val <> Vint constr
+R2178:2181 bpf.comm.val <> Vint constr
+R2184:2190 compcert.lib.Integers Int neg def
+R2205:2210 bpf.comm.val <> Vundef constr
+def 2231:2239 <> maketotal
+R2247:2252 Coq.Init.Datatypes <> option ind
+R2254:2256 bpf.comm.val <> val ind
+binder 2242:2243 <> ov:31
+R2261:2263 bpf.comm.val <> val ind
+R2276:2277 bpf.comm.val <> ov:31 var
+R2288:2291 Coq.Init.Datatypes <> Some constr
+R2304:2307 Coq.Init.Datatypes <> None constr
+R2312:2317 bpf.comm.val <> Vundef constr
+def 2338:2342 <> add32
+R2353:2355 bpf.comm.val <> val ind
+binder 2345:2346 <> v1:33
+binder 2348:2349 <> v2:34
+R2360:2362 bpf.comm.val <> val ind
+R2379:2380 bpf.comm.val <> v2:34 var
+R2375:2376 bpf.comm.val <> v1:33 var
+R2391:2394 bpf.comm.val <> Vint constr
+R2401:2404 bpf.comm.val <> Vint constr
+R2419:2422 bpf.comm.val <> Vint constr
+R2425:2431 compcert.lib.Integers Int add def
+R2454:2459 bpf.comm.val <> Vundef constr
+def 2480:2484 <> sub32
+R2495:2497 bpf.comm.val <> val ind
+binder 2487:2488 <> v1:37
+binder 2490:2491 <> v2:38
+R2502:2504 bpf.comm.val <> val ind
+R2521:2522 bpf.comm.val <> v2:38 var
+R2517:2518 bpf.comm.val <> v1:37 var
+R2533:2536 bpf.comm.val <> Vint constr
+R2543:2546 bpf.comm.val <> Vint constr
+R2561:2564 bpf.comm.val <> Vint constr
+R2567:2573 compcert.lib.Integers Int sub def
+R2596:2601 bpf.comm.val <> Vundef constr
+def 2622:2626 <> mul32
+R2637:2639 bpf.comm.val <> val ind
+binder 2629:2630 <> v1:41
+binder 2632:2633 <> v2:42
+R2644:2646 bpf.comm.val <> val ind
+R2663:2664 bpf.comm.val <> v2:42 var
+R2659:2660 bpf.comm.val <> v1:41 var
+R2675:2678 bpf.comm.val <> Vint constr
+R2685:2688 bpf.comm.val <> Vint constr
+R2703:2706 bpf.comm.val <> Vint constr
+R2709:2715 compcert.lib.Integers Int mul def
+R2738:2743 bpf.comm.val <> Vundef constr
+def 2764:2770 <> mulhu32
+R2781:2783 bpf.comm.val <> val ind
+binder 2773:2774 <> v1:45
+binder 2776:2777 <> v2:46
+R2788:2790 bpf.comm.val <> val ind
+R2807:2808 bpf.comm.val <> v2:46 var
+R2803:2804 bpf.comm.val <> v1:45 var
+R2819:2822 bpf.comm.val <> Vint constr
+R2829:2832 bpf.comm.val <> Vint constr
+R2847:2850 bpf.comm.val <> Vint constr
+R2853:2861 compcert.lib.Integers Int mulhu def
+R2884:2889 bpf.comm.val <> Vundef constr
+def 2910:2916 <> mulhs32
+R2927:2929 bpf.comm.val <> val ind
+binder 2919:2920 <> v1:49
+binder 2922:2923 <> v2:50
+R2934:2936 bpf.comm.val <> val ind
+R2953:2954 bpf.comm.val <> v2:50 var
+R2949:2950 bpf.comm.val <> v1:49 var
+R2965:2968 bpf.comm.val <> Vint constr
+R2975:2978 bpf.comm.val <> Vint constr
+R2993:2996 bpf.comm.val <> Vint constr
+R2999:3007 compcert.lib.Integers Int mulhs def
+R3030:3035 bpf.comm.val <> Vundef constr
+def 3056:3064 <> divmod32u
+R3077:3079 bpf.comm.val <> val ind
+binder 3067:3068 <> v1:53
+binder 3070:3071 <> v2:54
+binder 3073:3074 <> v3:55
+R3084:3089 Coq.Init.Datatypes <> option ind
+R3095:3097 Coq.Init.Datatypes <> ::type_scope:x_'*'_x not
+R3092:3094 bpf.comm.val <> val ind
+R3098:3100 bpf.comm.val <> val ind
+R3122:3123 bpf.comm.val <> v3:55 var
+R3118:3119 bpf.comm.val <> v2:54 var
+R3114:3115 bpf.comm.val <> v1:53 var
+R3134:3137 bpf.comm.val <> Vint constr
+R3143:3146 bpf.comm.val <> Vint constr
+R3152:3155 bpf.comm.val <> Vint constr
+R3174:3185 compcert.lib.Integers Int divmodu2 def
+R3208:3211 Coq.Init.Datatypes <> Some constr
+R3213:3213 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3222:3223 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3233:3233 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3238:3241 Coq.Init.Datatypes <> Some constr
+R3243:3243 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3257:3258 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3273:3273 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3244:3247 bpf.comm.val <> Vint constr
+R3259:3262 bpf.comm.val <> Vint constr
+R3283:3286 Coq.Init.Datatypes <> None constr
+R3291:3294 Coq.Init.Datatypes <> None constr
+R3321:3324 Coq.Init.Datatypes <> None constr
+def 3345:3353 <> divmod32s
+R3366:3368 bpf.comm.val <> val ind
+binder 3356:3357 <> v1:59
+binder 3359:3360 <> v2:60
+binder 3362:3363 <> v3:61
+R3373:3378 Coq.Init.Datatypes <> option ind
+R3384:3386 Coq.Init.Datatypes <> ::type_scope:x_'*'_x not
+R3381:3383 bpf.comm.val <> val ind
+R3387:3389 bpf.comm.val <> val ind
+R3411:3412 bpf.comm.val <> v3:61 var
+R3407:3408 bpf.comm.val <> v2:60 var
+R3403:3404 bpf.comm.val <> v1:59 var
+R3423:3426 bpf.comm.val <> Vint constr
+R3432:3435 bpf.comm.val <> Vint constr
+R3441:3444 bpf.comm.val <> Vint constr
+R3463:3474 compcert.lib.Integers Int divmods2 def
+R3497:3500 Coq.Init.Datatypes <> Some constr
+R3502:3502 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3511:3512 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3522:3522 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3527:3530 Coq.Init.Datatypes <> Some constr
+R3532:3532 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3546:3547 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3562:3562 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3533:3536 bpf.comm.val <> Vint constr
+R3548:3551 bpf.comm.val <> Vint constr
+R3572:3575 Coq.Init.Datatypes <> None constr
+R3580:3583 Coq.Init.Datatypes <> None constr
+R3610:3613 Coq.Init.Datatypes <> None constr
+def 3634:3640 <> bswap32
+R3647:3649 bpf.comm.val <> val ind
+binder 3643:3643 <> v:65
+R3654:3656 bpf.comm.val <> val ind
+R3669:3669 bpf.comm.val <> v:65 var
+R3680:3683 bpf.comm.val <> Vint constr
+R3710:3727 bpf.comm.rBPFCommType <> bit_left_shift_int def
+R3730:3736 compcert.lib.Integers Int and def
+R3742:3749 compcert.lib.Integers Int repr def
+binder 3701:3705 <> byte0:67
+R3783:3800 bpf.comm.rBPFCommType <> bit_left_shift_int def
+R3803:3809 compcert.lib.Integers Int and def
+R3815:3822 compcert.lib.Integers Int repr def
+binder 3774:3778 <> byte1:68
+R3857:3875 bpf.comm.rBPFCommType <> bit_right_shift_int def
+R3878:3884 compcert.lib.Integers Int and def
+R3890:3897 compcert.lib.Integers Int repr def
+binder 3848:3852 <> byte2:69
+R3934:3952 bpf.comm.rBPFCommType <> bit_right_shift_int def
+R3955:3961 compcert.lib.Integers Int and def
+R3967:3974 compcert.lib.Integers Int repr def
+binder 3925:3929 <> byte3:70
+R4001:4004 bpf.comm.val <> Vint constr
+R4007:4012 compcert.lib.Integers Int or def
+R4015:4020 compcert.lib.Integers Int or def
+R4023:4028 compcert.lib.Integers Int or def
+R4030:4034 bpf.comm.val <> byte0:67 var
+R4036:4040 bpf.comm.val <> byte1:68 var
+R4043:4047 bpf.comm.val <> byte2:69 var
+R4050:4054 bpf.comm.val <> byte3:70 var
+R4066:4071 bpf.comm.val <> Vundef constr
+def 4092:4105 <> sub_overflow32
+R4116:4118 bpf.comm.val <> val ind
+binder 4108:4109 <> v1:71
+binder 4111:4112 <> v2:72
+R4123:4125 bpf.comm.val <> val ind
+R4142:4143 bpf.comm.val <> v2:72 var
+R4138:4139 bpf.comm.val <> v1:71 var
+R4154:4157 bpf.comm.val <> Vint constr
+R4164:4167 bpf.comm.val <> Vint constr
+R4182:4185 bpf.comm.val <> Vint constr
+R4188:4202 bpf.comm.val <> sub_overflowi32 def
+R4213:4220 compcert.lib.Integers Int repr def
+R4238:4243 bpf.comm.val <> Vundef constr
+def 4264:4273 <> negative32
+R4280:4282 bpf.comm.val <> val ind
+binder 4276:4276 <> v:75
+R4287:4289 bpf.comm.val <> val ind
+R4302:4302 bpf.comm.val <> v:75 var
+R4313:4316 bpf.comm.val <> Vint constr
+R4333:4343 compcert.lib.Integers Int testbit def
+R4396:4399 bpf.comm.val <> Vint constr
+R4401:4408 compcert.lib.Integers Int zero def
+R4364:4367 bpf.comm.val <> Vint constr
+R4369:4375 compcert.lib.Integers Int one def
+R4419:4424 bpf.comm.val <> Vundef constr
+def 4445:4448 <> or32
+R4459:4461 bpf.comm.val <> val ind
+binder 4451:4452 <> v1:77
+binder 4454:4455 <> v2:78
+R4466:4468 bpf.comm.val <> val ind
+R4485:4486 bpf.comm.val <> v2:78 var
+R4481:4482 bpf.comm.val <> v1:77 var
+R4497:4500 bpf.comm.val <> Vint constr
+R4507:4510 bpf.comm.val <> Vint constr
+R4525:4528 bpf.comm.val <> Vint constr
+R4531:4536 compcert.lib.Integers Int or def
+R4559:4564 bpf.comm.val <> Vundef constr
+def 4585:4589 <> and32
+R4600:4602 bpf.comm.val <> val ind
+binder 4592:4593 <> v1:81
+binder 4595:4596 <> v2:82
+R4607:4609 bpf.comm.val <> val ind
+R4626:4627 bpf.comm.val <> v2:82 var
+R4622:4623 bpf.comm.val <> v1:81 var
+R4638:4641 bpf.comm.val <> Vint constr
+R4648:4651 bpf.comm.val <> Vint constr
+R4666:4669 bpf.comm.val <> Vint constr
+R4672:4678 compcert.lib.Integers Int and def
+R4701:4706 bpf.comm.val <> Vundef constr
+def 4727:4731 <> xor32
+R4742:4744 bpf.comm.val <> val ind
+binder 4734:4735 <> v1:85
+binder 4737:4738 <> v2:86
+R4749:4751 bpf.comm.val <> val ind
+R4768:4769 bpf.comm.val <> v2:86 var
+R4764:4765 bpf.comm.val <> v1:85 var
+R4780:4783 bpf.comm.val <> Vint constr
+R4790:4793 bpf.comm.val <> Vint constr
+R4808:4811 bpf.comm.val <> Vint constr
+R4814:4820 compcert.lib.Integers Int xor def
+R4843:4848 bpf.comm.val <> Vundef constr
+def 4869:4873 <> shl32
+R4884:4886 bpf.comm.val <> val ind
+binder 4876:4877 <> v1:89
+binder 4879:4880 <> v2:90
+R4891:4893 bpf.comm.val <> val ind
+R4910:4911 bpf.comm.val <> v2:90 var
+R4906:4907 bpf.comm.val <> v1:89 var
+R4922:4925 bpf.comm.val <> Vint constr
+R4932:4936 bpf.comm.val <> Vbyte constr
+R4951:4954 bpf.comm.val <> Vint constr
+R4957:4963 compcert.lib.Integers Int shl def
+R4970:4977 compcert.lib.Integers Int repr def
+R4980:4992 compcert.lib.Integers Byte unsigned def
+R5013:5018 bpf.comm.val <> Vundef constr
+def 5039:5044 <> shru32
+R5055:5057 bpf.comm.val <> val ind
+binder 5047:5048 <> v1:93
+binder 5050:5051 <> v2:94
+R5062:5064 bpf.comm.val <> val ind
+R5081:5082 bpf.comm.val <> v2:94 var
+R5077:5078 bpf.comm.val <> v1:93 var
+R5093:5096 bpf.comm.val <> Vint constr
+R5103:5107 bpf.comm.val <> Vbyte constr
+R5122:5125 bpf.comm.val <> Vint constr
+R5128:5135 compcert.lib.Integers Int shru def
+R5142:5149 compcert.lib.Integers Int repr def
+R5152:5164 compcert.lib.Integers Byte unsigned def
+R5185:5190 bpf.comm.val <> Vundef constr
+def 5211:5215 <> shr32
+R5226:5228 bpf.comm.val <> val ind
+binder 5218:5219 <> v1:97
+binder 5221:5222 <> v2:98
+R5233:5235 bpf.comm.val <> val ind
+R5252:5253 bpf.comm.val <> v2:98 var
+R5248:5249 bpf.comm.val <> v1:97 var
+R5264:5267 bpf.comm.val <> Vint constr
+R5274:5278 bpf.comm.val <> Vbyte constr
+R5293:5296 bpf.comm.val <> Vint constr
+R5299:5305 compcert.lib.Integers Int shr def
+R5312:5319 compcert.lib.Integers Int repr def
+R5322:5334 compcert.lib.Integers Byte unsigned def
+R5355:5360 bpf.comm.val <> Vundef constr
+def 5381:5385 <> ror32
+R5396:5398 bpf.comm.val <> val ind
+binder 5388:5389 <> v1:101
+binder 5391:5392 <> v2:102
+R5403:5405 bpf.comm.val <> val ind
+R5422:5423 bpf.comm.val <> v2:102 var
+R5418:5419 bpf.comm.val <> v1:101 var
+R5434:5437 bpf.comm.val <> Vint constr
+R5444:5448 bpf.comm.val <> Vbyte constr
+R5463:5466 bpf.comm.val <> Vint constr
+R5469:5475 compcert.lib.Integers Int ror def
+R5482:5489 compcert.lib.Integers Int repr def
+R5492:5504 compcert.lib.Integers Byte unsigned def
+R5525:5530 bpf.comm.val <> Vundef constr
+def 5551:5558 <> signex64
+R5565:5567 bpf.comm.val <> val ind
+binder 5561:5561 <> v:105
+R5572:5574 bpf.comm.val <> val ind
+R5587:5587 bpf.comm.val <> v:105 var
+R5598:5602 bpf.comm.val <> Vlong constr
+R5619:5631 compcert.lib.Integers Int64 testbit def
+R5711:5715 bpf.comm.val <> Vlong constr
+R5719:5728 compcert.lib.Integers Int64 repr def
+R5652:5656 bpf.comm.val <> Vlong constr
+R5660:5669 compcert.lib.Integers Int64 repr def
+R5743:5748 bpf.comm.val <> Vundef constr
+def 5769:5773 <> neg64
+R5780:5782 bpf.comm.val <> val ind
+binder 5776:5776 <> v:107
+R5787:5789 bpf.comm.val <> val ind
+R5802:5802 bpf.comm.val <> v:107 var
+R5813:5817 bpf.comm.val <> Vlong constr
+R5831:5835 bpf.comm.val <> Vlong constr
+R5838:5846 compcert.lib.Integers Int64 neg def
+R5861:5866 bpf.comm.val <> Vundef constr
+def 5887:5891 <> add64
+R5902:5904 bpf.comm.val <> val ind
+binder 5894:5895 <> v1:109
+binder 5897:5898 <> v2:110
+R5909:5911 bpf.comm.val <> val ind
+R5928:5929 bpf.comm.val <> v2:110 var
+R5924:5925 bpf.comm.val <> v1:109 var
+R5940:5944 bpf.comm.val <> Vlong constr
+R5951:5955 bpf.comm.val <> Vlong constr
+R5970:5974 bpf.comm.val <> Vlong constr
+R5977:5985 compcert.lib.Integers Int64 add def
+R6008:6013 bpf.comm.val <> Vundef constr
+def 6034:6038 <> sub64
+R6049:6051 bpf.comm.val <> val ind
+binder 6041:6042 <> v1:113
+binder 6044:6045 <> v2:114
+R6056:6058 bpf.comm.val <> val ind
+R6075:6076 bpf.comm.val <> v2:114 var
+R6071:6072 bpf.comm.val <> v1:113 var
+R6087:6091 bpf.comm.val <> Vlong constr
+R6098:6102 bpf.comm.val <> Vlong constr
+R6117:6121 bpf.comm.val <> Vlong constr
+R6124:6132 compcert.lib.Integers Int64 sub def
+R6155:6160 bpf.comm.val <> Vundef constr
+def 6181:6185 <> mul64
+R6196:6198 bpf.comm.val <> val ind
+binder 6188:6189 <> v1:117
+binder 6191:6192 <> v2:118
+R6203:6205 bpf.comm.val <> val ind
+R6222:6223 bpf.comm.val <> v2:118 var
+R6218:6219 bpf.comm.val <> v1:117 var
+R6234:6238 bpf.comm.val <> Vlong constr
+R6245:6249 bpf.comm.val <> Vlong constr
+R6264:6268 bpf.comm.val <> Vlong constr
+R6271:6279 compcert.lib.Integers Int64 mul def
+R6302:6307 bpf.comm.val <> Vundef constr
+def 6328:6334 <> mulhu64
+R6345:6347 bpf.comm.val <> val ind
+binder 6337:6338 <> v1:121
+binder 6340:6341 <> v2:122
+R6352:6354 bpf.comm.val <> val ind
+R6371:6372 bpf.comm.val <> v2:122 var
+R6367:6368 bpf.comm.val <> v1:121 var
+R6383:6387 bpf.comm.val <> Vlong constr
+R6394:6398 bpf.comm.val <> Vlong constr
+R6413:6417 bpf.comm.val <> Vlong constr
+R6420:6430 compcert.lib.Integers Int64 mulhu def
+R6453:6458 bpf.comm.val <> Vundef constr
+def 6479:6485 <> mulhs64
+R6496:6498 bpf.comm.val <> val ind
+binder 6488:6489 <> v1:125
+binder 6491:6492 <> v2:126
+R6503:6505 bpf.comm.val <> val ind
+R6522:6523 bpf.comm.val <> v2:126 var
+R6518:6519 bpf.comm.val <> v1:125 var
+R6534:6538 bpf.comm.val <> Vlong constr
+R6545:6549 bpf.comm.val <> Vlong constr
+R6564:6568 bpf.comm.val <> Vlong constr
+R6571:6581 compcert.lib.Integers Int64 mulhs def
+R6604:6609 bpf.comm.val <> Vundef constr
+def 6630:6638 <> divmod64u
+R6651:6653 bpf.comm.val <> val ind
+binder 6641:6642 <> v1:129
+binder 6644:6645 <> v2:130
+binder 6647:6648 <> v3:131
+R6658:6663 Coq.Init.Datatypes <> option ind
+R6669:6671 Coq.Init.Datatypes <> ::type_scope:x_'*'_x not
+R6666:6668 bpf.comm.val <> val ind
+R6672:6674 bpf.comm.val <> val ind
+R6696:6697 bpf.comm.val <> v3:131 var
+R6692:6693 bpf.comm.val <> v2:130 var
+R6688:6689 bpf.comm.val <> v1:129 var
+R6708:6712 bpf.comm.val <> Vlong constr
+R6718:6722 bpf.comm.val <> Vlong constr
+R6728:6732 bpf.comm.val <> Vlong constr
+R6751:6764 compcert.lib.Integers Int64 divmodu2 def
+R6787:6790 Coq.Init.Datatypes <> Some constr
+R6792:6792 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R6801:6802 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R6812:6812 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R6817:6820 Coq.Init.Datatypes <> Some constr
+R6822:6822 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R6837:6838 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R6854:6854 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R6823:6827 bpf.comm.val <> Vlong constr
+R6839:6843 bpf.comm.val <> Vlong constr
+R6864:6867 Coq.Init.Datatypes <> None constr
+R6872:6875 Coq.Init.Datatypes <> None constr
+R6902:6905 Coq.Init.Datatypes <> None constr
+def 6926:6934 <> divmod64s
+R6947:6949 bpf.comm.val <> val ind
+binder 6937:6938 <> v1:135
+binder 6940:6941 <> v2:136
+binder 6943:6944 <> v3:137
+R6954:6959 Coq.Init.Datatypes <> option ind
+R6965:6967 Coq.Init.Datatypes <> ::type_scope:x_'*'_x not
+R6962:6964 bpf.comm.val <> val ind
+R6968:6970 bpf.comm.val <> val ind
+R6992:6993 bpf.comm.val <> v3:137 var
+R6988:6989 bpf.comm.val <> v2:136 var
+R6984:6985 bpf.comm.val <> v1:135 var
+R7004:7008 bpf.comm.val <> Vlong constr
+R7014:7018 bpf.comm.val <> Vlong constr
+R7024:7028 bpf.comm.val <> Vlong constr
+R7047:7060 compcert.lib.Integers Int64 divmods2 def
+R7083:7086 Coq.Init.Datatypes <> Some constr
+R7088:7088 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R7097:7098 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R7108:7108 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R7113:7116 Coq.Init.Datatypes <> Some constr
+R7118:7118 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R7133:7134 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R7150:7150 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R7119:7123 bpf.comm.val <> Vlong constr
+R7135:7139 bpf.comm.val <> Vlong constr
+R7160:7163 Coq.Init.Datatypes <> None constr
+R7168:7171 Coq.Init.Datatypes <> None constr
+R7198:7201 Coq.Init.Datatypes <> None constr
+def 7222:7235 <> sub_overflow64
+R7246:7248 bpf.comm.val <> val ind
+binder 7238:7239 <> v1:141
+binder 7241:7242 <> v2:142
+R7253:7255 bpf.comm.val <> val ind
+R7272:7273 bpf.comm.val <> v2:142 var
+R7268:7269 bpf.comm.val <> v1:141 var
+R7284:7288 bpf.comm.val <> Vlong constr
+R7295:7299 bpf.comm.val <> Vlong constr
+R7314:7318 bpf.comm.val <> Vlong constr
+R7321:7335 bpf.comm.val <> sub_overflowi64 def
+R7346:7355 compcert.lib.Integers Int64 repr def
+R7373:7378 bpf.comm.val <> Vundef constr
+def 7399:7408 <> negative64
+R7415:7417 bpf.comm.val <> val ind
+binder 7411:7411 <> v:145
+R7422:7424 bpf.comm.val <> val ind
+R7437:7437 bpf.comm.val <> v:145 var
+R7448:7452 bpf.comm.val <> Vlong constr
+R7469:7481 compcert.lib.Integers Int64 testbit def
+R7537:7541 bpf.comm.val <> Vlong constr
+R7543:7552 compcert.lib.Integers Int64 zero def
+R7502:7506 bpf.comm.val <> Vlong constr
+R7508:7516 compcert.lib.Integers Int64 one def
+R7563:7568 bpf.comm.val <> Vundef constr
+def 7589:7592 <> or64
+R7603:7605 bpf.comm.val <> val ind
+binder 7595:7596 <> v1:147
+binder 7598:7599 <> v2:148
+R7610:7612 bpf.comm.val <> val ind
+R7629:7630 bpf.comm.val <> v2:148 var
+R7625:7626 bpf.comm.val <> v1:147 var
+R7641:7645 bpf.comm.val <> Vlong constr
+R7652:7656 bpf.comm.val <> Vlong constr
+R7671:7675 bpf.comm.val <> Vlong constr
+R7678:7685 compcert.lib.Integers Int64 or def
+R7708:7713 bpf.comm.val <> Vundef constr
+def 7734:7738 <> and64
+R7749:7751 bpf.comm.val <> val ind
+binder 7741:7742 <> v1:151
+binder 7744:7745 <> v2:152
+R7756:7758 bpf.comm.val <> val ind
+R7775:7776 bpf.comm.val <> v2:152 var
+R7771:7772 bpf.comm.val <> v1:151 var
+R7787:7791 bpf.comm.val <> Vlong constr
+R7798:7802 bpf.comm.val <> Vlong constr
+R7817:7821 bpf.comm.val <> Vlong constr
+R7824:7832 compcert.lib.Integers Int64 and def
+R7855:7860 bpf.comm.val <> Vundef constr
+def 7881:7885 <> xor64
+R7896:7898 bpf.comm.val <> val ind
+binder 7888:7889 <> v1:155
+binder 7891:7892 <> v2:156
+R7903:7905 bpf.comm.val <> val ind
+R7922:7923 bpf.comm.val <> v2:156 var
+R7918:7919 bpf.comm.val <> v1:155 var
+R7934:7938 bpf.comm.val <> Vlong constr
+R7945:7949 bpf.comm.val <> Vlong constr
+R7964:7968 bpf.comm.val <> Vlong constr
+R7971:7979 compcert.lib.Integers Int64 xor def
+R8002:8007 bpf.comm.val <> Vundef constr
+def 8028:8032 <> shl64
+R8043:8045 bpf.comm.val <> val ind
+binder 8035:8036 <> v1:159
+binder 8038:8039 <> v2:160
+R8050:8052 bpf.comm.val <> val ind
+R8069:8070 bpf.comm.val <> v2:160 var
+R8065:8066 bpf.comm.val <> v1:159 var
+R8081:8085 bpf.comm.val <> Vlong constr
+R8092:8096 bpf.comm.val <> Vbyte constr
+R8111:8115 bpf.comm.val <> Vlong constr
+R8118:8126 compcert.lib.Integers Int64 shl def
+R8133:8142 compcert.lib.Integers Int64 repr def
+R8145:8157 compcert.lib.Integers Byte unsigned def
+R8178:8183 bpf.comm.val <> Vundef constr
+def 8204:8209 <> shru64
+R8220:8222 bpf.comm.val <> val ind
+binder 8212:8213 <> v1:163
+binder 8215:8216 <> v2:164
+R8227:8229 bpf.comm.val <> val ind
+R8246:8247 bpf.comm.val <> v2:164 var
+R8242:8243 bpf.comm.val <> v1:163 var
+R8258:8262 bpf.comm.val <> Vlong constr
+R8269:8273 bpf.comm.val <> Vbyte constr
+R8288:8292 bpf.comm.val <> Vlong constr
+R8295:8304 compcert.lib.Integers Int64 shru def
+R8311:8320 compcert.lib.Integers Int64 repr def
+R8323:8335 compcert.lib.Integers Byte unsigned def
+R8356:8361 bpf.comm.val <> Vundef constr
+def 8382:8386 <> shr64
+R8397:8399 bpf.comm.val <> val ind
+binder 8389:8390 <> v1:167
+binder 8392:8393 <> v2:168
+R8404:8406 bpf.comm.val <> val ind
+R8423:8424 bpf.comm.val <> v2:168 var
+R8419:8420 bpf.comm.val <> v1:167 var
+R8435:8439 bpf.comm.val <> Vlong constr
+R8446:8450 bpf.comm.val <> Vbyte constr
+R8465:8469 bpf.comm.val <> Vlong constr
+R8472:8480 compcert.lib.Integers Int64 shr def
+R8487:8496 compcert.lib.Integers Int64 repr def
+R8499:8511 compcert.lib.Integers Byte unsigned def
+R8532:8537 bpf.comm.val <> Vundef constr
+def 8558:8562 <> ror64
+R8573:8575 bpf.comm.val <> val ind
+binder 8565:8566 <> v1:171
+binder 8568:8569 <> v2:172
+R8580:8582 bpf.comm.val <> val ind
+R8599:8600 bpf.comm.val <> v2:172 var
+R8595:8596 bpf.comm.val <> v1:171 var
+R8611:8615 bpf.comm.val <> Vlong constr
+R8622:8626 bpf.comm.val <> Vbyte constr
+R8641:8645 bpf.comm.val <> Vlong constr
+R8648:8656 compcert.lib.Integers Int64 ror def
+R8663:8672 compcert.lib.Integers Int64 repr def
+R8675:8687 compcert.lib.Integers Byte unsigned def
+R8708:8713 bpf.comm.val <> Vundef constr
+def 8734:8740 <> bswap64
+R8747:8749 bpf.comm.val <> val ind
+binder 8743:8743 <> v:175
+R8754:8756 bpf.comm.val <> val ind
+R8769:8769 bpf.comm.val <> v:175 var
+R8780:8784 bpf.comm.val <> Vlong constr
+R8811:8830 bpf.comm.rBPFCommType <> bit_left_shift_int64 def
+R8833:8841 compcert.lib.Integers Int64 and def
+R8847:8856 compcert.lib.Integers Int64 repr def
+binder 8802:8806 <> byte0:177
+R8890:8909 bpf.comm.rBPFCommType <> bit_left_shift_int64 def
+R8912:8920 compcert.lib.Integers Int64 and def
+R8926:8935 compcert.lib.Integers Int64 repr def
+binder 8881:8885 <> byte1:178
+R8971:8990 bpf.comm.rBPFCommType <> bit_left_shift_int64 def
+R8993:9001 compcert.lib.Integers Int64 and def
+R9007:9016 compcert.lib.Integers Int64 repr def
+binder 8962:8966 <> byte2:179
+R9054:9073 bpf.comm.rBPFCommType <> bit_left_shift_int64 def
+R9076:9084 compcert.lib.Integers Int64 and def
+R9090:9099 compcert.lib.Integers Int64 repr def
+binder 9045:9049 <> byte3:180
+R9138:9158 bpf.comm.rBPFCommType <> bit_right_shift_int64 def
+R9161:9169 compcert.lib.Integers Int64 and def
+R9175:9184 compcert.lib.Integers Int64 repr def
+binder 9129:9133 <> byte4:181
+R9221:9241 bpf.comm.rBPFCommType <> bit_right_shift_int64 def
+R9244:9252 compcert.lib.Integers Int64 and def
+R9258:9267 compcert.lib.Integers Int64 repr def
+binder 9212:9216 <> byte5:182
+R9307:9327 bpf.comm.rBPFCommType <> bit_right_shift_int64 def
+R9330:9338 compcert.lib.Integers Int64 and def
+R9344:9353 compcert.lib.Integers Int64 repr def
+binder 9298:9302 <> byte6:183
+R9391:9411 bpf.comm.rBPFCommType <> bit_right_shift_int64 def
+R9414:9422 compcert.lib.Integers Int64 and def
+R9428:9437 compcert.lib.Integers Int64 repr def
+binder 9382:9386 <> byte7:184
+R9464:9468 bpf.comm.val <> Vlong constr
+R9471:9478 compcert.lib.Integers Int64 or def
+R9481:9488 compcert.lib.Integers Int64 or def
+R9491:9498 compcert.lib.Integers Int64 or def
+R9501:9508 compcert.lib.Integers Int64 or def
+R9511:9518 compcert.lib.Integers Int64 or def
+R9521:9528 compcert.lib.Integers Int64 or def
+R9531:9538 compcert.lib.Integers Int64 or def
+R9540:9544 bpf.comm.val <> byte0:177 var
+R9546:9550 bpf.comm.val <> byte1:178 var
+R9565:9569 bpf.comm.val <> byte2:179 var
+R9572:9576 bpf.comm.val <> byte3:180 var
+R9579:9583 bpf.comm.val <> byte4:181 var
+R9586:9590 bpf.comm.val <> byte5:182 var
+R9593:9597 bpf.comm.val <> byte6:183 var
+R9600:9604 bpf.comm.val <> byte7:184 var
+R9616:9621 bpf.comm.val <> Vundef constr
+ind 9641:9650 <> comparison
+constr 9659:9661 <> Ceq
+constr 9679:9681 <> Cne
+constr 9703:9705 <> Clt
+constr 9727:9729 <> Cle
+constr 9760:9762 <> Cgt
+constr 9787:9789 <> Cge
+def 9832:9837 <> cmpi32
+R9844:9853 bpf.comm.val <> comparison ind
+binder 9840:9840 <> c:187
+R9863:9865 bpf.comm.rBPFCommType <> i32 def
+binder 9857:9857 <> x:188
+binder 9859:9859 <> y:189
+R9870:9873 Coq.Init.Datatypes <> bool ind
+R9886:9886 bpf.comm.val <> c:187 var
+R9897:9899 bpf.comm.val <> Ceq constr
+R9904:9909 compcert.lib.Integers Int eq def
+R9911:9911 bpf.comm.val <> x:188 var
+R9913:9913 bpf.comm.val <> y:189 var
+R9919:9921 bpf.comm.val <> Cne constr
+R9926:9929 Coq.Init.Datatypes <> negb def
+R9932:9937 compcert.lib.Integers Int eq def
+R9939:9939 bpf.comm.val <> x:188 var
+R9941:9941 bpf.comm.val <> y:189 var
+R9948:9950 bpf.comm.val <> Clt constr
+R9967:9970 Coq.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R9955:9964 compcert.lib.Integers Int signed def
+R9966:9966 bpf.comm.val <> x:188 var
+R9971:9980 compcert.lib.Integers Int signed def
+R9982:9982 bpf.comm.val <> y:189 var
+R9988:9990 bpf.comm.val <> Cle constr
+R10007:10011 Coq.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R9995:10004 compcert.lib.Integers Int signed def
+R10006:10006 bpf.comm.val <> x:188 var
+R10012:10021 compcert.lib.Integers Int signed def
+R10023:10023 bpf.comm.val <> y:189 var
+R10029:10031 bpf.comm.val <> Cgt constr
+R10048:10051 Coq.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R10036:10045 compcert.lib.Integers Int signed def
+R10047:10047 bpf.comm.val <> y:189 var
+R10052:10061 compcert.lib.Integers Int signed def
+R10063:10063 bpf.comm.val <> x:188 var
+R10069:10071 bpf.comm.val <> Cge constr
+R10088:10092 Coq.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R10076:10085 compcert.lib.Integers Int signed def
+R10087:10087 bpf.comm.val <> y:189 var
+R10093:10102 compcert.lib.Integers Int signed def
+R10104:10104 bpf.comm.val <> x:188 var
+def 10125:10130 <> cmpu32
+R10137:10146 bpf.comm.val <> comparison ind
+binder 10133:10133 <> c:191
+R10156:10158 bpf.comm.rBPFCommType <> u32 def
+binder 10150:10150 <> x:192
+binder 10152:10152 <> y:193
+R10163:10166 Coq.Init.Datatypes <> bool ind
+R10179:10179 bpf.comm.val <> c:191 var
+R10190:10192 bpf.comm.val <> Ceq constr
+R10197:10202 compcert.lib.Integers Int eq def
+R10204:10204 bpf.comm.val <> x:192 var
+R10206:10206 bpf.comm.val <> y:193 var
+R10212:10214 bpf.comm.val <> Cne constr
+R10219:10222 Coq.Init.Datatypes <> negb def
+R10225:10230 compcert.lib.Integers Int eq def
+R10232:10232 bpf.comm.val <> x:192 var
+R10234:10234 bpf.comm.val <> y:193 var
+R10241:10243 bpf.comm.val <> Clt constr
+R10262:10265 Coq.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R10248:10259 compcert.lib.Integers Int unsigned def
+R10261:10261 bpf.comm.val <> x:192 var
+R10266:10277 compcert.lib.Integers Int unsigned def
+R10279:10279 bpf.comm.val <> y:193 var
+R10285:10287 bpf.comm.val <> Cle constr
+R10306:10310 Coq.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R10292:10303 compcert.lib.Integers Int unsigned def
+R10305:10305 bpf.comm.val <> x:192 var
+R10311:10322 compcert.lib.Integers Int unsigned def
+R10324:10324 bpf.comm.val <> y:193 var
+R10330:10332 bpf.comm.val <> Cgt constr
+R10351:10354 Coq.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R10337:10348 compcert.lib.Integers Int unsigned def
+R10350:10350 bpf.comm.val <> y:193 var
+R10355:10366 compcert.lib.Integers Int unsigned def
+R10368:10368 bpf.comm.val <> x:192 var
+R10374:10376 bpf.comm.val <> Cge constr
+R10395:10399 Coq.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R10381:10392 compcert.lib.Integers Int unsigned def
+R10394:10394 bpf.comm.val <> y:193 var
+R10400:10411 compcert.lib.Integers Int unsigned def
+R10413:10413 bpf.comm.val <> x:192 var
+def 10434:10439 <> cmpi64
+R10446:10455 bpf.comm.val <> comparison ind
+binder 10442:10442 <> c:195
+R10465:10467 bpf.comm.rBPFCommType <> i64 def
+binder 10459:10459 <> x:196
+binder 10461:10461 <> y:197
+R10472:10475 Coq.Init.Datatypes <> bool ind
+R10488:10488 bpf.comm.val <> c:195 var
+R10499:10501 bpf.comm.val <> Ceq constr
+R10506:10513 compcert.lib.Integers Int64 eq def
+R10515:10515 bpf.comm.val <> x:196 var
+R10517:10517 bpf.comm.val <> y:197 var
+R10523:10525 bpf.comm.val <> Cne constr
+R10530:10533 Coq.Init.Datatypes <> negb def
+R10536:10543 compcert.lib.Integers Int64 eq def
+R10545:10545 bpf.comm.val <> x:196 var
+R10547:10547 bpf.comm.val <> y:197 var
+R10554:10556 bpf.comm.val <> Clt constr
+R10575:10578 Coq.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R10561:10572 compcert.lib.Integers Int64 signed def
+R10574:10574 bpf.comm.val <> x:196 var
+R10579:10590 compcert.lib.Integers Int64 signed def
+R10592:10592 bpf.comm.val <> y:197 var
+R10598:10600 bpf.comm.val <> Cle constr
+R10619:10623 Coq.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R10605:10616 compcert.lib.Integers Int64 signed def
+R10618:10618 bpf.comm.val <> x:196 var
+R10624:10635 compcert.lib.Integers Int64 signed def
+R10637:10637 bpf.comm.val <> y:197 var
+R10643:10645 bpf.comm.val <> Cgt constr
+R10664:10667 Coq.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R10650:10661 compcert.lib.Integers Int64 signed def
+R10663:10663 bpf.comm.val <> y:197 var
+R10668:10679 compcert.lib.Integers Int64 signed def
+R10681:10681 bpf.comm.val <> x:196 var
+R10687:10689 bpf.comm.val <> Cge constr
+R10708:10712 Coq.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R10694:10705 compcert.lib.Integers Int64 signed def
+R10707:10707 bpf.comm.val <> y:197 var
+R10713:10724 compcert.lib.Integers Int64 signed def
+R10726:10726 bpf.comm.val <> x:196 var
+def 10747:10752 <> cmpu64
+R10759:10768 bpf.comm.val <> comparison ind
+binder 10755:10755 <> c:199
+R10778:10780 bpf.comm.rBPFCommType <> u64 def
+binder 10772:10772 <> x:200
+binder 10774:10774 <> y:201
+R10785:10788 Coq.Init.Datatypes <> bool ind
+R10801:10801 bpf.comm.val <> c:199 var
+R10812:10814 bpf.comm.val <> Ceq constr
+R10819:10826 compcert.lib.Integers Int64 eq def
+R10828:10828 bpf.comm.val <> x:200 var
+R10830:10830 bpf.comm.val <> y:201 var
+R10836:10838 bpf.comm.val <> Cne constr
+R10843:10846 Coq.Init.Datatypes <> negb def
+R10849:10856 compcert.lib.Integers Int64 eq def
+R10858:10858 bpf.comm.val <> x:200 var
+R10860:10860 bpf.comm.val <> y:201 var
+R10867:10869 bpf.comm.val <> Clt constr
+R10890:10893 Coq.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R10874:10887 compcert.lib.Integers Int64 unsigned def
+R10889:10889 bpf.comm.val <> x:200 var
+R10894:10907 compcert.lib.Integers Int64 unsigned def
+R10909:10909 bpf.comm.val <> y:201 var
+R10915:10917 bpf.comm.val <> Cle constr
+R10938:10942 Coq.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R10922:10935 compcert.lib.Integers Int64 unsigned def
+R10937:10937 bpf.comm.val <> x:200 var
+R10943:10956 compcert.lib.Integers Int64 unsigned def
+R10958:10958 bpf.comm.val <> y:201 var
+R10964:10966 bpf.comm.val <> Cgt constr
+R10987:10990 Coq.ZArith.BinInt <> ::Z_scope:x_'<?'_x not
+R10971:10984 compcert.lib.Integers Int64 unsigned def
+R10986:10986 bpf.comm.val <> y:201 var
+R10991:11004 compcert.lib.Integers Int64 unsigned def
+R11006:11006 bpf.comm.val <> x:200 var
+R11012:11014 bpf.comm.val <> Cge constr
+R11035:11039 Coq.ZArith.BinInt <> ::Z_scope:x_'<=?'_x not
+R11019:11032 compcert.lib.Integers Int64 unsigned def
+R11034:11034 bpf.comm.val <> y:201 var
+R11040:11053 compcert.lib.Integers Int64 unsigned def
+R11055:11055 bpf.comm.val <> x:200 var
+def 11076:11083 <> cmp_bool
+R11090:11099 bpf.comm.val <> comparison ind
+binder 11086:11086 <> c:203
+R11111:11113 bpf.comm.val <> val ind
+binder 11103:11104 <> v1:204
+binder 11106:11107 <> v2:205
+R11118:11123 Coq.Init.Datatypes <> option ind
+R11125:11128 Coq.Init.Datatypes <> bool ind
+R11145:11146 bpf.comm.val <> v2:205 var
+R11141:11142 bpf.comm.val <> v1:204 var
+R11157:11160 bpf.comm.val <> Vint constr
+R11167:11170 bpf.comm.val <> Vint constr
+R11185:11188 Coq.Init.Datatypes <> Some constr
+R11191:11196 bpf.comm.val <> cmpi32 def
+R11198:11198 bpf.comm.val <> c:203 var
+R11201:11208 compcert.lib.Integers Int repr def
+R11211:11220 compcert.lib.Integers Int signed def
+R11229:11236 compcert.lib.Integers Int repr def
+R11239:11248 compcert.lib.Integers Int signed def
+R11269:11272 Coq.Init.Datatypes <> None constr
+def 11293:11301 <> cmpu_bool
+R11308:11317 bpf.comm.val <> comparison ind
+binder 11304:11304 <> c:208
+R11329:11331 bpf.comm.val <> val ind
+binder 11321:11322 <> v1:209
+binder 11324:11325 <> v2:210
+R11336:11341 Coq.Init.Datatypes <> option ind
+R11343:11346 Coq.Init.Datatypes <> bool ind
+R11363:11364 bpf.comm.val <> v2:210 var
+R11359:11360 bpf.comm.val <> v1:209 var
+R11375:11378 bpf.comm.val <> Vint constr
+R11385:11388 bpf.comm.val <> Vint constr
+R11403:11406 Coq.Init.Datatypes <> Some constr
+R11409:11414 bpf.comm.val <> cmpu32 def
+R11416:11416 bpf.comm.val <> c:208 var
+R11439:11442 Coq.Init.Datatypes <> None constr
+def 11463:11471 <> cmpl_bool
+R11478:11487 bpf.comm.val <> comparison ind
+binder 11474:11474 <> c:213
+R11499:11501 bpf.comm.val <> val ind
+binder 11491:11492 <> v1:214
+binder 11494:11495 <> v2:215
+R11506:11511 Coq.Init.Datatypes <> option ind
+R11513:11516 Coq.Init.Datatypes <> bool ind
+R11533:11534 bpf.comm.val <> v2:215 var
+R11529:11530 bpf.comm.val <> v1:214 var
+R11545:11549 bpf.comm.val <> Vlong constr
+R11556:11560 bpf.comm.val <> Vlong constr
+R11575:11578 Coq.Init.Datatypes <> Some constr
+R11581:11586 bpf.comm.val <> cmpi64 def
+R11588:11588 bpf.comm.val <> c:213 var
+R11591:11600 compcert.lib.Integers Int64 repr def
+R11603:11614 compcert.lib.Integers Int64 signed def
+R11623:11632 compcert.lib.Integers Int64 repr def
+R11635:11646 compcert.lib.Integers Int64 signed def
+R11667:11670 Coq.Init.Datatypes <> None constr
+def 11691:11700 <> cmplu_bool
+R11707:11716 bpf.comm.val <> comparison ind
+binder 11703:11703 <> c:218
+R11728:11730 bpf.comm.val <> val ind
+binder 11720:11721 <> v1:219
+binder 11723:11724 <> v2:220
+R11735:11740 Coq.Init.Datatypes <> option ind
+R11742:11745 Coq.Init.Datatypes <> bool ind
+R11762:11763 bpf.comm.val <> v2:220 var
+R11758:11759 bpf.comm.val <> v1:219 var
+R11774:11778 bpf.comm.val <> Vlong constr
+R11785:11789 bpf.comm.val <> Vlong constr
+R11804:11807 Coq.Init.Datatypes <> Some constr
+R11810:11815 bpf.comm.val <> cmpu64 def
+R11817:11817 bpf.comm.val <> c:218 var
+R11840:11843 Coq.Init.Datatypes <> None constr
+def 11864:11873 <> of_optbool
+R11881:11886 Coq.Init.Datatypes <> option ind
+R11888:11891 Coq.Init.Datatypes <> bool ind
+binder 11876:11877 <> ob:223
+R11896:11898 bpf.comm.val <> val ind
+R11911:11912 bpf.comm.val <> ob:223 var
+R11923:11926 Coq.Init.Datatypes <> Some constr
+R11928:11931 Coq.Init.Datatypes <> true constr
+R11937:11940 bpf.comm.val <> Vint constr
+R11942:11948 compcert.lib.Integers Int one def
+R11954:11957 Coq.Init.Datatypes <> Some constr
+R11959:11963 Coq.Init.Datatypes <> false constr
+R11968:11971 bpf.comm.val <> Vint constr
+R11973:11980 compcert.lib.Integers Int zero def
+R11986:11989 Coq.Init.Datatypes <> None constr
+R12000:12005 bpf.comm.val <> Vundef constr
+def 12026:12028 <> cmp
+R12035:12044 bpf.comm.val <> comparison ind
+binder 12031:12031 <> c:225
+R12056:12058 bpf.comm.val <> val ind
+binder 12048:12049 <> v1:226
+binder 12051:12052 <> v2:227
+R12063:12065 bpf.comm.val <> val ind
+R12072:12081 bpf.comm.val <> of_optbool def
+R12084:12091 bpf.comm.val <> cmp_bool def
+R12093:12093 bpf.comm.val <> c:225 var
+R12095:12096 bpf.comm.val <> v1:226 var
+R12098:12099 bpf.comm.val <> v2:227 var
+def 12115:12118 <> cmpu
+R12125:12134 bpf.comm.val <> comparison ind
+binder 12121:12121 <> c:228
+R12146:12148 bpf.comm.val <> val ind
+binder 12138:12139 <> v1:229
+binder 12141:12142 <> v2:230
+R12153:12155 bpf.comm.val <> val ind
+R12162:12171 bpf.comm.val <> of_optbool def
+R12174:12182 bpf.comm.val <> cmpu_bool def
+R12184:12184 bpf.comm.val <> c:228 var
+R12186:12187 bpf.comm.val <> v1:229 var
+R12189:12190 bpf.comm.val <> v2:230 var
+def 12206:12209 <> cmpl
+R12216:12225 bpf.comm.val <> comparison ind
+binder 12212:12212 <> c:231
+R12237:12239 bpf.comm.val <> val ind
+binder 12229:12230 <> v1:232
+binder 12232:12233 <> v2:233
+R12244:12246 bpf.comm.val <> val ind
+R12253:12262 bpf.comm.val <> of_optbool def
+R12265:12273 bpf.comm.val <> cmpl_bool def
+R12275:12275 bpf.comm.val <> c:231 var
+R12277:12278 bpf.comm.val <> v1:232 var
+R12280:12281 bpf.comm.val <> v2:233 var
+def 12297:12301 <> cmplu
+R12308:12317 bpf.comm.val <> comparison ind
+binder 12304:12304 <> c:234
+R12329:12331 bpf.comm.val <> val ind
+binder 12321:12322 <> v1:235
+binder 12324:12325 <> v2:236
+R12336:12338 bpf.comm.val <> val ind
+R12345:12354 bpf.comm.val <> of_optbool def
+R12357:12366 bpf.comm.val <> cmplu_bool def
+R12368:12368 bpf.comm.val <> c:234 var
+R12370:12371 bpf.comm.val <> v1:235 var
+R12373:12374 bpf.comm.val <> v2:236 var

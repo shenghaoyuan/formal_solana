@@ -44,6 +44,7 @@ opam install coq.8.13.2 coq-elpi.1.11.0 coqide.8.13.2
 ```shell
 # download CompCert from https://github.com/AbsInt/CompCert
 
+opam repo add coq-released https://coq.inria.fr/opam/released
 # install coq-flocq.4.1.0
 opam install coq-flocq.4.1.0
 
@@ -52,7 +53,7 @@ opam install menhir.20210419
 
 # install CompCert
 cd YOUR_DIR/CompCert/compcert/
-./configure arm-linux -use-external-Flocq -clightgen
+./configure x86_64-linux -use-external-Flocq -clightgen
 make all
 
 # set COQPATH

@@ -1,0 +1,35 @@
+DIGEST c586f8f54ed236a2d2336ca28e2db455
+Fbpf.comm.ebpf
+R15:26 bpf.comm.rBPFCommType <> <> lib
+R44:53 bpf.comm.rBPFSyntax <> <> lib
+R89:96 compcert.lib.Integers <> <> lib
+R98:101 compcert.lib.Maps <> <> lib
+R119:124 Coq.ZArith.ZArith <> <> lib
+def 139:150 <> SCRATCH_REGS
+R154:156 Coq.Init.Datatypes <> nat ind
+def 209:217 <> INSN_SIZE
+R221:223 Coq.Init.Datatypes <> nat ind
+def 278:291 <> MM_STACK_START
+R295:297 bpf.comm.rBPFCommType <> u64 def
+R302:311 compcert.lib.Integers Int64 repr def
+def 364:371 <> func_key
+R376:378 bpf.comm.rBPFCommType <> u32 def
+def 433:440 <> func_val
+R445:447 bpf.comm.rBPFCommType <> u64 def
+def 505:512 <> func_map
+R525:528 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R517:524 bpf.comm.ebpf <> func_key def
+R529:534 Coq.Init.Datatypes <> option ind
+R536:543 bpf.comm.ebpf <> func_val def
+def 591:603 <> init_func_map
+R607:614 bpf.comm.ebpf <> func_map def
+R628:631 Coq.Init.Datatypes <> None constr
+def 646:666 <> get_function_registry
+R675:682 bpf.comm.ebpf <> func_key def
+binder 669:671 <> key:1
+R691:698 bpf.comm.ebpf <> func_map def
+binder 686:687 <> fm:2
+R703:708 Coq.Init.Datatypes <> option ind
+R710:717 bpf.comm.ebpf <> func_val def
+R724:725 bpf.comm.ebpf <> fm:2 var
+R727:729 bpf.comm.ebpf <> key:1 var
