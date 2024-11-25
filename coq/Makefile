@@ -21,9 +21,9 @@ all:
 	@$(MAKE) comm
 	@$(MAKE) model
    
-COMM= BinrBPF.v
+COMM= rBPFCommonType.v val.v Mem.v rBPFSyntax.v vm.v vm_state.v ebpf.v rBPFDecoder.v
    
-MODEL= Syntax.v Decode.v Semantics.v
+# MODEL= Syntax.v Decode.v Semantics.v
 
 COQCOMM = $(addprefix comm/, $(COMM))
 COQMODEL =  $(addprefix model/, $(MODEL))
