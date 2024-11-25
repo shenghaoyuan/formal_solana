@@ -1,4 +1,0 @@
-INSTALLDEFAULTROOT = comm 
- -R comm bpf.comm 
- -R model bpf.model 
- -R /home/lh/CompCert/compcert compcert
