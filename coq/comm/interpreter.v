@@ -65,18 +65,14 @@ Definition eval_snd_op_i32 (so : snd_op) (rm : reg_map) : i32 :=
 
 Definition eval_snd_op_u32 (so : snd_op) (rm : reg_map) : u32 :=
   match so with
-  | SOImm i => Int.repr (Int.unsigned i)
+  | SOImm i => i
   | SOReg r => Int.repr (Int64.unsigned (rm r))
   end.
 
 Definition eval_snd_op_i64 (so : snd_op) (rm : reg_map) : i64 :=
   match so with
-  | SOImm i => 
-      if Int.testbit i 31 then
-        Int64.or (Int64.repr (Int.unsigned i)) (Int64.repr 0xffffffff00000000)
-      else
-        Int64.repr (Int.unsigned i)
-  | SOReg r => Int64.repr (Int64.signed (rm r))
+  | SOImm i => Int64.repr (Int.signed i)
+  | SOReg r => rm r
   end.
 
 Definition eval_snd_op_u64 (so : snd_op) (rm : reg_map) : u64 :=
@@ -86,8 +82,6 @@ Definition eval_snd_op_u64 (so : snd_op) (rm : reg_map) : u64 :=
   end.
 
 (*  ALU  *)
-Print Int64.
-
 Definition eval_alu32_aux1 
    (bop : binop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) (is_v1 : bool) : option2 reg_map :=
   let dv :: i32 = Int64.repr (Int.unsigned (eval_reg dst rs)) in 
