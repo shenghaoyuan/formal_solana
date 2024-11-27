@@ -17,6 +17,7 @@ tests/rbpf/step_test_random/target/debug/step_test.d
 .CoqMakefile.d
 CoqMakefile
 CoqMakefile.conf
+_CoqProject
 /*.ml
 /*.mli
 *.glob
@@ -24,3 +25,4 @@ CoqMakefile.conf
 *.vok
 *.vos
 *.aux
+*.crashcoqide
