@@ -1,9 +1,11 @@
-Require Import Coqlib ZArith Maps.
-Require Import rBPFCommType ebpf Mem vm vm_state rBPFDecoder rBPFSyntax Val.
+From Coq Require Import ZArith String List.
+From compcert.lib Require Import Coqlib Maps Integers.
+From compcert.common Require Import AST Memory.
+From bpf Require Import rBPFCommType ebpf
+  vm vm_state rBPFDecoder rBPFSyntax.
 Import ListNotations.
-Require Import String.
+
 Open Scope string_scope.
-From compcert.lib Require Import Integers.
 
 Record stack_state := {
   call_depth : u64;
@@ -472,7 +474,7 @@ Definition eval_store
   let dv : i64 := eval_reg dst rm in
   let vm_addr : u64 := Int64.add dv (Int64.repr (Word.unsigned off)) in
   let sv : u64 :=  eval_snd_op_u64 sop rm in
-  storev chk m vm_addr (memory_chunk_value_of_u64 chk sv).
+  Mem.storev chk m vm_addr (memory_chunk_value_of_u64 chk sv).
 
 Definition eval_load
   (chk : memory_chunk) (dst : dst_ty) (src : src_ty) (off : off_ty) (rm : reg_map) (m : mem) : option reg_map :=
