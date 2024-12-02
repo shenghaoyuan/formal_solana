@@ -21,7 +21,7 @@ all:
 	@$(MAKE) comm
 	@$(MAKE) model
    
-COMM= rBPFCommType.v Val.v Mem.v rBPFSyntax.v vm.v vm_state.v ebpf.v rBPFDecoder.v Interpreter.v
+COMM= rBPFCommType.v rBPFSyntax.v vm.v vm_state.v ebpf.v rBPFDecoder.v Interpreter.v
    
 # MODEL= Syntax.v Decode.v Semantics.v
 

@@ -1,6 +1,6 @@
 From Coq Require Import ZArith String List.
 From compcert.lib Require Import Coqlib Maps Integers.
-From compcert.common Require Import AST Memory.
+From compcert.common Require Import AST Values Memory.
 From bpf Require Import rBPFCommType ebpf
   vm vm_state rBPFDecoder rBPFSyntax.
 Import ListNotations.
@@ -469,12 +469,22 @@ Definition eval_pqr64_2
   end.
 
 (*  MEM  *)
+Definition concrete_addr_to_abstract_addr (addr: u64) (b: block): val :=
+  Vptr b (Ptrofs.of_int64u (Int64.sub addr MM_INPUT_START)).
+
+Definition memory_chunk_value_of_u64 (mc : memory_chunk) (v : u64) : val :=
+  match mc with
+  | Mint8unsigned | Mint16unsigned | Mint32 => Vint (Int.repr (Int64.unsigned v))
+  | Mint64 => Vlong v
+  | _ => Vundef
+  end.
+
 Definition eval_store
-  (chk : memory_chunk) (dst : dst_ty) (sop : snd_op) (off : off_ty) (rm : reg_map) (m : mem) : option mem :=
+  (chk : memory_chunk) (dst : dst_ty) (sop : snd_op) (off : off_ty) (rm : reg_map) (m : mem) (b: block) : option mem :=
   let dv : i64 := eval_reg dst rm in
   let vm_addr : u64 := Int64.add dv (Int64.repr (Word.unsigned off)) in
   let sv : u64 :=  eval_snd_op_u64 sop rm in
-  Mem.storev chk m vm_addr (memory_chunk_value_of_u64 chk sv).
+  Mem.storev chk m (concrete_addr_to_abstract_addr vm_addr b) (memory_chunk_value_of_u64 chk sv).
 
 Definition eval_load
   (chk : memory_chunk) (dst : dst_ty) (src : src_ty) (off : off_ty) (rm : reg_map) (m : mem) : option reg_map :=

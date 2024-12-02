@@ -1,7 +1,6 @@
 Require Import rBPFCommType.
 Require Import rBPFSyntax.
 Require Import ebpf.
-Require Import Mem.
 From compcert.lib Require Import Integers Maps.
 Require Import ZArith List.
 
