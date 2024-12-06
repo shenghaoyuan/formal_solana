@@ -1,8 +1,7 @@
 From Coq Require Import ZArith String List.
 From compcert.lib Require Import Coqlib Maps Integers.
-From compcert.common Require Import AST Values Memory.
-From bpf Require Import rBPFCommType ebpf
-  vm vm_state rBPFDecoder rBPFSyntax.
+From compcert.common Require Import AST Values Memory Memdata.
+From bpf Require Import rBPFCommType ebpf vm vm_state rBPFDecoder rBPFSyntax.
 Import ListNotations.
 
 Open Scope string_scope.
@@ -490,14 +489,12 @@ Definition eval_load
   (chk : memory_chunk) (dst : dst_ty) (src : src_ty) (off : off_ty) (rm : reg_map) (m : mem) : option reg_map :=
   let sv : u64 := eval_snd_op_u64 (SOReg src) rm in
   let vm_addr : u64 := Int64.add sv (Int64.repr (Word.unsigned off)) in
-  let v :=  loadv chk m vm_addr in
+  let v :=  Mem.loadv chk m (Vlong vm_addr) in
   match v with
-  | None => None
   | Some Vundef => None
-  | Some (Vbyte v') => Some (reg_Map.set dst (Int64.repr (Byte.unsigned v')) rm)
-  | Some (Vshort v') => Some (reg_Map.set dst (Int64.repr (Word.unsigned v')) rm)
   | Some (Vint v') => Some (reg_Map.set dst (Int64.repr (Int.unsigned v')) rm)
   | Some (Vlong v') => Some (reg_Map.set dst v' rm)
+  | _ => None
   end.
 
 Definition eval_load_imm
@@ -642,7 +639,7 @@ Definition eval_exit (rm : reg_map) (ss : stack_state) (is_v1 : bool) : (u64 * r
 
 (*  STEP  *)
 Definition step (pc : u64) (ins : bpf_instruction) (rm : reg_map) (m : mem) (ss : stack_state) (sv : SBPFV) (fm : func_map)
-  (enable_stack_frame_gaps : bool) (program_vm_addr : u64) (cur_cu : u64) (remain_cu : u64) : bpf_state :=
+  (enable_stack_frame_gaps : bool) (program_vm_addr : u64) (cur_cu : u64) (remain_cu : u64) (b: block) : bpf_state :=
   let is_v1 := 
     match sv with
     | V1 => true
@@ -696,7 +693,7 @@ Definition step (pc : u64) (ins : bpf_instruction) (rm : reg_map) (m : mem) (ss 
       | Some rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
       end
   | BPF_ST chk dst sop off =>
-      match eval_store chk dst sop off rm m  with
+      match eval_store chk dst sop off rm m b with
       | None => BPF_Err
       | Some m' => BPF_OK (Int64.add pc Int64.one) rm m' ss sv fm (Int64.add cur_cu Int64.one) remain_cu
       end
@@ -744,7 +741,7 @@ Definition step (pc : u64) (ins : bpf_instruction) (rm : reg_map) (m : mem) (ss 
   | BPF_CALL_REG src imm =>
       match eval_call_reg src imm rm ss is_v1 pc fm enable_stack_frame_gaps program_vm_addr with
       | None => BPF_EFlag
-      | Some (pc', rm', ss') => BPF_OK pc' rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
+      | Some (pc', rm', ss') => BPF_OK pc' rm' m ss' sv fm (Int64.add cur_cu Int64.one) remain_cu
       end
   | BPF_EXIT =>
       if Int64.eq (call_depth ss) Int64.zero then
@@ -760,14 +757,10 @@ Definition step (pc : u64) (ins : bpf_instruction) (rm : reg_map) (m : mem) (ss 
         end
   end.
 
-Definition my_list : list nat := [1; 2; 3; 4].
-
-Print List.length.
-
 Fixpoint bpf_interp 
-  (n : nat) (prog : bpf_bin) (st : bpf_state) (enable_stack_frame_gaps : bool) (program_vm_addr : u64) : bpf_state :=
+  (n : nat) (prog : bpf_bin) (st : bpf_state) (enable_stack_frame_gaps : bool) (program_vm_addr : u64) (b: block) : bpf_state :=
   match n with
-  | 0 => BPF_EFlag
+  | O => BPF_EFlag
   | S n' =>
       match st with
       | BPF_EFlag => BPF_EFlag
@@ -781,8 +774,8 @@ Fixpoint bpf_interp
               match bpf_find_instr (Z.to_nat (Int64.unsigned pc)) prog with
               | None => BPF_EFlag
               | Some ins =>
-                  let st1 := step pc ins rm m ss sv fm enable_stack_frame_gaps program_vm_addr cur_cu remain_cu in
-                  bpf_interp n' prog st1 enable_stack_frame_gaps program_vm_addr
+                  let st1 := step pc ins rm m ss sv fm enable_stack_frame_gaps program_vm_addr cur_cu remain_cu b in
+                  bpf_interp n' prog st1 enable_stack_frame_gaps program_vm_addr b
               end
           else BPF_EFlag
       end
@@ -791,15 +784,15 @@ Fixpoint bpf_interp
 Definition int_to_u8_list (l : list int) : list u8 :=
   map (fun i => Byte.repr (Int.unsigned i)) l.
 
+Fixpoint get_bytes (l : list byte) : list memval :=
+  match l with
+  | nil => nil
+  | h :: t => Byte h :: get_bytes t
+  end.
 
-(* Compute int_to_u8_list [Int.one; Int.one; Int.one; Int.one]. *)
+Definition u8_list_to_mem (l : list byte) (m : mem) (b : block) (ofs : Z): mem :=
+  Mem.
 
-Definition u8_list_to_mem (l : list u8) : mem :=
-  fun i =>
-    if ((Z.to_nat (Int64.unsigned i)) <?  (List.length l)) then
-      Some (List.nth (Z.to_nat (Int64.unsigned i)) l Byte.zero) (* 使用 nth 函数来获取索引为 i 的元素 *)
-    else
-      None.
 
 Definition intlist_to_reg_map (l : list int) : reg_map :=
   fun i => Int64.repr (Int.unsigned (List.nth (bpf_ireg_to_u4 i) l Int.zero)).
@@ -807,8 +800,11 @@ Definition intlist_to_reg_map (l : list int) : reg_map :=
 Definition bpf_interp_test
   (lp : list int) (lm : list int) (lc : list int) (v : int) (fuel : int) (res : int) (is_ok : bool) : bool :=
   let st1 := bpf_interp (Z.to_nat (Int.unsigned (Int.add fuel Int.one))) (int_to_u8_list lp)
-                (init_bpf_state init_reg_map (u8_list_to_mem (int_to_u8_list lm)) (Int64.repr (Int.unsigned(Int.add fuel Int.one)))
-                  (if Int.eq v Int.one then V1 else V2)) true (Int64.repr 0x100000000%Z) in
+                (init_bpf_state init_reg_map (u8_list_to_mem (int_to_u8_list lm) (mkmem (PMap.init (ZMap.init Undef))
+                  (PMap.init (fun ofs k => None))
+                  1%positive _ _ _)
+                ) (Int64.repr (Int.unsigned(Int.add fuel Int.one)))
+                  (if Int.eq v Int.one then V1 else V2)) true (Int64.repr 0x100000000%Z) 1 in
   if is_ok then
     match st1 with
     | BPF_Success v' => Int64.eq v' (Int64.repr (Int.unsigned res))
@@ -825,8 +821,6 @@ Definition int_to_bpf_ireg (i : int) : bpf_ireg :=
   | None => BR0
   | Some v => v
   end.
-
-Print Nat.eqb.
 
 Definition step_test (lp : list int) (lr : list int) (lm : list int) 
   (lc : list int) (v : int) (fuel : int) (ipc : int) (i : int) (res : int) : bool :=

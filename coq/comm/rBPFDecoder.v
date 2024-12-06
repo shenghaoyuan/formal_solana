@@ -1,15 +1,14 @@
-Require Import rBPFCommType.
-Require Import rBPFSyntax.
-Require Import ebpf.
+From Coq Require Import ZArith List.
 From compcert.lib Require Import Integers Maps.
-Require Import ZArith List.
+From compcert.common Require Import Memory AST.
+From bpf Require Import ebpf rBPFCommType rBPFSyntax.
 
 Definition rbpf_decoder
   (opc : u8) (dv : u4) (sv : u4) (off : i16) (imm : i32) : option bpf_instruction :=
   if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x07) then
     if dv =? 11 then
       Some (BPF_ADD_STK imm)
-    else
+    else 
       match u4_to_bpf_ireg dv with
       | None => None
       | Some dst => Some (BPF_ALU64 BPF_ADD dst (SOImm imm))
@@ -22,31 +21,31 @@ Definition rbpf_decoder
       | None => None
       | Some src =>
         if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x71) then
-          Some (BPF_LDX M8 dst src off)
+          Some (BPF_LDX Mint8unsigned dst src off)
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x69) then
-          Some (BPF_LDX M16 dst src off)
+          Some (BPF_LDX Mint16unsigned dst src off)
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x61) then
-          Some (BPF_LDX M32 dst src off)
+          Some (BPF_LDX Mint32 dst src off)
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x79) then
-          Some (BPF_LDX M64 dst src off)
+          Some (BPF_LDX Mint64 dst src off)
 
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x72) then
-          Some (BPF_ST M8 dst (SOImm imm) off)
+          Some (BPF_ST Mint8unsigned dst (SOImm imm) off)
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x6a) then
-          Some (BPF_ST M16 dst (SOImm imm) off)
+          Some (BPF_ST Mint16unsigned dst (SOImm imm) off)
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x62) then
-          Some (BPF_ST M32 dst (SOImm imm) off)
+          Some (BPF_ST Mint32 dst (SOImm imm) off)
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x7a) then
-          Some (BPF_ST M64 dst (SOImm imm) off)
+          Some (BPF_ST Mint64 dst (SOImm imm) off)
 
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x73) then
-          Some (BPF_ST M8 dst  (SOReg src) off)
+          Some (BPF_ST Mint8unsigned dst  (SOReg src) off)
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x6b) then
-          Some (BPF_ST M16 dst (SOReg src) off)
+          Some (BPF_ST Mint16unsigned dst (SOReg src) off)
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x63) then
-          Some (BPF_ST M32 dst (SOReg src) off)
+          Some (BPF_ST Mint32 dst (SOReg src) off)
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x7b) then
-          Some (BPF_ST M64 dst (SOReg src) off)
+          Some (BPF_ST Mint64 dst (SOReg src) off)
 
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x04) then
           Some (BPF_ALU BPF_ADD dst (SOImm imm))

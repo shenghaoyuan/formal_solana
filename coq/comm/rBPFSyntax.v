@@ -81,12 +81,6 @@ Inductive pqrop2 : Type :=
   | BPF_UHMUL : pqrop2
   | BPF_SHMUL : pqrop2.
 
-Inductive chunk : Type :=
-  | Byte    : chunk
-  | HalfWord : chunk
-  | SWord   : chunk
-  | DWord   : chunk.
-
 Inductive SBPFV : Type :=
   | V1  : SBPFV
   | V2  : SBPFV

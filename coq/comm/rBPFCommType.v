@@ -1,6 +1,5 @@
-Require Import ZArith List.
-Require Import Coqlib Zbits.
-From compcert.lib Require Import Integers.
+From Coq Require Import ZArith List.
+From compcert.lib Require Import Integers Coqlib Zbits.
 Import ListNotations.
 
 (*--------------16-Word------------------*)
@@ -50,18 +49,15 @@ Definition u128:= int128.
 
 Definition usize := int64.
 
-Print Byte.repr.
-Definition i8_MIN : i8 := Byte.repr 0x80.
-Compute i8_MIN.
-Definition i8_MAX : i8 := Byte.repr 0x7f.
-Compute i8_MAX.
-Definition u8_MAX : u8 := Byte.repr 0xff.
-Definition i32_MIN : i32 := Int.repr 0x80000000.
-Definition i32_MAX : i32 := Int.repr 0x7fffffff.
-Definition u32_MAX : u32 := Int.repr 0xffffffff.
-Definition i64_MIN : i64 := Int64.repr 0x8000000000000000.
-Definition i64_MAX : i64 := Int64.repr 0x7fffffffffffffff.
-Definition u64_MAX : u64 := Int64.repr 0xffffffffffffffff.
+Definition i8_MIN : i8 := Byte.repr Byte.min_signed.
+Definition i8_MAX : i8 := Byte.repr Byte.max_signed.
+Definition u8_MAX : u8 := Byte.repr Byte.max_unsigned.
+Definition i32_MIN : i32 := Int.repr Int.min_signed.
+Definition i32_MAX : i32 := Int.repr Int.max_signed.
+Definition u32_MAX : u32 := Int.repr Int.max_unsigned.
+Definition i64_MIN : i64 := Int64.repr Int64.min_signed.
+Definition i64_MAX : i64 := Int64.repr Int64.max_signed.
+Definition u64_MAX : u64 := Int64.repr Int64.max_unsigned.
 
 Record ebpf_binary := {
   bpf_opc : u8;
@@ -72,10 +68,6 @@ Record ebpf_binary := {
 }.
 
 Definition ebpf_abin := list ebpf_binary.
-
-Print Int.shl.
-Print Byte.shl.
-Print Int64.shl.
 
 Definition bit_left_shift_byte (x: byte) (n: nat) : byte := 
       Byte.shl x (Byte.repr (Z.of_nat n)).
@@ -101,14 +93,8 @@ Definition bit_left_shift_int64 (x: int64) (n: nat) : int64 :=
 Definition bit_right_shift_int64 (x: int64) (n: nat) : int64 := 
       Int64.shru x (Int64.repr (Z.of_nat n)).
 
-Print Z.pow.
-
-Print Int.shr.
-
 Definition arsh32 (x : i32) (n : nat) : i32 :=
   Int.shr x (Int.repr (Z.of_nat n)).
-
-Compute (arsh32 (Int.repr (-10)) 1).
 
 Definition arsh64 (x : i64) (n : nat) : i64 :=
   Int64.shr x (Int64.repr (Z.of_nat n)).
@@ -125,24 +111,16 @@ Definition u8_of_bool (b : bool) : u8 :=
     | false => Byte.repr 0
   end.
 
-Compute (u8_of_bool false).
-
 Definition u4_of_bool (b : bool) : u4 :=
   match b with 
     | true  => S O
     | false => O
   end.
 
-Compute (u4_of_bool false).
-Compute (u4_of_bool true).
-
 Definition u8_list_of_u16 (x: u16) : list u8 :=
    [Byte.repr (Word.unsigned (Word.and x (Word.repr 0xff)));
     Byte.repr (Word.unsigned (Word.and (bit_right_shift_word x (8)) (Word.repr 0xff)))
    ].
-
-Compute (u8_list_of_u16 (Word.repr 258)).
-
 
 Definition u8_list_of_u32 (x: u32) : list u8 :=
    [Byte.repr (Int.unsigned (Int.and x (Int.repr 0xff)));
@@ -150,9 +128,6 @@ Definition u8_list_of_u32 (x: u32) : list u8 :=
     Byte.repr (Int.unsigned (Int.and (bit_right_shift_int x (16)) (Int.repr 0xff)));
     Byte.repr (Int.unsigned (Int.and (bit_right_shift_int x (24)) (Int.repr 0xff)))
    ].
-
-Compute (u8_list_of_u32 (Int.repr 2155905152)).   (* 1000 0000 1000 0000 1000 0000 1000 0000 *)
-Compute (u8_list_of_u32 (Int.repr 16843009)).     (* 0000 0001 0000 0001 0000 0001 0000 0001 *)
 
 Definition u8_list_of_u64 (x: u64) : list u8 :=
    [Byte.repr (Int64.unsigned (Int64.and x (Int64.repr 0xff)));
@@ -164,18 +139,6 @@ Definition u8_list_of_u64 (x: u64) : list u8 :=
     Byte.repr (Int64.unsigned (Int64.and (bit_right_shift_int64 x (48)) (Int64.repr 0xff)));
     Byte.repr (Int64.unsigned (Int64.and (bit_right_shift_int64 x (56)) (Int64.repr 0xff)))
    ].
-
-(* 0000 0000 0000 0000 0000 0000 0000 0000 1000 0000 1000 0000 1000 0000 1000 0000*)
-Compute (u8_list_of_u64 (Int64.repr 2155905152)).
-(* 0000 0000 0000 0000 0000 0000 0000 0000 0000 0001 0000 0001 0000 0001 0000 0001*)
-Compute (u8_list_of_u64 (Int64.repr 16843009)).
-
-Print List.length.
-Compute (Z.eq (Z.of_nat (List.length [2])) 1).
-
-Print List.
-
-Compute (List.nth 1 [1;2;1;1]).
 
 Definition u64_of_u8_list (l : list u8) : option u64 :=
   if (Z.eqb (Z.of_nat (List.length l)) 8) then
@@ -190,9 +153,6 @@ Definition u64_of_u8_list (l : list u8) : option u64 :=
   else
     None.
 
-Compute (u64_of_u8_list (u8_list_of_u64 (Int64.repr 16843009))).
-Compute (u64_of_u8_list (u8_list_of_u64 (Int64.repr 2155905152))).
-
 Definition u32_of_u8_list (l : list u8) : option u32 :=
   if (Z.eqb (Z.of_nat (List.length l)) 4) then
     Some (Int.or (bit_left_shift_int (Int.repr (Byte.unsigned (List.nth 3 l Byte.zero))) 24)
@@ -202,18 +162,12 @@ Definition u32_of_u8_list (l : list u8) : option u32 :=
   else
     None.
 
-Compute (u32_of_u8_list (u8_list_of_u32 (Int.repr 16843009))).
-Compute (u32_of_u8_list (u8_list_of_u32 (Int.repr 2155905152))).
-
 Definition u16_of_u8_list (l : list u8) : option u16 :=
   if (Z.eqb (Z.of_nat (List.length l)) 2) then
     Some (Word.or (bit_left_shift_word (Word.repr (Byte.unsigned (List.nth 1 l Byte.zero))) 8)
                 (Word.repr (Byte.unsigned (List.nth 0 l Byte.zero))))
   else
     None.
-
-Compute (u16_of_u8_list (u8_list_of_u16 (Word.repr 258))).
-Compute (u16_of_u8_list (u8_list_of_u16 (Word.repr 2))).
 
 Lemma u8_of_bool_false : u8_of_bool false = Byte.zero.
 Proof.
@@ -226,8 +180,6 @@ Proof.
   unfold u8_of_bool.
   reflexivity.
 Qed.
-
-Print Byte.testbit.
 
 (*
 Lemma Ztestbit_above:
@@ -271,9 +223,6 @@ Proof.
     + discriminate H.
     + 
 Abort.
-
-
-Print Byte.
 
 Lemma bit_power_k_minus_1_le: forall (k n : Z), 
   Z.testbit (Z.pred (2 ^ k)) n = true <-> n < k.
