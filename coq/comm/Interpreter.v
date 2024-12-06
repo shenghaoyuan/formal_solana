@@ -791,7 +791,10 @@ Fixpoint get_bytes (l : list byte) : list memval :=
   end.
 
 Definition u8_list_to_mem (l : list byte) (m : mem) (b : block) (ofs : Z): mem :=
-  Mem.
+  match Mem.storebytes m b ofs (get_bytes l) with
+  | None => m
+  | Some m' => m'
+  end.
 
 
 Definition intlist_to_reg_map (l : list int) : reg_map :=
@@ -800,11 +803,8 @@ Definition intlist_to_reg_map (l : list int) : reg_map :=
 Definition bpf_interp_test
   (lp : list int) (lm : list int) (lc : list int) (v : int) (fuel : int) (res : int) (is_ok : bool) : bool :=
   let st1 := bpf_interp (Z.to_nat (Int.unsigned (Int.add fuel Int.one))) (int_to_u8_list lp)
-                (init_bpf_state init_reg_map (u8_list_to_mem (int_to_u8_list lm) (mkmem (PMap.init (ZMap.init Undef))
-                  (PMap.init (fun ofs k => None))
-                  1%positive _ _ _)
-                ) (Int64.repr (Int.unsigned(Int.add fuel Int.one)))
-                  (if Int.eq v Int.one then V1 else V2)) true (Int64.repr 0x100000000%Z) 1 in
+                (init_bpf_state init_reg_map (u8_list_to_mem (int_to_u8_list lm) Mem.empty 1%positive 0) (Int64.repr (Int.unsigned(Int.add fuel Int.one)))
+                  (if Int.eq v Int.one then V1 else V2)) true (Int64.repr 0x100000000%Z) 1%positive in
   if is_ok then
     match st1 with
     | BPF_Success v' => Int64.eq v' (Int64.repr (Int.unsigned res))
@@ -823,20 +823,20 @@ Definition int_to_bpf_ireg (i : int) : bpf_ireg :=
   end.
 
 Definition step_test (lp : list int) (lr : list int) (lm : list int) 
-  (lc : list int) (v : int) (fuel : int) (ipc : int) (i : int) (res : int) : bool :=
+  (lc : list int) (v : int) (fuel : int) (ipc : int) (i : int) (res : int) (b : block) : bool :=
   if Int64.eq (Int64.repr (Int.unsigned res)) i64_MIN then
     true
   else
     let prog :=  int_to_u8_list lp in
     let rm := reg_Map.set BR10 (Int64.add MM_STACK_START (Int64.mul stack_frame_size max_call_depth)) (intlist_to_reg_map lr) in
-    let m := u8_list_to_mem (int_to_u8_list lm) in
+    let m := u8_list_to_mem (int_to_u8_list lm) Mem.empty b 0 in
     let stk := init_stack_state in
     let sv := if Int.eq v Int.one then V1 else V2 in
     let fm := init_func_map in
     match bpf_find_instr 0 prog with
     | None => false
     | Some ins0 =>
-        let st1 := step Int64.zero ins0 rm m stk sv fm true (Int64.repr 0x100000000%Z) Int64.zero (Int64.repr 3%Z) in
+        let st1 := step Int64.zero ins0 rm m stk sv fm true (Int64.repr 0x100000000%Z) Int64.zero (Int64.repr 3%Z) b in
         if orb (Byte.eq (List.nth 0 prog Byte.zero) (Byte.repr 0x18%Z)) (Nat.eqb (List.length lp) 8) then
           match st1 with
           | BPF_OK pc1 rm1 _ _ _ _ _ _ => andb (Int64.eq pc1 (Int64.repr (Int.unsigned ipc))) (Int64.eq (rm1 (int_to_bpf_ireg i)) (Int64.repr (Int.unsigned res)))
@@ -848,7 +848,7 @@ Definition step_test (lp : list int) (lr : list int) (lm : list int)
               match bpf_find_instr 1 prog with
               | None => false
               | Some ins1 =>
-                  match step pc1 ins1 rm1 m1 ss1 sv1 fm1 true (Int64.repr 0x100000000%Z) Int64.one (Int64.add Int64.one Int64.one) with
+                  match step pc1 ins1 rm1 m1 ss1 sv1 fm1 true (Int64.repr 0x100000000%Z) Int64.one (Int64.add Int64.one Int64.one) b with
                   | BPF_OK pc2 rm2 _ _ _ _ _ _ => andb (Int64.eq pc2 (Int64.repr (Int.unsigned ipc))) (Int64.eq (rm2 (int_to_bpf_ireg i)) (Int64.repr (Int.unsigned res)))
                   | _ => false
                   end
