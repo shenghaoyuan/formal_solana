@@ -110,7 +110,7 @@ Inductive bpf_instruction : Type :=
 
 Definition ebpf_asm := list bpf_instruction.
 
-Definition bpf_bin := list u8.
+Definition bpf_bin := list u64.
 
 Definition bpf_ireg_to_u4 (r : bpf_ireg) : u4 :=
   match r with

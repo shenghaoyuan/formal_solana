@@ -3,6 +3,10 @@ From compcert.lib Require Import Integers Maps.
 From compcert.common Require Import Memory AST.
 From bpf Require Import ebpf rBPFCommType rBPFSyntax.
 
+
+Definition decode_bpf (ins: u64) (from size: nat): u64 :=
+  Int64.unsigned_bitfield_extract (Z.of_nat from) (Z.of_nat size) ins.
+
 Definition rbpf_decoder
   (opc : u8) (dv : u4) (sv : u4) (off : i16) (imm : i32) : option bpf_instruction :=
   if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x07) then
@@ -281,38 +285,30 @@ Definition rbpf_decoder
       end
     end.
 
-Definition bpf_find_instr (pc : nat) (l : list u8) : option bpf_instruction :=
-  let npc := pc * INSN_SIZE in
-  match nth_error l npc, nth_error l (npc + 1) with
-  | Some op, Some reg =>
-      let dst := bitfield_extract_u8 0 4 reg in
-      let src := bitfield_extract_u8 4 4 reg in
-      if (length l <? npc + 7)
-        then None
+Definition bpf_find_instr (pc : nat) (l : list u64) : option bpf_instruction :=
+  match nth_error l pc with
+  | Some data =>
+      let op : u8 := Byte.repr (Int64.unsigned (decode_bpf data 0 8)) in
+      let dst : u4 := Z.to_nat (Int64.unsigned (decode_bpf data 8 4)) in
+      let src : u4 := Z.to_nat (Int64.unsigned (decode_bpf data 12 4)) in
+      let off : i16 := Word.repr (Int64.signed (decode_bpf data 16 16)) in
+      let imm : i32 := Int.repr (Int64.signed (decode_bpf data 32 32)) in
+      if Z.eqb (Byte.unsigned op) (Z.of_nat 0x18) then
+        if (length l <? pc + 1)
+          then None
+        else
+          match nth_error l (pc + 1) with
+          | Some data2 =>
+              let imm2 : i32 := Int.repr (Int64.signed (decode_bpf data2 32 32)) in
+              match u4_to_bpf_ireg dst with
+              | None => None
+              | Some dst_r => Some (BPF_LD_IMM dst_r imm imm2)
+              end
+          | None => None
+          end
       else
-        match u16_of_u8_list (skipn (npc + 2) (firstn (npc + 4) l)),
-              u32_of_u8_list (skipn (npc + 4) (firstn (npc + 8) l)) with
-        | Some off_v, Some i1 =>
-            let off := off_v in
-            let imm := i1 in
-            if Z.eqb (Byte.unsigned op) (Z.of_nat 0x18) then
-              if (length l <? npc + 15)
-                then None
-              else
-                match u32_of_u8_list (skipn (npc + 12) (firstn (npc + 16) l)) with
-                | Some i2 =>
-                    let imm2 := (Int.repr (Int.signed i2)) in
-                    match (u4_to_bpf_ireg (Z.to_nat (Byte.unsigned dst))) with
-                    | None => None
-                    | Some dst_r => Some (BPF_LD_IMM dst_r imm imm2)
-                    end
-                | None => None
-                end
-            else
-              rbpf_decoder op (Z.to_nat (Byte.unsigned dst)) (Z.to_nat (Byte.unsigned src)) off imm
-        | _, _ => None
-        end
-  | _, _ => None
+        rbpf_decoder op dst src off imm
+  | _ => None
   end.
 
 

@@ -53,10 +53,10 @@ Definition init_bpf_state (rm : reg_map) (m : mem) (v : u64) (sbpfv : SBPFV) : b
   BPF_OK (Int64.repr 0) (reg_Map.set BR10 (Int64.add MM_STACK_START (Int64.mul stack_frame_size max_call_depth)) rm)
             m init_stack_state sbpfv init_func_map (Int64.repr 0) v.
 
-Inductive option2 (A : Type) : Type :=
-  | NOK : option2 A
-  | OKS : A -> option2 A
-  | OKN : option2 A.
+Inductive option2  {A : Type} : Type :=
+  | NOK : option2
+  | OKS : A -> option2
+  | OKN : option2.
 
 Definition eval_snd_op_i32 (so : snd_op) (rm : reg_map) : i32 :=
   match so with
@@ -83,79 +83,79 @@ Definition eval_snd_op_u64 (so : snd_op) (rm : reg_map) : u64 :=
   end.
 
 (*  ALU  *)
-Definition eval_alu32_aux1 
-   (bop : binop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) (is_v1 : bool) : option2 reg_map :=
+Definition eval_alu32_aux1
+   (bop : binop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) (is_v1 : bool) : @option2 reg_map :=
   let dv : i32 := Int.repr (Int64.signed (eval_reg dst rm)) in 
   let sv : i32 := eval_snd_op_i32 sop rm in
   match bop with
-  | BPF_ADD => OKS reg_map (reg_Map.set dst (Int64.repr (Int.signed (Int.add dv sv))) rm)
+  | BPF_ADD => OKS (reg_Map.set dst (Int64.repr (Int.signed (Int.add dv sv))) rm)
   | BPF_SUB => match sop with
-                | (SOReg i) => OKS reg_map (reg_Map.set dst (Int64.repr (Int.signed (Int.sub dv sv))) rm)
+                | (SOReg i) => OKS (reg_Map.set dst (Int64.repr (Int.signed (Int.sub dv sv))) rm)
                 | _         => if is_v1 then
-                                OKS reg_map (reg_Map.set dst (Int64.repr (Int.signed (Int.sub dv sv))) rm)
+                                OKS (reg_Map.set dst (Int64.repr (Int.signed (Int.sub dv sv))) rm)
                                else
-                                OKS reg_map (reg_Map.set dst (Int64.repr (Int.signed (Int.sub sv dv))) rm)
+                                OKS (reg_Map.set dst (Int64.repr (Int.signed (Int.sub sv dv))) rm)
                end
-  | BPF_MUL => OKS reg_map (reg_Map.set dst (Int64.repr (Int.signed (Int.mul dv sv))) rm)
-  | _       => OKN reg_map
+  | BPF_MUL => OKS (reg_Map.set dst (Int64.repr (Int.signed (Int.mul dv sv))) rm)
+  | _       => OKN
   end.
 
 Definition eval_alu32_aux2
-   (bop : binop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) : option2 reg_map :=
+   (bop : binop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) : @option2 reg_map :=
   let dv : u32 := Int.repr (Int64.unsigned (eval_reg dst rm)) in 
   let sv : u32 := eval_snd_op_u32 sop rm in
   match bop with
   | BPF_DIV => if (Int.eq sv Int.zero) then 
                 match sop with
-                  | SOImm _ => NOK _
-                  | _       => OKN _
+                  | SOImm _ => NOK
+                  | _       => OKN
                 end
                else
-                OKS reg_map (reg_Map.set dst (Int64.repr (Int.unsigned (Int.divu dv sv))) rm)
-  | BPF_OR  => OKS reg_map (reg_Map.set dst (Int64.repr (Int.unsigned (Int.or sv dv))) rm)
-  | BPF_AND => OKS reg_map (reg_Map.set dst (Int64.repr (Int.unsigned (Int.and sv dv))) rm)
+                OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.divu dv sv))) rm)
+  | BPF_OR  => OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.or sv dv))) rm)
+  | BPF_AND => OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.and sv dv))) rm)
   | BPF_MOD => if Int.eq sv Int.zero then 
                 match sop with
-                  | SOImm _ => NOK _
-                  | _       => OKN _
+                  | SOImm _ => NOK
+                  | _       => OKN
                 end
                else
-                OKS reg_map (reg_Map.set dst (Int64.repr (Int.unsigned (Int.modu dv sv))) rm)
-  | BPF_XOR => OKS reg_map (reg_Map.set dst (Int64.repr (Int.unsigned (Int.xor sv dv))) rm)
-  | BPF_MOV => OKS reg_map (reg_Map.set dst (Int64.repr (Int.unsigned sv)) rm)
-  | BPF_LSH => OKS reg_map (reg_Map.set dst (Int64.repr (Int.unsigned (Int.shl dv (Int.and sv (Int.repr (Z.of_nat 31)))))) rm)
-  | BPF_RSH => OKS reg_map (reg_Map.set dst (Int64.repr (Int.unsigned (Int.shru dv (Int.and sv (Int.repr (Z.of_nat 31)))))) rm)
-  | _       => OKN _
+                OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.modu dv sv))) rm)
+  | BPF_XOR => OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.xor sv dv))) rm)
+  | BPF_MOV => OKS (reg_Map.set dst (Int64.repr (Int.unsigned sv)) rm)
+  | BPF_LSH => OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.shl dv (Int.and sv (Int.repr (Z.of_nat 31)))))) rm)
+  | BPF_RSH => OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.shru dv (Int.and sv (Int.repr (Z.of_nat 31)))))) rm)
+  | _       => OKN
   end.
 
 Definition eval_alu32_aux3
-   (bop : binop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) : option2 reg_map :=
+   (bop : binop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) : @option2 reg_map :=
   let dv : i32 := Int.repr (Int64.signed (eval_reg dst rm)) in 
   let sv : u32 := Int.and (eval_snd_op_u32 sop rm) (Int.repr (Z.of_nat 31)) in
   match bop with
-  | BPF_ARSH => OKS reg_map (reg_Map.set dst (Int64.repr (Int.unsigned (Int.and (Int.shru dv (Int.and sv (Int.repr (Z.of_nat 31)))) u32_MAX))) rm) 
-  | _        => OKN _
+  | BPF_ARSH => OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.and (Int.shru dv (Int.and sv (Int.repr (Z.of_nat 31)))) u32_MAX))) rm) 
+  | _        => OKN
   end.
 
 Definition eval_alu32
-   (bop : binop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) (is_v1 : bool) : option2 reg_map :=
+   (bop : binop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) (is_v1 : bool) : @option2 reg_map :=
   match bop with
   | BPF_ADD  => eval_alu32_aux1 bop dst sop rm is_v1
   | BPF_SUB  => eval_alu32_aux1 bop dst sop rm is_v1
   | BPF_MUL  => if is_v1 then
                 eval_alu32_aux1 bop dst sop rm is_v1
                else
-                OKN _
+                OKN
   | BPF_DIV  => if is_v1 then
                 eval_alu32_aux2 bop dst sop rm
                else
-                OKN _
+                OKN
   | BPF_OR   => eval_alu32_aux2 bop dst sop rm
   | BPF_AND  => eval_alu32_aux2 bop dst sop rm
   | BPF_MOD  => if is_v1 then
                 eval_alu32_aux2 bop dst sop rm
                else
-                OKN _
+                OKN
   | BPF_XOR  => eval_alu32_aux2 bop dst sop rm
   | BPF_MOV  => eval_alu32_aux2 bop dst sop rm
   | BPF_LSH  => eval_alu32_aux2 bop dst sop rm
@@ -164,57 +164,57 @@ Definition eval_alu32
   end.
 
 Definition eval_alu64_aux1 
-   (bop : binop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) (is_v1 : bool) : option2 reg_map :=
+   (bop : binop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) (is_v1 : bool) : @option2 reg_map :=
   let dv : u64 := eval_reg dst rm in 
   let sv : u64 := eval_snd_op_u64 sop rm in
   match bop with
-  | BPF_ADD => OKS reg_map (reg_Map.set dst (Int64.add dv sv) rm)
+  | BPF_ADD => OKS (reg_Map.set dst (Int64.add dv sv) rm)
   | BPF_SUB => match sop with
-                | (SOReg i) => OKS reg_map (reg_Map.set dst (Int64.sub dv sv) rm)
+                | (SOReg i) => OKS (reg_Map.set dst (Int64.sub dv sv) rm)
                 | _         => if is_v1 then
-                                OKS reg_map (reg_Map.set dst (Int64.sub dv sv) rm)
+                                OKS (reg_Map.set dst (Int64.sub dv sv) rm)
                                else
-                                OKS reg_map (reg_Map.set dst (Int64.sub sv dv) rm)
+                                OKS (reg_Map.set dst (Int64.sub sv dv) rm)
                end
-  | BPF_MUL => OKS reg_map (reg_Map.set dst (Int64.mul dv sv) rm)
+  | BPF_MUL => OKS (reg_Map.set dst (Int64.mul dv sv) rm)
   | BPF_DIV => if (Int64.eq sv Int64.zero) then
                 match sop with
-                  | SOImm _ => NOK _
-                  | _       => OKN _
+                  | SOImm _ => NOK
+                  | _       => OKN
                 end
                else
-                OKS reg_map (reg_Map.set dst (Int64.divu dv sv) rm)
-  | BPF_OR  => OKS reg_map (reg_Map.set dst (Int64.or sv dv) rm)
-  | BPF_AND => OKS reg_map (reg_Map.set dst (Int64.and sv dv) rm)
+                OKS (reg_Map.set dst (Int64.divu dv sv) rm)
+  | BPF_OR  => OKS (reg_Map.set dst (Int64.or sv dv) rm)
+  | BPF_AND => OKS (reg_Map.set dst (Int64.and sv dv) rm)
   | BPF_MOD => if Int64.eq sv Int64.zero then
                 match sop with
-                  | SOImm _ => NOK _
-                  | _       => OKN _
+                  | SOImm _ => NOK
+                  | _       => OKN
                 end
                else
-                OKS reg_map (reg_Map.set dst (Int64.modu dv sv) rm)
-  | BPF_XOR => OKS reg_map (reg_Map.set dst (Int64.xor sv dv) rm)
-  | BPF_MOV => OKS reg_map (reg_Map.set dst sv rm)
-  | _       => OKN reg_map
+                OKS (reg_Map.set dst (Int64.modu dv sv) rm)
+  | BPF_XOR => OKS (reg_Map.set dst (Int64.xor sv dv) rm)
+  | BPF_MOV => OKS (reg_Map.set dst sv rm)
+  | _       => OKN
   end.
 
 Definition eval_alu64_aux2
-   (bop : binop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) : option2 reg_map :=
+   (bop : binop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) : @option2 reg_map :=
   let dv : u64 := eval_reg dst rm in 
   let sv : u32 := Int.and (eval_snd_op_u32 sop rm) (Int.repr (Z.of_nat 63)) in
   match bop with
-  | BPF_LSH => OKS reg_map (reg_Map.set dst (Int64.shl dv (Int64.repr (Int.unsigned sv))) rm)
-  | BPF_RSH => OKS reg_map (reg_Map.set dst (Int64.shru dv (Int64.repr (Int.unsigned sv))) rm)
-  | _       => OKN _
+  | BPF_LSH => OKS (reg_Map.set dst (Int64.shl dv (Int64.repr (Int.unsigned sv))) rm)
+  | BPF_RSH => OKS (reg_Map.set dst (Int64.shru dv (Int64.repr (Int.unsigned sv))) rm)
+  | _       => OKN
   end.
 
 Definition eval_alu64_aux3
-   (bop : binop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) : option2 reg_map :=
+   (bop : binop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) : @option2 reg_map :=
   let dv : i64 := eval_reg dst rm in 
   let sv : u32 := Int.and (eval_snd_op_u32 sop rm) (Int.repr (Z.of_nat 63)) in
   match bop with
-  | BPF_ARSH => OKS reg_map (reg_Map.set dst (Int64.shru dv (Int64.repr (Int.unsigned sv))) rm) 
-  | _        => OKN _
+  | BPF_ARSH => OKS (reg_Map.set dst (Int64.shru dv (Int64.repr (Int.unsigned sv))) rm) 
+  | _        => OKN
   end.
 
 Definition eval_add64_imm_R10
@@ -230,24 +230,24 @@ Definition eval_add64_imm_R10
     None.
 
 Definition eval_alu64
-   (bop : binop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) (is_v1 : bool) : option2 reg_map :=
+   (bop : binop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) (is_v1 : bool) : @option2 reg_map :=
   match bop with
   | BPF_ADD  => eval_alu64_aux1 bop dst sop rm is_v1
   | BPF_SUB  => eval_alu64_aux1 bop dst sop rm is_v1
   | BPF_MUL  => if is_v1 then
                 eval_alu64_aux1 bop dst sop rm is_v1
                else
-                OKN _
+                OKN
   | BPF_DIV  => if is_v1 then
                 eval_alu64_aux1 bop dst sop rm is_v1
                else
-                OKN _
+                OKN
   | BPF_OR   => eval_alu64_aux1 bop dst sop rm is_v1
   | BPF_AND  => eval_alu64_aux1 bop dst sop rm is_v1
   | BPF_MOD  => if is_v1 then
                 eval_alu64_aux1 bop dst sop rm is_v1
                else
-                OKN _
+                OKN
   | BPF_XOR  => eval_alu64_aux1 bop dst sop rm is_v1
   | BPF_MOV  => eval_alu64_aux1 bop dst sop rm is_v1
   | BPF_LSH  => eval_alu64_aux2 bop dst sop rm
@@ -256,132 +256,132 @@ Definition eval_alu64
   end.
 
 Definition eval_neg32
-  (dst : dst_ty) (rm : reg_map) (is_v1 : bool) : option2 reg_map :=
+  (dst : dst_ty) (rm : reg_map) (is_v1 : bool) : @option2 reg_map :=
   if is_v1 then
     let dv : i32 := Int.repr (Int64.signed (eval_reg dst rm)) in
-    OKS reg_map (reg_Map.set dst (Int64.repr (Int.signed (Int.and (Int.neg dv) u32_MAX))) rm)
+    OKS (reg_Map.set dst (Int64.repr (Int.signed (Int.and (Int.neg dv) u32_MAX))) rm)
   else
-    OKN _.
+    OKN.
 
 Definition eval_neg64
-  (dst : dst_ty) (rm : reg_map) (is_v1 : bool) : option2 reg_map :=
+  (dst : dst_ty) (rm : reg_map) (is_v1 : bool) : @option2 reg_map :=
   if is_v1 then
     let dv : i64 := eval_reg dst rm in
-    OKS reg_map (reg_Map.set dst (Int64.neg dv) rm)
+    OKS (reg_Map.set dst (Int64.neg dv) rm)
   else
-    OKN _.
+    OKN.
 
 Definition eval_le
-  (dst : dst_ty) (imm : imm_ty) (rm : reg_map) (is_v1 : bool) : option2 reg_map :=
+  (dst : dst_ty) (imm : imm_ty) (rm : reg_map) (is_v1 : bool) : @option2 reg_map :=
   if is_v1 then
     let dv := eval_reg dst rm in
     if Int.eq imm (Int.repr (Z.of_nat 16)) then
       match u16_of_u8_list (u8_list_of_u16 (Word.repr (Int64.unsigned dv))) with
-      | None => OKN reg_map
-      | Some v => OKS reg_map (reg_Map.set dst (Int64.repr (Word.unsigned v)) rm)
+      | None => OKN
+      | Some v => OKS (reg_Map.set dst (Int64.repr (Word.unsigned v)) rm)
       end
     else if Int.eq imm (Int.repr (Z.of_nat 32)) then
       match u32_of_u8_list (u8_list_of_u32 (Int.repr (Int64.unsigned dv))) with
-      | None => OKN reg_map
-      | Some v => OKS reg_map (reg_Map.set dst (Int64.repr (Int.unsigned v)) rm)
+      | None => OKN
+      | Some v => OKS (reg_Map.set dst (Int64.repr (Int.unsigned v)) rm)
       end
     else if Int.eq imm (Int.repr (Z.of_nat 164)) then
       match u64_of_u8_list (u8_list_of_u64 dv) with
-      | None => OKN reg_map
-      | Some v => OKS reg_map (reg_Map.set dst v rm)
+      | None => OKN
+      | Some v => OKS (reg_Map.set dst v rm)
       end
     else
-      OKN reg_map
+      OKN
   else
-    OKN reg_map.
+    OKN.
 
 Definition eval_be 
-  (dst : dst_ty) (imm : imm_ty) (rm : reg_map) (is_v1 : bool) : option2 reg_map :=
+  (dst : dst_ty) (imm : imm_ty) (rm : reg_map) (is_v1 : bool) : @option2 reg_map :=
   if is_v1 then
     let dv := eval_reg dst rm in
     if Int.eq imm (Int.repr (Z.of_nat 16)) then
       match u16_of_u8_list (rev (u8_list_of_u16 (Word.repr (Int64.unsigned dv)))) with
-      | None => OKN reg_map
-      | Some v => OKS reg_map (reg_Map.set dst (Int64.repr (Word.unsigned v)) rm)
+      | None => OKN
+      | Some v => OKS (reg_Map.set dst (Int64.repr (Word.unsigned v)) rm)
       end
     else if Int.eq imm (Int.repr (Z.of_nat 32)) then
       match u32_of_u8_list (rev (u8_list_of_u32 (Int.repr (Int64.unsigned dv)))) with
-      | None => OKN reg_map
-      | Some v => OKS reg_map (reg_Map.set dst (Int64.repr (Int.unsigned v)) rm)
+      | None => OKN
+      | Some v => OKS (reg_Map.set dst (Int64.repr (Int.unsigned v)) rm)
       end
     else if Int.eq imm (Int.repr (Z.of_nat 64)) then
       match u64_of_u8_list (rev (u8_list_of_u64 dv)) with
-      | None => OKN reg_map
-      | Some v => OKS reg_map (reg_Map.set dst v rm)
+      | None => OKN
+      | Some v => OKS (reg_Map.set dst v rm)
       end
     else
-      OKN reg_map
+      OKN
   else
-    OKN reg_map.
+    OKN.
 
 Definition eval_hor64 
-  (dst : dst_ty) (imm : imm_ty) (rm : reg_map) (is_v1 : bool) : option2 reg_map :=
+  (dst : dst_ty) (imm : imm_ty) (rm : reg_map) (is_v1 : bool) : @option2 reg_map :=
   if is_v1 then
-    OKN reg_map
+    OKN
   else
     let dv : u64 := eval_reg dst rm in
     let dv2 := Int64.or dv (Int64.shl (Int64.repr (Int.unsigned imm)) (Int64.repr (Z.of_nat 32))) in
-    OKS reg_map (reg_Map.set dst dv2 rm).
+    OKS (reg_Map.set dst dv2 rm).
 
 (*  PQR  *)
 Definition eval_pqr32_aux1 
-  (pop : pqrop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) : option2 reg_map :=
+  (pop : pqrop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) : @option2 reg_map :=
   let dv : i32 := Int.repr (Int64.signed (eval_reg dst rm)) in
   let sv : i32 := eval_snd_op_i32 sop rm in
   match pop with
-  | BPF_LMUL => OKS reg_map (reg_Map.set dst (Int64.repr (Int.unsigned (Int.mul dv sv))) rm)
+  | BPF_LMUL => OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.mul dv sv))) rm)
   | BPF_SDIV => 
       if Int.eq sv Int.zero then
         match sop with
-        | SOImm _ => NOK _
-        | _ => OKN _
+        | SOImm _ => NOK
+        | _ => OKN
         end
       else
-        OKS reg_map (reg_Map.set dst (Int64.repr (Int.unsigned (Int.divs dv sv))) rm)
+        OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.divs dv sv))) rm)
   | BPF_SREM => 
       if Int.eq sv Int.zero then
         match sop with
-        | SOImm _ => NOK _
-        | _ => OKN _
+        | SOImm _ => NOK
+        | _ => OKN
         end
       else
-        OKS reg_map (reg_Map.set dst (Int64.repr (Int.unsigned (Int.mods dv sv))) rm)
-  | _ => OKN _
+        OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.mods dv sv))) rm)
+  | _ => OKN
   end.
 
 Definition eval_pqr32_aux2 
-  (pop : pqrop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) : option2 reg_map :=
+  (pop : pqrop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) : @option2 reg_map :=
   let dv : u32 := Int.repr (Int64.unsigned (eval_reg dst rm)) in
   let sv : u32 := eval_snd_op_u32 sop rm in
   match pop with
   | BPF_UDIV =>
       if Int.eq sv Int.zero then
         match sop with
-        | SOImm _ => NOK _
-        | _ => OKN _
+        | SOImm _ => NOK
+        | _ => OKN
         end
       else
-        OKS reg_map (reg_Map.set dst (Int64.repr (Int.unsigned (Int.divu dv sv))) rm)
+        OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.divu dv sv))) rm)
   | BPF_UREM => 
       if Int.eq sv Int.zero then
         match sop with
-        | SOImm _ => NOK _
-        | _ => OKN _
+        | SOImm _ => NOK
+        | _ => OKN
         end
       else
-        OKS reg_map (reg_Map.set dst (Int64.repr (Int.unsigned (Int.modu dv sv))) rm)
-  | _ => OKN _
+        OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.modu dv sv))) rm)
+  | _ => OKN
   end.
 
 Definition eval_pqr32
-  (pop : pqrop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) (is_v1 : bool) : option2 reg_map :=
+  (pop : pqrop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) (is_v1 : bool) : @option2 reg_map :=
   if is_v1 then
-    OKN _
+    OKN
   else
     match pop with
     | BPF_LMUL =>  eval_pqr32_aux1 pop dst sop rm
@@ -392,58 +392,58 @@ Definition eval_pqr32
   end.
 
 Definition eval_pqr64_aux1 
-  (pop : pqrop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) : option2 reg_map :=
+  (pop : pqrop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) : @option2 reg_map :=
   let dv : u64 := eval_reg dst rm in
   let sv : u64 := eval_snd_op_u64 sop rm in
   match pop with
-  | BPF_LMUL => OKS reg_map (reg_Map.set dst (Int64.mul dv sv) rm)
+  | BPF_LMUL => OKS (reg_Map.set dst (Int64.mul dv sv) rm)
   | BPF_SDIV => 
       if Int64.eq sv Int64.zero then
         match sop with
-        | SOImm _ => NOK _
-        | _ => OKN _
+        | SOImm _ => NOK
+        | _ => OKN
         end
       else
-        OKS reg_map (reg_Map.set dst (Int64.divu dv sv) rm)
+        OKS (reg_Map.set dst (Int64.divu dv sv) rm)
   | BPF_SREM => 
       if Int64.eq sv Int64.zero then
         match sop with
-        | SOImm _ => NOK _
-        | _ => OKN _
+        | SOImm _ => NOK
+        | _ => OKN
         end
       else
-        OKS reg_map (reg_Map.set dst (Int64.modu dv sv) rm)
-  | _ => OKN _
+        OKS (reg_Map.set dst (Int64.modu dv sv) rm)
+  | _ => OKN
   end.
 
 Definition eval_pqr64_aux2 
-  (pop : pqrop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) : option2 reg_map :=
+  (pop : pqrop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) : @option2 reg_map :=
   let dv : i64 := eval_reg dst rm in
   let sv : i64 := eval_snd_op_i64 sop rm in
   match pop with
   | BPF_SDIV =>
       if Int64.eq sv Int64.zero then
         match sop with
-        | SOImm _ => NOK _
-        | _ => OKN _
+        | SOImm _ => NOK
+        | _ => OKN
         end
       else
-        OKS reg_map (reg_Map.set dst (Int64.mods dv sv) rm)
+        OKS (reg_Map.set dst (Int64.mods dv sv) rm)
   | BPF_SREM => 
       if Int64.eq sv Int64.zero then
         match sop with
-        | SOImm _ => NOK _
-        | _ => OKN _
+        | SOImm _ => NOK
+        | _ => OKN
         end
       else
-        OKS reg_map (reg_Map.set dst (Int64.mods dv sv) rm)
-  | _ => OKN _
+        OKS (reg_Map.set dst (Int64.mods dv sv) rm)
+  | _ => OKN
   end.
 
 Definition eval_pqr64
-  (pop : pqrop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) (is_v1 : bool) : option2 reg_map :=
+  (pop : pqrop) (dst : dst_ty) (sop : snd_op) (rm : reg_map) (is_v1 : bool) : @option2 reg_map :=
   if is_v1 then
-    OKN _
+    OKN
   else
     match pop with
     | BPF_LMUL =>  eval_pqr64_aux1 pop dst sop rm
@@ -454,17 +454,17 @@ Definition eval_pqr64
   end.
 
 Definition eval_pqr64_2
-  (pop2 : pqrop2) (dst : dst_ty) (sop : snd_op) (rm : reg_map) (is_v1 : bool) : option2 reg_map :=
+  (pop2 : pqrop2) (dst : dst_ty) (sop : snd_op) (rm : reg_map) (is_v1 : bool) : @option2 reg_map :=
   if is_v1 then
-    OKN _
+    OKN
   else
     let dv_u : u128 := Int128.repr (Int64.unsigned (eval_reg dst rm)) in
     let sv_u : u128 := Int128.repr (Int64.unsigned (eval_snd_op_u64 sop rm)) in
     let dv_i : i128 := Int128.repr (Int64.signed (eval_reg dst rm)) in
     let sv_i : i128 := Int128.repr (Int64.signed (eval_snd_op_i64 sop rm)) in
     match pop2 with
-    | BPF_UHMUL =>  OKS reg_map (reg_Map.set dst (Int64.repr (Int128.unsigned (Int128.shru (Int128.mul dv_u sv_u) (Int128.repr (Z.of_nat 64))))) rm)
-    | BPF_SHMUL =>  OKS reg_map (reg_Map.set dst (Int64.repr (Int128.unsigned (Int128.shr (Int128.mul dv_i sv_i) (Int128.repr (Z.of_nat 64))))) rm)
+    | BPF_UHMUL =>  OKS (reg_Map.set dst (Int64.repr (Int128.unsigned (Int128.shru (Int128.mul dv_u sv_u) (Int128.repr (Z.of_nat 64))))) rm)
+    | BPF_SHMUL =>  OKS (reg_Map.set dst (Int64.repr (Int128.unsigned (Int128.shr (Int128.mul dv_i sv_i) (Int128.repr (Z.of_nat 64))))) rm)
   end.
 
 (*  MEM  *)
@@ -648,15 +648,15 @@ Definition step (pc : u64) (ins : bpf_instruction) (rm : reg_map) (m : mem) (ss 
   match ins with
   | BPF_ALU bop d sop =>
       match eval_alu32 bop d sop rm is_v1 with
-      | NOK _ => BPF_Err
-      | OKN _ => BPF_EFlag
-      | OKS _ rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
+      | NOK => BPF_Err
+      | OKN => BPF_EFlag
+      | OKS rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
       end
   | BPF_ALU64 bop d sop =>
       match eval_alu64 bop d sop rm is_v1 with
-      | NOK _ => BPF_Err
-      | OKN _ => BPF_EFlag
-      | OKS _ rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
+      | NOK => BPF_Err
+      | OKN => BPF_EFlag
+      | OKS rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
       end
   | BPF_ADD_STK i =>
       match eval_add64_imm_R10 i ss is_v1 with
@@ -665,27 +665,27 @@ Definition step (pc : u64) (ins : bpf_instruction) (rm : reg_map) (m : mem) (ss 
       end
   | BPF_LE dst imm =>
       match eval_le dst imm rm is_v1 with
-      | NOK _ => BPF_Err
-      | OKN _ => BPF_EFlag
-      | OKS _ rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
+      | NOK => BPF_Err
+      | OKN => BPF_EFlag
+      | OKS rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
       end
   | BPF_BE dst imm =>
       match eval_be dst imm rm is_v1 with
-      | NOK _ => BPF_Err
-      | OKN _ => BPF_EFlag
-      | OKS _ rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
+      | NOK => BPF_Err
+      | OKN => BPF_EFlag
+      | OKS rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
       end
   | BPF_NEG32_REG dst =>
       match eval_neg32 dst rm is_v1 with
-      | NOK _ => BPF_Err
-      | OKN _ => BPF_EFlag
-      | OKS _ rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
+      | NOK => BPF_Err
+      | OKN => BPF_EFlag
+      | OKS rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
       end
   | BPF_NEG64_REG dst =>
       match eval_neg64 dst rm is_v1 with
-      | NOK _ => BPF_Err
-      | OKN _ => BPF_EFlag
-      | OKS _ rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
+      | NOK => BPF_Err
+      | OKN => BPF_EFlag
+      | OKS rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
       end
   | BPF_LDX chk dst sop off =>
       match eval_load chk dst sop off rm m with
@@ -702,27 +702,27 @@ Definition step (pc : u64) (ins : bpf_instruction) (rm : reg_map) (m : mem) (ss 
       BPF_OK (Int64.add pc (Int64.repr 2%Z)) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
   | BPF_PQR pop dst sop =>
       match  eval_pqr32 pop dst sop rm is_v1 with
-      | NOK _ => BPF_Err
-      | OKN _ => BPF_EFlag
-      | OKS _ rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
+      | NOK => BPF_Err
+      | OKN => BPF_EFlag
+      | OKS rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
       end
   | BPF_PQR64 pop dst sop =>
       match eval_pqr64 pop dst sop rm is_v1 with
-      | NOK _=> BPF_Err
-      | OKN _=> BPF_EFlag
-      | OKS _ rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
+      | NOK=> BPF_Err
+      | OKN=> BPF_EFlag
+      | OKS rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
       end
   | BPF_PQR2 pop dst sop =>
       match  eval_pqr64_2 pop dst sop rm is_v1 with
-      | NOK _ => BPF_Err
-      | OKN _ => BPF_EFlag
-      | OKS _ rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
+      | NOK => BPF_Err
+      | OKN => BPF_EFlag
+      | OKS rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
       end
   | BPF_HOR64_IMM dst imm =>
       match eval_hor64 dst imm rm is_v1 with
-      | NOK _ => BPF_Err
-      | OKN _ => BPF_EFlag
-      | OKS _ rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
+      | NOK => BPF_Err
+      | OKN => BPF_EFlag
+      | OKS rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
       end
 
   | BPF_JA off =>
@@ -767,7 +767,7 @@ Fixpoint bpf_interp
       | BPF_Err => BPF_Err
       | BPF_Success v => BPF_Success v
       | BPF_OK pc rm m ss sv fm cur_cu remain_cu =>
-          if (Int64.lt (Int64.mul pc (Int64.repr (Z.of_nat INSN_SIZE))) (Int64.repr (Z.of_nat (List.length prog)))) then
+          if (Int64.lt pc (Int64.repr (Z.of_nat (List.length prog)))) then
             if (Int64.cmp Cge cur_cu remain_cu) then
               BPF_EFlag
             else
@@ -783,6 +783,9 @@ Fixpoint bpf_interp
 
 Definition int_to_u8_list (l : list int) : list u8 :=
   map (fun i => Byte.repr (Int.unsigned i)) l.
+
+Definition int_to_u64_list (l : list int) : list u64 :=
+  map (fun i => Int64.repr (Int.unsigned i)) l.
 
 Fixpoint get_bytes (l : list byte) : list memval :=
   match l with
@@ -802,7 +805,7 @@ Definition intlist_to_reg_map (l : list int) : reg_map :=
 
 Definition bpf_interp_test
   (lp : list int) (lm : list int) (lc : list int) (v : int) (fuel : int) (res : int) (is_ok : bool) : bool :=
-  let st1 := bpf_interp (Z.to_nat (Int.unsigned (Int.add fuel Int.one))) (int_to_u8_list lp)
+  let st1 := bpf_interp (Z.to_nat (Int.unsigned (Int.add fuel Int.one))) (int_to_u64_list lp)
                 (init_bpf_state init_reg_map (u8_list_to_mem (int_to_u8_list lm) Mem.empty 1%positive 0) (Int64.repr (Int.unsigned(Int.add fuel Int.one)))
                   (if Int.eq v Int.one then V1 else V2)) true (Int64.repr 0x100000000%Z) 1%positive in
   if is_ok then
@@ -827,7 +830,7 @@ Definition step_test (lp : list int) (lr : list int) (lm : list int)
   if Int64.eq (Int64.repr (Int.unsigned res)) i64_MIN then
     true
   else
-    let prog :=  int_to_u8_list lp in
+    let prog :=  int_to_u64_list lp in
     let rm := reg_Map.set BR10 (Int64.add MM_STACK_START (Int64.mul stack_frame_size max_call_depth)) (intlist_to_reg_map lr) in
     let m := u8_list_to_mem (int_to_u8_list lm) Mem.empty b 0 in
     let stk := init_stack_state in
@@ -837,7 +840,7 @@ Definition step_test (lp : list int) (lr : list int) (lm : list int)
     | None => false
     | Some ins0 =>
         let st1 := step Int64.zero ins0 rm m stk sv fm true (Int64.repr 0x100000000%Z) Int64.zero (Int64.repr 3%Z) b in
-        if orb (Byte.eq (List.nth 0 prog Byte.zero) (Byte.repr 0x18%Z)) (Nat.eqb (List.length lp) 8) then
+        if orb (Int64.eq (List.nth 0 prog Int64.zero) (Int64.repr 0x18%Z)) (Nat.eqb (List.length lp) 2) then
           match st1 with
           | BPF_OK pc1 rm1 _ _ _ _ _ _ => andb (Int64.eq pc1 (Int64.repr (Int.unsigned ipc))) (Int64.eq (rm1 (int_to_bpf_ireg i)) (Int64.repr (Int.unsigned res)))
           | _ => false
