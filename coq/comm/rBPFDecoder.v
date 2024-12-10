@@ -109,12 +109,6 @@ Definition rbpf_decoder
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0xdc) then
           Some (BPF_BE            dst imm)
 
-(*        else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x07) then
-          if bpf_off bi =? 0 /\ bpf_src bi =? 0 then
-            Some (BPF_ALU64 BPF_ADD dst (SOImm imm))
-          else None
-*)
-
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x07) then
           Some (BPF_ALU64 BPF_ADD dst (SOImm imm))
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x0f) then
