@@ -26,3 +26,4 @@ _CoqProject
 *.vos
 *.aux
 *.crashcoqide
+.lia.cache

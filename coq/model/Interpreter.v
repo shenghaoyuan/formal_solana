@@ -1,7 +1,7 @@
 From Coq Require Import ZArith String List.
 From compcert.lib Require Import Coqlib Maps Integers.
 From compcert.common Require Import AST Values Memory Memdata.
-From bpf Require Import rBPFCommType ebpf vm vm_state rBPFDecoder rBPFSyntax.
+From bpf.model Require Import rBPFCommType ebpf vm vm_state rBPFDecoder rBPFSyntax.
 Import ListNotations.
 
 Open Scope string_scope.

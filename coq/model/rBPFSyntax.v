@@ -2,7 +2,7 @@ From Coq Require Import List.
 From compcert.lib Require Import Coqlib.
 From compcert.common Require Import AST.
 
-From bpf Require Import rBPFCommType.
+From bpf.model Require Import rBPFCommType.
 
 Inductive bpf_ireg : Type :=
   | BR0 : bpf_ireg

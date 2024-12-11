@@ -1,7 +1,7 @@
 From Coq Require Import ZArith List.
 From compcert.lib Require Import Integers Maps.
 From compcert.common Require Import Memory AST.
-From bpf Require Import ebpf rBPFCommType rBPFSyntax.
+From bpf.model Require Import ebpf rBPFCommType rBPFSyntax.
 
 Import ListNotations.
 

@@ -1,7 +1,6 @@
-Require Import rBPFCommType.
-Require Import rBPFSyntax.
-Require Import Coqlib List Maps.
-From compcert.lib Require Import Integers.
+From Coq Require Import List.
+From compcert.lib Require Import Coqlib Integers Maps.
+From bpf.model Require Import rBPFCommType rBPFSyntax.
 
 Record CallFrame := {
   caller_saved_registers : list u64;

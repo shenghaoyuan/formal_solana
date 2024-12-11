@@ -2,7 +2,7 @@ From Coq Require Import ZArith List.
 From compcert.lib Require Import Integers Maps.
 From compcert.common Require Import AST.
 
-From bpf Require Import rBPFCommType rBPFSyntax rBPFEncoder.
+From bpf.model Require Import rBPFCommType rBPFSyntax rBPFEncoder.
 
 
 (*   basic instruction check   *)

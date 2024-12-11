@@ -1,7 +1,5 @@
-Require Import rBPFCommType.
-Require Import rBPFSyntax.
-Require Import Coqlib.
-From compcert.lib Require Import Integers.
+From compcert.lib Require Import Coqlib Integers.
+From bpf.model Require Import rBPFCommType rBPFSyntax.
 
 Definition max_call_depth : usize := Int64.repr 64.
 

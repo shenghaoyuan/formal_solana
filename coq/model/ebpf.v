@@ -1,7 +1,7 @@
 From Coq Require Import ZArith.
 From compcert.lib Require Import Integers Maps.
 
-From bpf Require Import rBPFCommType rBPFSyntax.
+From bpf.model Require Import rBPFCommType rBPFSyntax.
 
 Definition SCRATCH_REGS : nat := 4. (* Number of scratch registers *)
 Definition INSN_SIZE : nat := 8.    (* Instruction size in bytes *)

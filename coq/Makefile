@@ -8,9 +8,9 @@ THIS_FILE := $(lastword $(MAKEFILE_LIST))
 
 COQEXTRAFLAGS := COQEXTRAFLAGS = '-w all,-extraction,-disj-pattern-notation'
 
-DIRS := comm model
+DIRS := model
 
-COQINCLUDES := INSTALLDEFAULTROOT = comm "\n"
+COQINCLUDES := INSTALLDEFAULTROOT = model "\n"
 COQINCLUDES += $(foreach d, $(DIRS),-R $(d) bpf.$(d) "\n")
 COQINCLUDES +=-R $(COMPCERTDIR) compcert
 
@@ -18,26 +18,17 @@ COQDEP="$(COQBIN)coqdep" -exclude-dir aarch64 -exclude-dir x86_64 -exclude-dir r
 
 all:
 	@echo $@
-	@$(MAKE) comm
 	@$(MAKE) model
    
-COMM= rBPFCommType.v rBPFSyntax.v vm.v vm_state.v ebpf.v rBPFDecoder.v Interpreter.v Assembler.v rBPFEncoder.v Disassembler.v
-   
-# MODEL= Syntax.v Decode.v Semantics.v
+MODEL= rBPFCommType.v rBPFSyntax.v vm.v vm_state.v ebpf.v rBPFDecoder.v Interpreter.v Assembler.v rBPFEncoder.v Disassembler.v BitfieldLemma.v BinSolver.v
 
-COQCOMM = $(addprefix comm/, $(COMM))
 COQMODEL =  $(addprefix model/, $(MODEL))
 
-FILES= $(COQCOMM) $(COQMODEL)
+FILES= $(COQMODEL)
 
 depend: $(FILES)
 	@echo "Analyzing Coq dependencies"
 	@$(COQDEP) $^ > .depend
-
-comm:
-	@echo $@
-	$(COQMAKEFILE) -f _CoqProject $(COQCOMM) $(COQEXTRAFLAGS)  -o CoqMakefile
-	make -f CoqMakefile
 
 model:
 	@echo $@
@@ -61,4 +52,4 @@ clean :
 
 .SECONDARY:
 
-.PHONY: all comm model CoqProject clean
+.PHONY: all model CoqProject clean
