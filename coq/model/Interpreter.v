@@ -771,7 +771,7 @@ Fixpoint bpf_interp
             if (Int64.cmp Cge cur_cu remain_cu) then
               BPF_EFlag
             else
-              match bpf_find_instr (Z.to_nat (Int64.unsigned pc)) prog with
+              match rbpf_decoder (Z.to_nat (Int64.unsigned pc)) prog with
               | None => BPF_EFlag
               | Some ins =>
                   let st1 := step pc ins rm m ss sv fm enable_stack_frame_gaps program_vm_addr cur_cu remain_cu b in
@@ -836,7 +836,7 @@ Definition step_test (lp : list int) (lr : list int) (lm : list int)
     let stk := init_stack_state in
     let sv := if Int.eq v Int.one then V1 else V2 in
     let fm := init_func_map in
-    match bpf_find_instr 0 prog with
+    match rbpf_decoder 0 prog with
     | None => false
     | Some ins0 =>
         let st1 := step Int64.zero ins0 rm m stk sv fm true (Int64.repr 0x100000000%Z) Int64.zero (Int64.repr 3%Z) b in
@@ -848,7 +848,7 @@ Definition step_test (lp : list int) (lr : list int) (lm : list int)
         else if Nat.eqb (List.length lp) 16 then
           match st1 with
           | BPF_OK pc1 rm1 m1 ss1 sv1 fm1 cur_cu1 remain_cu1 =>
-              match bpf_find_instr 1 prog with
+              match rbpf_decoder 1 prog with
               | None => false
               | Some ins1 =>
                   match step pc1 ins1 rm1 m1 ss1 sv1 fm1 true (Int64.repr 0x100000000%Z) Int64.one (Int64.add Int64.one Int64.one) b with
@@ -861,23 +861,3 @@ Definition step_test (lp : list int) (lr : list int) (lm : list int)
         else
           false
     end.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

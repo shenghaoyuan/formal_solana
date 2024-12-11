@@ -269,16 +269,13 @@ Definition rbpf_encoder (ins : bpf_instruction) : list u64 :=
   end.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+Fixpoint list_in_list {A: Type} (eqA: A -> A -> bool) (l0: list A) (pc: nat) (l: list A) : bool :=
+  match l0 with
+  | [] => true
+  | hd0 :: tl0 =>
+    match List.nth_error l pc with
+    | None => false
+    | Some hd =>
+      andb (@eqA hd0 hd) (list_in_list eqA tl0 (S pc) l)
+    end
+  end.

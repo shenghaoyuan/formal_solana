@@ -7,7 +7,7 @@ From bpf.model Require Import ebpf rBPFCommType rBPFSyntax.
 Definition decode_bpf (ins: u64) (from size: nat): u64 :=
   Int64.unsigned_bitfield_extract (Z.of_nat from) (Z.of_nat size) ins.
 
-Definition rbpf_decoder
+Definition rbpf_decoder_one
   (opc : u8) (dv : u4) (sv : u4) (off : i16) (imm : i32) : option bpf_instruction :=
   if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x07) then
     if dv =? 11 then
@@ -279,7 +279,7 @@ Definition rbpf_decoder
       end
     end.
 
-Definition bpf_find_instr (pc : nat) (l : list u64) : option bpf_instruction :=
+Definition rbpf_decoder (pc : nat) (l : list u64) : option bpf_instruction :=
   match nth_error l pc with
   | Some data =>
       let op : u8 := Byte.repr (Int64.unsigned (decode_bpf data 0 8)) in
@@ -301,18 +301,6 @@ Definition bpf_find_instr (pc : nat) (l : list u64) : option bpf_instruction :=
           | None => None
           end
       else
-        rbpf_decoder op dst src off imm
+        rbpf_decoder_one op dst src off imm
   | _ => None
   end.
-
-
-
-
-
-
-
-
-
-
-
-
