@@ -2,21 +2,15 @@ From Coq Require Import ZArith List.
 From compcert.lib Require Import Integers Maps.
 From compcert.common Require Import AST.
 
-From bpf Require Import rBPFCommType rBPFSyntax.
+From bpf Require Import rBPFCommType rBPFSyntax rBPFEncoder.
 
 
 (*   basic instruction check   *)
-Definition insn (opc : u8) (dst : u4) (src : u4) (off : i16) (imm : i32) : option ebpf_binary :=
+Definition insn (opc : u8) (dst : u4) (src : u4) (off : i16) (imm : i32) : option u64 :=
   if  orb (Nat.ltb 10 dst) (Nat.ltb 10 src) then
     None
   else
-    Some {|
-      bpf_opc := opc;
-      bpf_dst := dst;
-      bpf_src := src;
-      bpf_off := off;
-      bpf_imm := imm
-    |}
+    Some (binary_to_u64 opc dst src off imm)
   .
 
 (*   get instruction opcode   *)
@@ -190,7 +184,7 @@ Definition condition2opcode_reg (c : condition) : u8 :=
   end.
 
 (*   assemble one instruction    *)
-Definition assemble_one_instruction (bi : bpf_instruction) : option ebpf_binary :=
+Definition assemble_one_instruction (bi : bpf_instruction) : option u64 :=
   match bi with
   | BPF_LD_IMM dst i1 i2 => insn (Byte.repr 0x18%Z) (bpf_ireg_to_u4 dst) 0 (Word.repr 0%Z) i1
   | BPF_LDX ck dst src off => insn (ldx_chunk2opcode ck) (bpf_ireg_to_u4 dst) (bpf_ireg_to_u4 src) off (Int.repr 0%Z)
@@ -224,7 +218,7 @@ Definition assemble_one_instruction (bi : bpf_instruction) : option ebpf_binary 
   end.
 
 (*    assemble a set of instruction    *)
-Fixpoint assemble (asm : ebpf_asm) : option ebpf_abin :=
+Fixpoint assemble (asm : ebpf_asm) : option (list u64) :=
   match asm with
   | nil => Some nil
   | h :: t =>
