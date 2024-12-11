@@ -82,6 +82,11 @@ thm Hx1 *)
           done
         done
 
+(**r ADD_STK *)
+      subgoal for x4
+        apply (simp add: disassemble_one_instruction_def)
+        done
+
 (**r ALU + LD_IMM *)
       subgoal for x1 x2 x3
         apply (cases x3; auto)

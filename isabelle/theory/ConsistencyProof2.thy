@@ -108,8 +108,15 @@ lemma disassemble_assemble_consistency: "disassemble l_bin = Some l_asm \<Longri
 
         subgoal for b
           apply (unfold disassemble_one_instruction_def)
+          apply (cases "bpf_dst a = 11"; simp)
+          subgoal
+            apply (cases "bpf_opc a = 4 \<and> bpf_off a = 0 \<and> bpf_src a = 0"; simp)
+            apply (erule conjE)
+            apply (drule sym [of _ x1], simp)
+            done
+
           apply (cases "10 < bpf_dst a \<or> 10 < bpf_src a", auto)
-          apply (cases "u4_to_bpf_ireg (bpf_dst a)", auto)
+            apply (cases "u4_to_bpf_ireg (bpf_dst a)", auto)
           subgoal for c
             apply (cases "u4_to_bpf_ireg (bpf_src a)", auto)
             subgoal for d

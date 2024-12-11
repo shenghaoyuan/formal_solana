@@ -170,7 +170,14 @@ fun assemble_one_instruction :: "bpf_instruction \<Rightarrow> ebpf_binary optio
   insn (st_chunk2opcode_reg ck) (bpf_ireg2u4 dst) (bpf_ireg2u4 ir) off 0" |
 "assemble_one_instruction (BPF_ST ck dst (SOImm im) off) =
   insn (st_chunk2opcode_imm ck) (bpf_ireg2u4 dst) 0 off im" |
-  
+"assemble_one_instruction (BPF_ADD_STK im) =
+  Some \<lparr> bpf_opc = 0x04,
+            bpf_dst = 11,
+            bpf_src = 0,
+            bpf_off = 0,
+            bpf_imm = (scast im) \<rparr>
+" |
+ 
 "assemble_one_instruction (BPF_NEG32_REG dst) =
   insn 0x84 (bpf_ireg2u4 dst) 0 0 0" |
 "assemble_one_instruction (BPF_NEG64_REG dst) =
@@ -217,8 +224,7 @@ fun assemble_one_instruction :: "bpf_instruction \<Rightarrow> ebpf_binary optio
 "assemble_one_instruction (BPF_CALL_IMM src imm) =
   insn 0x85 0 (bpf_ireg2u4 src) 0 imm" |
   
-"assemble_one_instruction BPF_EXIT = insn 0x95 0 0 0 0" |
-"assemble_one_instruction _ = None"
+"assemble_one_instruction BPF_EXIT = insn 0x95 0 0 0 0"
 
 subsection \<open> assemble a set of instructions \<close>
 

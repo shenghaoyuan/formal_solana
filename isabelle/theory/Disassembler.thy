@@ -20,7 +20,12 @@ definition disassemble_lddw :: "ebpf_binary \<Rightarrow> ebpf_binary \<Rightarr
 
 definition disassemble_one_instruction :: "ebpf_binary \<Rightarrow> bpf_instruction option" where
 "disassemble_one_instruction bi = (
-  if 10 < (bpf_dst bi) \<or> 10 < (bpf_src bi) then None
+  if (bpf_dst bi = 11) then
+    if bpf_opc bi = 0x04 \<and> bpf_off bi = 0 \<and> bpf_src bi = 0 then
+      Some (BPF_ADD_STK (bpf_imm bi))
+    else
+      None
+  else if 10 < (bpf_dst bi) \<or> 10 < (bpf_src bi) then None
   else
 
   case u4_to_bpf_ireg (bpf_dst bi) of
