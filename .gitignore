@@ -1,6 +1,6 @@
 *.thy~
 #*.thy#
-#*.v#
+*.v#
 *.log
 *.cmi
 *.cmo
