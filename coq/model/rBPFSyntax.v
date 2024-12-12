@@ -1,5 +1,5 @@
 From Coq Require Import List.
-From compcert.lib Require Import Coqlib.
+From compcert.lib Require Import Coqlib Integers.
 From compcert.common Require Import AST.
 
 From bpf.model Require Import rBPFCommType.
@@ -22,8 +22,8 @@ Inductive bpf_preg : Type :=
   | BR : bpf_ireg -> bpf_preg
   | BPC : bpf_preg.
 
-Definition off_ty := i16.
-Definition imm_ty := i32.
+Definition off_ty := word.
+Definition imm_ty := int.
 
 Definition dst_ty := bpf_ireg.
 Definition src_ty := bpf_ireg.
@@ -110,9 +110,9 @@ Inductive bpf_instruction : Type :=
 
 Definition ebpf_asm := list bpf_instruction.
 
-Definition bpf_bin := list u64.
+Definition bpf_bin := list int64.
 
-Definition bpf_ireg_to_u4 (r : bpf_ireg) : u4 :=
+Definition bpf_ireg_to_nat (r : bpf_ireg) : nat :=
   match r with
   | BR0  =>  0%nat
   | BR1  =>  1%nat
@@ -127,7 +127,7 @@ Definition bpf_ireg_to_u4 (r : bpf_ireg) : u4 :=
   | BR10 => 10%nat
   end.
 
-Definition u4_to_bpf_ireg (dst : u4) : option bpf_ireg :=
+Definition nat_to_bpf_ireg (dst : nat) : option bpf_ireg :=
        if Nat.eqb dst 0  then Some BR0
   else if Nat.eqb dst 1  then Some BR1
   else if Nat.eqb dst 2  then Some BR1

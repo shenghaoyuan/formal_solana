@@ -46,15 +46,14 @@ Proof.
     apply Int64.same_if_eq in Hins, Hins0.
     subst.
     assert (Heq: Byte.unsigned (Byte.repr (Int64.unsigned (decode_bpf (
-      binary_to_u64 (Byte.repr 24)
-      (bpf_ireg_to_u4 d) 0%nat (Word.repr 0) i) 0 8))) = Z.of_nat 24).
-    { unfold binary_to_u64.
+      binary_to_int64 (Byte.repr 24)
+      (bpf_ireg_to_nat d) 0%nat (Word.repr 0) i) 0 8))) = Z.of_nat 24).
+    { unfold binary_to_int64.
       unfold decode_bpf, encode_bpf.
       bsolver.
     }
     rewrite Heq; clear Heq.
     simpl.
     rewrite Hnth0.
-(** TODO: remove all u64/u32 ... *)
-      ...
+
 Admitted.

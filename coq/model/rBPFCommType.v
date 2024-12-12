@@ -35,36 +35,15 @@ Strategy 0 [Wordsize_128.wordsize].
 
 Notation int128 := Int128.int.
 (*-----------------128-Int-----------------*)
-Definition u4  := nat.
-Definition u8  := byte.
-Definition i8  := byte.
-Definition i16 := word.
-Definition u16 := word.
-Definition i32 := int.
-Definition u32 := int.
-Definition i64 := int64.
-Definition u64 := int64.
-Definition i128:= int128.
-Definition u128:= int128.
 
 Definition usize := int64.
 
-Definition i8_MIN : i8 := Byte.repr Byte.min_signed.
-Definition i8_MAX : i8 := Byte.repr Byte.max_signed.
-Definition u8_MAX : u8 := Byte.repr Byte.max_unsigned.
-Definition i32_MIN : i32 := Int.repr Int.min_signed.
-Definition i32_MAX : i32 := Int.repr Int.max_signed.
-Definition u32_MAX : u32 := Int.repr Int.max_unsigned.
-Definition i64_MIN : i64 := Int64.repr Int64.min_signed.
-Definition i64_MAX : i64 := Int64.repr Int64.max_signed.
-Definition u64_MAX : u64 := Int64.repr Int64.max_unsigned.
-
 Record ebpf_binary := {
-  bpf_opc : u8;
-  bpf_dst : u4;
-  bpf_src : u4;
-  bpf_off : i16;
-  bpf_imm : i32
+  bpf_opc : byte;
+  bpf_dst : nat;
+  bpf_src : nat;
+  bpf_off : word;
+  bpf_imm : int
 }.
 
 Definition ebpf_abin := list ebpf_binary.
@@ -93,43 +72,43 @@ Definition bit_left_shift_int64 (x: int64) (n: nat) : int64 :=
 Definition bit_right_shift_int64 (x: int64) (n: nat) : int64 := 
       Int64.shru x (Int64.repr (Z.of_nat n)).
 
-Definition arsh32 (x : i32) (n : nat) : i32 :=
+Definition arsh32 (x : int) (n : nat) : int :=
   Int.shr x (Int.repr (Z.of_nat n)).
 
-Definition arsh64 (x : i64) (n : nat) : i64 :=
+Definition arsh64 (x : int64) (n : nat) : int64 :=
   Int64.shr x (Int64.repr (Z.of_nat n)).
 
-Definition bitfield_extract_u8 (pos width: nat) (n : u8) : u8 :=
+Definition bitfield_extract_byte (pos width: nat) (n : byte) : byte :=
   Byte.unsigned_bitfield_extract (Z.of_nat pos) (Z.of_nat width) n.
 
-Definition bitfield_insert_u8 (pos width: nat) (n p : u8) : u8 :=
+Definition bitfield_insert_byte (pos width: nat) (n p : byte) : byte :=
   Byte.bitfield_insert (Z.of_nat pos) (Z.of_nat width) n p.
 
-Definition u8_of_bool (b : bool) : u8 :=
+Definition byte_of_bool (b : bool) : byte :=
   match b with 
     | true  => Byte.repr 1
     | false => Byte.repr 0
   end.
 
-Definition u4_of_bool (b : bool) : u4 :=
+Definition nat_of_bool (b : bool) : nat :=
   match b with 
     | true  => S O
     | false => O
   end.
 
-Definition u8_list_of_u16 (x: u16) : list u8 :=
+Definition byte_list_of_word (x: word) : list byte :=
    [Byte.repr (Word.unsigned (Word.and x (Word.repr 0xff)));
     Byte.repr (Word.unsigned (Word.and (bit_right_shift_word x (8)) (Word.repr 0xff)))
    ].
 
-Definition u8_list_of_u32 (x: u32) : list u8 :=
+Definition byte_list_of_int (x: int) : list byte :=
    [Byte.repr (Int.unsigned (Int.and x (Int.repr 0xff)));
     Byte.repr (Int.unsigned (Int.and (bit_right_shift_int x (8)) (Int.repr 0xff)));
     Byte.repr (Int.unsigned (Int.and (bit_right_shift_int x (16)) (Int.repr 0xff)));
     Byte.repr (Int.unsigned (Int.and (bit_right_shift_int x (24)) (Int.repr 0xff)))
    ].
 
-Definition u8_list_of_u64 (x: u64) : list u8 :=
+Definition byte_list_of_int64 (x: int64) : list byte :=
    [Byte.repr (Int64.unsigned (Int64.and x (Int64.repr 0xff)));
     Byte.repr (Int64.unsigned (Int64.and (bit_right_shift_int64 x (8)) (Int64.repr 0xff)));
     Byte.repr (Int64.unsigned (Int64.and (bit_right_shift_int64 x (16)) (Int64.repr 0xff)));
@@ -140,7 +119,7 @@ Definition u8_list_of_u64 (x: u64) : list u8 :=
     Byte.repr (Int64.unsigned (Int64.and (bit_right_shift_int64 x (56)) (Int64.repr 0xff)))
    ].
 
-Definition u64_of_u8_list (l : list u8) : option u64 :=
+Definition int64_of_byte_list (l : list byte) : option int64 :=
   if (Z.eqb (Z.of_nat (List.length l)) 8) then
     Some (Int64.or (bit_left_shift_int64 (Int64.repr (Byte.unsigned (List.nth 7 l Byte.zero))) 56)
       (Int64.or (bit_left_shift_int64 (Int64.repr (Byte.unsigned (List.nth 6 l Byte.zero))) 48)
@@ -153,7 +132,7 @@ Definition u64_of_u8_list (l : list u8) : option u64 :=
   else
     None.
 
-Definition u32_of_u8_list (l : list u8) : option u32 :=
+Definition int_of_byte_list (l : list byte) : option int :=
   if (Z.eqb (Z.of_nat (List.length l)) 4) then
     Some (Int.or (bit_left_shift_int (Int.repr (Byte.unsigned (List.nth 3 l Byte.zero))) 24)
       (Int.or (bit_left_shift_int (Int.repr (Byte.unsigned (List.nth 2 l Byte.zero))) 16)
@@ -162,22 +141,22 @@ Definition u32_of_u8_list (l : list u8) : option u32 :=
   else
     None.
 
-Definition u16_of_u8_list (l : list u8) : option u16 :=
+Definition word_of_byte_list (l : list byte) : option word :=
   if (Z.eqb (Z.of_nat (List.length l)) 2) then
     Some (Word.or (bit_left_shift_word (Word.repr (Byte.unsigned (List.nth 1 l Byte.zero))) 8)
                 (Word.repr (Byte.unsigned (List.nth 0 l Byte.zero))))
   else
     None.
 
-Lemma u8_of_bool_false : u8_of_bool false = Byte.zero.
+Lemma byte_of_bool_false : byte_of_bool false = Byte.zero.
 Proof.
-  unfold u8_of_bool.
+  unfold byte_of_bool.
   reflexivity.
 Qed.
 
-Lemma u8_of_bool_true : u8_of_bool true = Byte.one.
+Lemma byte_of_bool_true : byte_of_bool true = Byte.one.
 Proof.
-  unfold u8_of_bool.
+  unfold byte_of_bool.
   reflexivity.
 Qed.
 
@@ -199,7 +178,7 @@ Proof.
 Qed.
 *)
 
-Lemma u8_ge_8_bit_false : forall (n : Z) (v : u8),
+Lemma byte_ge_8_bit_false : forall (n : Z) (v : byte),
   n >= 8 -> (Z.testbit (Byte.unsigned v) n = false).
 Proof.
   intros n v H. 
@@ -212,7 +191,7 @@ Proof.
     apply H.
 Qed.
 
-Lemma u8_bit_true_ge_8 : forall (n : Z) (v : u8),
+Lemma byte_bit_true_ge_8 : forall (n : Z) (v : byte),
   (Byte.testbit v n = true) -> n < 8.
 Proof.
   intros n v H.

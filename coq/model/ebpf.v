@@ -6,10 +6,10 @@ From bpf.model Require Import rBPFCommType rBPFSyntax.
 Definition SCRATCH_REGS : nat := 4. (* Number of scratch registers *)
 Definition INSN_SIZE : nat := 8.    (* Instruction size in bytes *)
 
-Definition MM_STACK_START : u64 := Int64.repr 0x200000000. (* Stack start address *)
+Definition MM_STACK_START : int64 := Int64.repr 0x200000000. (* Stack start address *)
 
-Definition func_key := u32.         (* Function registry key type *)
-Definition func_val := u64.         (* Function registry value type *)
+Definition func_key := int.         (* Function registry key type *)
+Definition func_val := int64.         (* Function registry value type *)
 
 Module func_Eq.
   Definition t := func_key.

@@ -3,9 +3,9 @@ From compcert.lib Require Import Coqlib Integers Maps.
 From bpf.model Require Import rBPFCommType rBPFSyntax.
 
 Record CallFrame := {
-  caller_saved_registers : list u64;
-  frame_pointer : u64;
-  target_pc : u64
+  caller_saved_registers : list int64;
+  frame_pointer : int64;
+  target_pc : int64
 }.
 
 Lemma reg_eq: forall (x y: bpf_ireg), {x=y} + {x<>y}.
@@ -20,19 +20,19 @@ End reg_Eq.
 
 Module reg_Map := EMap (reg_Eq).
 
-Definition reg_map := reg_Map.t u64.
+Definition reg_map := reg_Map.t int64.
 
 Record EbpfVmState := {
-  host_stack_pointer : u64;
-  call_depth : u64;
-  stack_pointer : u64;
-  previous_instruction_meter : u64;
-  due_insn_count : u64;
-  stopwatch_numerator : u64;
-  stopwatch_denominator : u64;
+  host_stack_pointer : int64;
+  call_depth : int64;
+  stack_pointer : int64;
+  previous_instruction_meter : int64;
+  due_insn_count : int64;
+  stopwatch_numerator : int64;
+  stopwatch_denominator : int64;
   registers : reg_map;
-  program_result : option u64;
-  memory_mapping : (u64 * u64) -> u64;
+  program_result : option int64;
+  memory_mapping : (int64 * int64) -> int64;
   call_frames : list CallFrame;
   loader : bpf_bin
 }.
