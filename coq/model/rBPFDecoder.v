@@ -288,18 +288,15 @@ Definition rbpf_decoder (pc : nat) (l : list u64) : option bpf_instruction :=
       let off : i16 := Word.repr (Int64.signed (decode_bpf data 16 16)) in
       let imm : i32 := Int.repr (Int64.signed (decode_bpf data 32 32)) in
       if Z.eqb (Byte.unsigned op) (Z.of_nat 0x18) then
-        if (length l <? S pc)
-          then None
-        else
-          match nth_error l (S pc) with
-          | Some data2 =>
-              let imm2 : i32 := Int.repr (Int64.signed (decode_bpf data2 32 32)) in
-              match u4_to_bpf_ireg dst with
-              | None => None
-              | Some dst_r => Some (BPF_LD_IMM dst_r imm imm2)
-              end
-          | None => None
-          end
+        match nth_error l (S pc) with
+        | Some data2 =>
+            let imm2 : i32 := Int.repr (Int64.signed (decode_bpf data2 32 32)) in
+            match u4_to_bpf_ireg dst with
+            | None => None
+            | Some dst_r => Some (BPF_LD_IMM dst_r imm imm2)
+            end
+        | None => None
+        end
       else
         rbpf_decoder_one op dst src off imm
   | _ => None

@@ -10,13 +10,11 @@ Definition encode_bpf (v ins: u64) (from size: nat): u64 :=
 
 Definition binary_to_u64
   (opc : u8) (dv : u4) (sv : u4) (off : i16) (imm : i32) : u64 :=
-  (encode_bpf (encode_bpf (encode_bpf (encode_bpf (encode_bpf (Int64.repr 0%Z) 
-    (Int64.repr (Byte.unsigned opc)) 0 8)
-       (Int64.repr (Z.of_nat dv)) 8 4)
-          (Int64.repr (Z.of_nat sv)) 12 4)
-             (Int64.repr (Word.signed off)) 16 16)
-                (Int64.repr (Int.signed imm)) 32 32).
-    
+  let v1 := encode_bpf (Int64.repr (Byte.unsigned opc)) (Int64.repr 0%Z) 0 8 in
+  let v2 := encode_bpf (Int64.repr (Z.of_nat dv)) v1 8 4 in
+  let v3 := encode_bpf (Int64.repr (Z.of_nat sv)) v2 12 4 in
+  let v4 := encode_bpf (Int64.repr (Word.signed off)) v3 16 16 in
+    encode_bpf (Int64.repr (Int.signed imm)) v4 32 32.
 
 Definition rbpf_encoder (ins : bpf_instruction) : list u64 :=
   let l : list u64 := [] in
