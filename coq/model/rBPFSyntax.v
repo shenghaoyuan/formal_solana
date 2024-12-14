@@ -22,15 +22,16 @@ Inductive bpf_preg : Type :=
   | BR : bpf_ireg -> bpf_preg
   | BPC : bpf_preg.
 
-Definition off_ty := word.
+Definition off_ty := int16.
+(*
 Definition imm_ty := int.
 
 Definition dst_ty := bpf_ireg.
-Definition src_ty := bpf_ireg.
+Definition src_ty := bpf_ireg. *)
 
 (* Source operator *)
 Inductive snd_op : Type :=
-  | SOImm : imm_ty -> snd_op
+  | SOImm : int -> snd_op
   | SOReg : bpf_ireg -> snd_op.
 
 Inductive arch : Type :=
@@ -88,24 +89,24 @@ Inductive SBPFV : Type :=
 .
 
 Inductive bpf_instruction : Type :=
-  | BPF_LD_IMM : dst_ty -> imm_ty -> imm_ty -> bpf_instruction
-  | BPF_LDX : memory_chunk -> dst_ty -> src_ty -> off_ty -> bpf_instruction
-  | BPF_ST : memory_chunk -> dst_ty -> snd_op -> off_ty -> bpf_instruction
-  | BPF_ADD_STK : imm_ty -> bpf_instruction
-  | BPF_ALU : binop -> dst_ty -> snd_op -> bpf_instruction
-  | BPF_NEG32_REG : dst_ty -> bpf_instruction
-  | BPF_LE : dst_ty -> imm_ty -> bpf_instruction
-  | BPF_BE : dst_ty -> imm_ty -> bpf_instruction
-  | BPF_ALU64 : binop -> dst_ty -> snd_op -> bpf_instruction
-  | BPF_NEG64_REG : dst_ty -> bpf_instruction
-  | BPF_HOR64_IMM : dst_ty -> imm_ty -> bpf_instruction
-  | BPF_PQR : pqrop -> dst_ty -> snd_op -> bpf_instruction
-  | BPF_PQR64 : pqrop -> dst_ty -> snd_op -> bpf_instruction
-  | BPF_PQR2 : pqrop2 -> dst_ty -> snd_op -> bpf_instruction
+  | BPF_LD_IMM : bpf_ireg -> int -> int -> bpf_instruction
+  | BPF_LDX : memory_chunk -> bpf_ireg -> bpf_ireg -> int16 -> bpf_instruction
+  | BPF_ST : memory_chunk -> bpf_ireg -> snd_op -> int16 -> bpf_instruction
+  | BPF_ADD_STK : int -> bpf_instruction
+  | BPF_ALU : binop -> bpf_ireg -> snd_op -> bpf_instruction
+  | BPF_NEG32_REG : bpf_ireg -> bpf_instruction
+  | BPF_LE : bpf_ireg -> int -> bpf_instruction
+  | BPF_BE : bpf_ireg -> int -> bpf_instruction
+  | BPF_ALU64 : binop -> bpf_ireg -> snd_op -> bpf_instruction
+  | BPF_NEG64_REG : bpf_ireg -> bpf_instruction
+  | BPF_HOR64_IMM : bpf_ireg -> int -> bpf_instruction
+  | BPF_PQR : pqrop -> bpf_ireg -> snd_op -> bpf_instruction
+  | BPF_PQR64 : pqrop -> bpf_ireg -> snd_op -> bpf_instruction
+  | BPF_PQR2 : pqrop2 -> bpf_ireg -> snd_op -> bpf_instruction
   | BPF_JA : off_ty -> bpf_instruction
   | BPF_JUMP : condition -> bpf_ireg -> snd_op -> off_ty -> bpf_instruction
-  | BPF_CALL_REG : src_ty -> imm_ty -> bpf_instruction
-  | BPF_CALL_IMM : src_ty -> imm_ty -> bpf_instruction
+  | BPF_CALL_REG : bpf_ireg -> int -> bpf_instruction
+  | BPF_CALL_IMM : bpf_ireg -> int -> bpf_instruction
   | BPF_EXIT : bpf_instruction.
 
 Definition ebpf_asm := list bpf_instruction.
@@ -140,16 +141,3 @@ Definition nat_to_bpf_ireg (dst : nat) : option bpf_ireg :=
   else if Nat.eqb dst 9  then Some BR1
   else if Nat.eqb dst 10 then Some BR1
   else None.
-
-
-
-
-
-
-
-
-
-
-
-
-

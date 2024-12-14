@@ -12,11 +12,11 @@ End Wordsize_16.
 
 Strategy opaque [Wordsize_16.wordsize].
 
-Module Word := Make(Wordsize_16).
+Module Int16 := Make(Wordsize_16).
 
 Strategy 0 [Wordsize_16.wordsize].
 
-Notation word := Word.int.
+Notation int16 := Int16.int.
 (*----------------16-Word----------------*)
 
 (*-----------------128-Int-----------------*)
@@ -42,7 +42,7 @@ Record ebpf_binary := {
   bpf_opc : byte;
   bpf_dst : nat;
   bpf_src : nat;
-  bpf_off : word;
+  bpf_off : int16;
   bpf_imm : int
 }.
 
@@ -54,11 +54,11 @@ Definition bit_left_shift_byte (x: byte) (n: nat) : byte :=
 Definition bit_right_shift_byte (x: byte) (n: nat) : byte := 
       Byte.shru x (Byte.repr (Z.of_nat n)).
 
-Definition bit_left_shift_word (x: word) (n: nat) : word := 
-      Word.shl x (Word.repr (Z.of_nat n)).
+Definition bit_left_shift_word (x: int16) (n: nat) : int16 := 
+      Int16.shl x (Int16.repr (Z.of_nat n)).
 
-Definition bit_right_shift_word (x: word) (n: nat) : word := 
-      Word.shru x (Word.repr (Z.of_nat n)).
+Definition bit_right_shift_word (x: int16) (n: nat) : int16 := 
+      Int16.shru x (Int16.repr (Z.of_nat n)).
 
 Definition bit_left_shift_int (x: int) (n: nat) : int := 
       Int.shl x (Int.repr (Z.of_nat n)).
@@ -96,9 +96,9 @@ Definition nat_of_bool (b : bool) : nat :=
     | false => O
   end.
 
-Definition byte_list_of_word (x: word) : list byte :=
-   [Byte.repr (Word.unsigned (Word.and x (Word.repr 0xff)));
-    Byte.repr (Word.unsigned (Word.and (bit_right_shift_word x (8)) (Word.repr 0xff)))
+Definition byte_list_of_word (x: int16) : list byte :=
+   [Byte.repr (Int16.unsigned (Int16.and x (Int16.repr 0xff)));
+    Byte.repr (Int16.unsigned (Int16.and (bit_right_shift_word x (8)) (Int16.repr 0xff)))
    ].
 
 Definition byte_list_of_int (x: int) : list byte :=
@@ -141,10 +141,10 @@ Definition int_of_byte_list (l : list byte) : option int :=
   else
     None.
 
-Definition word_of_byte_list (l : list byte) : option word :=
+Definition word_of_byte_list (l : list byte) : option int16 :=
   if (Z.eqb (Z.of_nat (List.length l)) 2) then
-    Some (Word.or (bit_left_shift_word (Word.repr (Byte.unsigned (List.nth 1 l Byte.zero))) 8)
-                (Word.repr (Byte.unsigned (List.nth 0 l Byte.zero))))
+    Some (Int16.or (bit_left_shift_word (Int16.repr (Byte.unsigned (List.nth 1 l Byte.zero))) 8)
+                (Int16.repr (Byte.unsigned (List.nth 0 l Byte.zero))))
   else
     None.
 

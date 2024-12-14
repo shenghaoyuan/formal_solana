@@ -8,7 +8,7 @@ Definition decode_bpf (ins: int64) (from size: nat): int64 :=
   Int64.unsigned_bitfield_extract (Z.of_nat from) (Z.of_nat size) ins.
 
 Definition rbpf_decoder_one
-  (opc : byte) (dv : nat) (sv : nat) (off : word) (imm : int) : option bpf_instruction :=
+  (opc : byte) (dv : nat) (sv : nat) (off : int16) (imm : int) : option bpf_instruction :=
   if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x07) then
     if dv =? 11 then
       Some (BPF_ADD_STK imm)
@@ -285,7 +285,7 @@ Definition rbpf_decoder (pc : nat) (l : list int64) : option bpf_instruction :=
       let op : byte := Byte.repr (Int64.unsigned (decode_bpf data 0 8)) in
       let dst : nat := Z.to_nat (Int64.unsigned (decode_bpf data 8 4)) in
       let src : nat := Z.to_nat (Int64.unsigned (decode_bpf data 12 4)) in
-      let off : word := Word.repr (Int64.signed (decode_bpf data 16 16)) in
+      let off : int16 := Int16.repr (Int64.signed (decode_bpf data 16 16)) in
       let imm : int := Int.repr (Int64.signed (decode_bpf data 32 32)) in
       if Z.eqb (Byte.unsigned op) (Z.of_nat 0x18) then
         match nth_error l (S pc) with

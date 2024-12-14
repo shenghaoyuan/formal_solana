@@ -114,7 +114,6 @@ Proof.
     reflexivity.
 Qed.
 
-
 Lemma unsigned_bitfield_extract_unsigned_bitfield_extract_0:
   forall i pos0 pos1 width0 width1
     (Hrange: width0 <= pos1) (**r more generic than `pos0+width0 <= pos1' *)
@@ -346,3 +345,19 @@ Proof.
     f_equal.
   - reflexivity.
 Qed.
+
+Global Hint Resolve
+  size_bitfield_insert
+  size_unsigned_bitfield_extract : bits.
+
+Hint Rewrite
+  unsigned_bitfield_extract_bitfield_insert_same_1
+  unsigned_bitfield_extract_bitfield_insert_same_2
+  unsigned_bitfield_extract_unsigned_bitfield_extract_0
+  unsigned_bitfield_extract_unsigned_bitfield_extract_1
+  unsigned_bitfield_extract_extend
+  bitfield_insert_over_size_zero
+  unsigned_bitfield_extract_over_size
+  unsigned_bitfield_extract_low_same
+  unsigned_bitfield_extract_same_2
+  unsigned_bitfield_extract_same_3 : bits.
