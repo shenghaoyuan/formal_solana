@@ -27,3 +27,5 @@ _CoqProject
 *.aux
 *.crashcoqide
 .lia.cache
+step_test
+interpreter_test
