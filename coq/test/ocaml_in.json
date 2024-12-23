@@ -1,0 +1,34 @@
+[
+{
+    "dis": "be16 r8",
+    "lp_std": [
+      "0xDC",
+      "0x08",
+      "0x00",
+      "0x00",
+      "0x10",
+      "0x00",
+      "0x00",
+      "0x00"
+    ],
+    "lr_std": [
+      "0x0000000000000000",
+      "0xC0444CCE72EF3F58",
+      "0xFD5F65F9592DD14F",
+      "0x35B9285EC845AB95",
+      "0x5DCE3605F6A6D59F",
+      "0x1F0419C762ED653A",
+      "0x6A90F0EADEF5B3AE",
+      "0xD1DB00E4B385F40B",
+      "0xA58D98AF2A77F9A1",
+      "0xFC8258037A81FDD3"
+    ],
+    "lm_std": [],
+    "lc_std": [],
+    "v": "0x1",
+    "fuel": "0x1",
+    "index": "0x8",
+    "ipc": "0x1",
+    "result_expected": "0xA1F9"
+  }
+]

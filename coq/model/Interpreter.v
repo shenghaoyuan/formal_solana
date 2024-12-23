@@ -825,14 +825,17 @@ Definition int_to_bpf_ireg (i : int) : bpf_ireg :=
   | Some v => v
   end.
 
+Check Mem.alloc.
+
 Definition step_test (lp : list int) (lr : list int) (lm : list int) 
-  (lc : list int) (v : int) (fuel : int) (ipc : int) (i : int) (res : int) (b : block) : bool :=
+  (lc : list int) (v : int) (fuel : int) (ipc : int) (i : int) (res : int) : bool :=
   if Int64.eq (Int64.repr (Int.unsigned res)) (Int64.repr Int64.min_signed) then
     true
   else
     let prog :=  int_to_int64_list lp in
     let rm := reg_Map.set BR10 (Int64.add MM_STACK_START (Int64.mul stack_frame_size max_call_depth)) (intlist_to_reg_map lr) in
-    let m := byte_list_to_mem (int_to_byte_list lm) Mem.empty b 0 in
+    let (m1, b) := Mem.alloc Mem.empty 0%Z (Z.of_nat (List.length (int_to_byte_list lm))) in
+    let m := byte_list_to_mem (int_to_byte_list lm) m1 b 0 in
     let stk := init_stack_state in
     let sv := if Int.eq v Int.one then V1 else V2 in
     let fm := init_func_map in
