@@ -1,5 +1,4 @@
-From Coq Require Extraction.
-From Coq Require Import ExtrOcamlBasic ExtrOcamlChar ExtrOcamlIntConv ExtrOcamlNatInt ExtrOcamlString ExtrOcamlNativeString ExtrOcamlZInt.
+From Coq Require Import ExtrOcamlBasic ExtrOcamlString.
 
 From Coq Require Import Ascii String List ZArith PArith.
 Import ListNotations.
@@ -7,8 +6,8 @@ Import ListNotations.
 From compcert.lib Require Import Integers.
 From bpf.model Require Import rBPFCommType ebpf vm vm_state rBPFDecoder rBPFSyntax Interpreter.
 
-Set Extraction AccessOpaque.
 
+(*
 (**r replace some extraction from ExtrOcamlZInt *)
 Extract Constant Pos.succ => "Stdlib.succ".
 Extract Constant Pos.pred => "fun n -> Stdlib.max 1 (n-1)".
@@ -35,21 +34,25 @@ Extract Constant Z.min => "Stdlib.min".
 Extract Constant Z.max => "Stdlib.max". (*
 Extract Constant Z.compare =>
  "fun x y -> if x=y then 0 else if x<y then (-1) else 1". *)
-Extract Constant Z.abs_N => "Stdlib.abs".
+Extract Constant Z.abs_N => "Stdlib.abs".*)
 
-Print Z.
 
-Extract Inductive Z => "int64" ["Int64.zero" "" ""].
+Extract Inductive int => "z" [""].
+Extract Inductive int64 => "z" [""].
+Extract Inductive Int128.int => "z" [""].
+Extract Inductive Ptrofs.int => "z" [""].
+Extract Inductive Int16.int => "z" [""].
+Extract Inductive Byte.int => "z" [""].
 (*
-Extract Inductive int64 => "int" [""].
-Extract Inductive Int128.int => "int" [""].
-Extract Inductive Ptrofs.int => "int" [""].
-Extract Inductive Int16.int => "int" [""].
-Extract Inductive Byte.int => "int" [""].*)
+Extract Inductive nat => int [ "Z0" "" ] "(fun fO fS n -> if n=0 then fO () else fS (n-1))".*)
 
 Extract Inductive bool => "bool" [ "true" "false" ].
+Extract Inductive sumbool => "bool" [ "true" "false" ].
 Extract Inductive list => "list" [ "[]" "(::)" ].
-Extract Inductive nat => int [ "0" "succ" ] "(fun fO fS n -> if n=0 then fO () else fS (n-1))".
+
+Set Extraction AccessOpaque.
+
+Extraction TestCompile step_test.
 
 Extraction "/home/liuhao/formal_solana/coq/test/interpreter_test.ml" bpf_interp_test.
 Extraction "/home/liuhao/formal_solana/coq/test/step_test.ml" step_test.

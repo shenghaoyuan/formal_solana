@@ -71,12 +71,12 @@ Proof.
     change (Byte.unsigned (Byte.repr (Int64.unsigned (Int64.repr (Byte.unsigned (Byte.repr 24))))) =? 24) with true.
     simpl.
     rewrite Hnth0.
-    + bsolver. TODO
+    + bsolver. (*TODO
   match goal with
 
 
   | |- context[Int64.unsigned_bitfield_extract ?p0 ?w0 (Int64.bitfield_insert ?p0 ?w0 ?i0 ?v0)] =>
     erewrite unsigned_bitfield_extract_bitfield_insert_same_1 with (pos := p0) (width := w0)
-  end.
+  end.*)
 
 Admitted.

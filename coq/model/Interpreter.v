@@ -781,8 +781,8 @@ Fixpoint bpf_interp
       end
   end.
 
-Definition int_to_byte_list (l : list int) : list byte :=
-  map (fun i => Byte.repr (Int.unsigned i)) l.
+Definition int64_to_byte_list (l : list int64) : list byte :=
+  map (fun i => Byte.repr (Int64.unsigned i)) l.
 
 Definition int_to_int64_list (l : list int) : list int64 :=
   map (fun i => Int64.repr (Int.unsigned i)) l.
@@ -800,17 +800,17 @@ Definition byte_list_to_mem (l : list byte) (m : mem) (b : block) (ofs : Z): mem
   end.
 
 
-Definition intlist_to_reg_map (l : list int) : reg_map :=
-  fun i => Int64.repr (Int.unsigned (List.nth (bpf_ireg_to_nat i) l Int.zero)).
+Definition int64list_to_reg_map (l : list int64) : reg_map :=
+  fun i => (List.nth (bpf_ireg_to_nat i) l Int64.zero).
 
 Definition bpf_interp_test
-  (lp : list int) (lm : list int) (lc : list int) (v : int) (fuel : int) (res : int) (is_ok : bool) : bool :=
-  let st1 := bpf_interp (Z.to_nat (Int.unsigned (Int.add fuel Int.one))) (int_to_int64_list lp)
-                (init_bpf_state init_reg_map (byte_list_to_mem (int_to_byte_list lm) Mem.empty 1%positive 0) (Int64.repr (Int.unsigned(Int.add fuel Int.one)))
-                  (if Int.eq v Int.one then V1 else V2)) true (Int64.repr 0x100000000%Z) 1%positive in
+  (lp : list int64) (lm : list int64) (lc : list int64) (v : int64) (fuel : int64) (res : int64) (is_ok : bool) : bool :=
+  let st1 := bpf_interp (Z.to_nat (Int64.unsigned (Int64.add fuel Int64.one))) lp
+                (init_bpf_state init_reg_map (byte_list_to_mem (int64_to_byte_list lm) Mem.empty 1%positive 0) (Int64.add fuel Int64.one)
+                  (if Int64.eq v Int64.one then V1 else V2)) true (Int64.repr 0x100000000%Z) 1%positive in
   if is_ok then
     match st1 with
-    | BPF_Success v' => Int64.eq v' (Int64.repr (Int.unsigned res))
+    | BPF_Success v' => Int64.eq v' res
     | _              => false
     end
   else
@@ -819,43 +819,42 @@ Definition bpf_interp_test
     | _         => false
     end.
 
-Definition int_to_bpf_ireg (i : int) : bpf_ireg :=
-  match nat_to_bpf_ireg (Z.to_nat (Int.unsigned i)) with
+Definition int64_to_bpf_ireg (i : int64) : bpf_ireg :=
+  match nat_to_bpf_ireg (Z.to_nat (Int64.unsigned i)) with
   | None => BR0
   | Some v => v
   end.
 
-Check Mem.alloc.
-
-Definition step_test (lp : list int) (lr : list int) (lm : list int) 
-  (lc : list int) (v : int) (fuel : int) (ipc : int) (i : int) (res : int) : bool :=
-  if Int64.eq (Int64.repr (Int.unsigned res)) (Int64.repr Int64.min_signed) then
+Definition step_test (lp : list int64) (lr : list int64) (lm : list int64) 
+  (lc : list int64) (v : int64) (fuel : int64) (ipc : int64) (i : int64) (res : int64) : bool :=
+  if Int64.eq res (Int64.repr Int64.min_signed) then
     true
   else
-    let prog :=  int_to_int64_list lp in
-    let rm := reg_Map.set BR10 (Int64.add MM_STACK_START (Int64.mul stack_frame_size max_call_depth)) (intlist_to_reg_map lr) in
-    let (m1, b) := Mem.alloc Mem.empty 0%Z (Z.of_nat (List.length (int_to_byte_list lm))) in
-    let m := byte_list_to_mem (int_to_byte_list lm) m1 b 0 in
+    let prog := lp in
+    let rm := reg_Map.set BR10 (Int64.add MM_STACK_START (Int64.mul stack_frame_size max_call_depth)) (int64list_to_reg_map lr) in
+    let (m1, b) := Mem.alloc Mem.empty 0%Z (Z.of_nat (List.length (int64_to_byte_list lm))) in
+    let m := byte_list_to_mem (int64_to_byte_list lm) m1 b 0 in
     let stk := init_stack_state in
-    let sv := if Int.eq v Int.one then V1 else V2 in
+    let sv := if Int64.eq v Int64.one then V1 else V2 in
     let fm := init_func_map in
     match rbpf_decoder 0 prog with
     | None => false
     | Some ins0 =>
         let st1 := step Int64.zero ins0 rm m stk sv fm true (Int64.repr 0x100000000%Z) Int64.zero (Int64.repr 3%Z) b in
-        if orb (Int64.eq (List.nth 0 prog Int64.zero) (Int64.repr 0x18%Z)) (Nat.eqb (List.length lp) 2) then
+        let op : int64 := decode_bpf (List.nth 0 prog Int64.zero) 0 8 in
+        if orb (Int64.eq op (Int64.repr 0x18%Z)) (Nat.eqb (List.length lp) 1) then
           match st1 with
-          | BPF_OK pc1 rm1 _ _ _ _ _ _ => andb (Int64.eq pc1 (Int64.repr (Int.unsigned ipc))) (Int64.eq (rm1 (int_to_bpf_ireg i)) (Int64.repr (Int.unsigned res)))
+          | BPF_OK pc1 rm1 _ _ _ _ _ _ => andb (Int64.eq pc1 ipc) (Int64.eq (eval_reg (int64_to_bpf_ireg i) rm1) res)
           | _ => false
           end
-        else if Nat.eqb (List.length lp) 16 then
+        else if Nat.eqb (List.length lp) 2 then
           match st1 with
           | BPF_OK pc1 rm1 m1 ss1 sv1 fm1 cur_cu1 remain_cu1 =>
               match rbpf_decoder 1 prog with
               | None => false
               | Some ins1 =>
                   match step pc1 ins1 rm1 m1 ss1 sv1 fm1 true (Int64.repr 0x100000000%Z) Int64.one (Int64.add Int64.one Int64.one) b with
-                  | BPF_OK pc2 rm2 _ _ _ _ _ _ => andb (Int64.eq pc2 (Int64.repr (Int.unsigned ipc))) (Int64.eq (rm2 (int_to_bpf_ireg i)) (Int64.repr (Int.unsigned res)))
+                  | BPF_OK pc2 rm2 _ _ _ _ _ _ => andb (Int64.eq pc2 ipc) (Int64.eq (eval_reg (int64_to_bpf_ireg i) rm2) res)
                   | _ => false
                   end
               end

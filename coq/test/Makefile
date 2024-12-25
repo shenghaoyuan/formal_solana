@@ -7,9 +7,9 @@ solve:
 compile:
 	make clean
 	ocamlc -c step_test.ml
-	ocamlc -c step_test2.ml
+#	ocamlc -c step_test2.ml
 	ocamlfind ocamlc -o step_test -linkpkg step_test.cmo example.ml
-	ocamlfind ocamlc -o step2 -package yojson -linkpkg step_test2.cmo step2.ml
+#	ocamlfind ocamlc -o step2 -package yojson -linkpkg step_test2.cmo step2.ml
 
 
 clean:

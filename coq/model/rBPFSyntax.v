@@ -131,13 +131,13 @@ Definition bpf_ireg_to_nat (r : bpf_ireg) : nat :=
 Definition nat_to_bpf_ireg (dst : nat) : option bpf_ireg :=
        if Nat.eqb dst 0  then Some BR0
   else if Nat.eqb dst 1  then Some BR1
-  else if Nat.eqb dst 2  then Some BR1
-  else if Nat.eqb dst 3  then Some BR1
-  else if Nat.eqb dst 4  then Some BR1
-  else if Nat.eqb dst 5  then Some BR1
-  else if Nat.eqb dst 6  then Some BR1
-  else if Nat.eqb dst 7  then Some BR1
-  else if Nat.eqb dst 8  then Some BR1
-  else if Nat.eqb dst 9  then Some BR1
-  else if Nat.eqb dst 10 then Some BR1
+  else if Nat.eqb dst 2  then Some BR2
+  else if Nat.eqb dst 3  then Some BR3
+  else if Nat.eqb dst 4  then Some BR4
+  else if Nat.eqb dst 5  then Some BR5
+  else if Nat.eqb dst 6  then Some BR6
+  else if Nat.eqb dst 7  then Some BR7
+  else if Nat.eqb dst 8  then Some BR8
+  else if Nat.eqb dst 9  then Some BR9
+  else if Nat.eqb dst 10 then Some BR10
   else None.
