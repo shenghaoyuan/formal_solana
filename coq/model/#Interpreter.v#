@@ -871,4 +871,8 @@ Definition step_test (lp : list int64) (lr : list int64) (lm : list int64)
           false
     end.
 
+Compute (Int64.modu (Int64.repr 9802974527853709567) (Int64.repr 1624185344)).
+Compute (Int64.mods (Int64.repr 9802974527853709567) (Int64.repr 1624185344)).
+Compute (modu_64_rust (Int64.repr 9802974527853709567) (Int64.repr 1624185344)).
+
 Print Mem.range_perm_dec.

@@ -1,0 +1,32 @@
+[{
+    "dis": "mod r9, 10",
+    "lp_std": [
+      "0x97",
+      "0x09",
+      "0x00",
+      "0x00",
+      "0x0A",
+      "0x00",
+      "0x00",
+      "0x00"
+    ],
+    "lr_std": [
+      "0x0000000000000000",
+      "0xDCD35FFB1A8CD242",
+      "0xCD24E3A182F06A3D",
+      "0xB9AD62190927DAC2",
+      "0xC5068DC77BB52562",
+      "0x66ADCD48FB6D02C0",
+      "0xF3EB051C32A6980D",
+      "0x40B97EF708ABDF08",
+      "0x852B4711FED6F7FD",
+      "0xFFFFFFFFFFFFFFF5"
+    ],
+    "lm_std": [],
+    "lc_std": [],
+    "v": "0x1",
+    "fuel": "0x1",
+    "index": "0x9",
+    "ipc": "0x1",
+    "result_expected": "0x94464FF"
+  }]

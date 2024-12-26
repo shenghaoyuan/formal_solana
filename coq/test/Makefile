@@ -1,32 +1,37 @@
 solve:
-	sed -i 's/type int = int//g' step_test.ml
-	sed -i 's/type int = int//g' step_test.mli
-#	sed -i 's/type int = int//g' interpreter_test.ml
-#	sed -i 's/type int = int//g' interpreter_test.mli
+	rm step_test.mli
+	rm interpreter_test.mli
 
 compile:
-	make clean
 	ocamlc -c step_test.ml
-#	ocamlc -c step_test2.ml
-	ocamlfind ocamlc -o step_test -linkpkg step_test.cmo example.ml
-#	ocamlfind ocamlc -o step2 -package yojson -linkpkg step_test2.cmo step2.ml
-
+	ocamlc -c step_test2.ml
+	ocamlfind ocamlc -o step -package yojson -linkpkg step_test.cmo step.ml
+	ocamlfind ocamlc -o step2 -package yojson -linkpkg step_test2.cmo step2.ml
+#	ocamlfind ocamlc -o solve -package yojson -linkpkg solve.ml
 
 clean:
 	@echo $@
-	find . -name "step_test" -exec rm {} \;
-	find . -name "step_test2" -exec rm {} \;
+	find . -name "step" -exec rm {} \;
+	find . -name "step2" -exec rm {} \;
+	find . -name "solve" -exec rm {} \;
 	find . -name "*\.cmi" -exec rm {} \;
 	find . -name "*\.cmo" -exec rm {} \;
 	find . -name "*\.cmx" -exec rm {} \;
-	
+
+test:
+	ocamlc -c step_test1.ml
+	ocamlfind ocamlc -o step1 -package yojson -linkpkg step_test1.cmo step.ml
+	./step1
+	find . -name "step1" -exec rm {} \;
+	find . -name "step_test1.cmi" -exec rm {} \;
+	find . -name "step_test1.cmo" -exec rm {} \;
 	
 run:
-	@echo "run example"
-	./example
-	@echo "/n/nrun step2"
+	@echo "run step"
+	./step
+	@echo "\nrun step2"
 	./step2
 
 
-.PHONY: compile clean run solve
+.PHONY: compile clean run solve test
 

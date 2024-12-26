@@ -3,15 +3,15 @@ open Yojson.Basic.Util
 
 type test_case = {
   dis : string; 
-  lp_std : int list;
-  lr_std : int list;
-  lm_std : int list;
-  lc_std : int list;
-  v : int;
-  fuel : int;
-  ipc : int;
-  index : int;
-  result_expected : int;
+  lp_std : int64 list;
+  lr_std : int64 list;
+  lm_std : int64 list;
+  lc_std : int64 list;
+  v : int64;
+  fuel : int64;
+  ipc : int64;
+  index : int64;
+  result_expected : int64;
 }
 
 let green = "\027[32m"  (* ANSI green *)
@@ -22,17 +22,22 @@ let passed = ref 0
 let failed = ref 0
 
 let run_test_case test_case =
-  let v = test_case.v in
-  let fuel = test_case.fuel in
-  let index = test_case.index in
-  let ipc = test_case.ipc in
-  let res = test_case.result_expected in
-  let lp = List.map test_case.lp_std in
-  let lr = List.map test_case.lr_std in
-  let lm = List.map test_case.lm_std in
-  let lc = List.map test_case.lc_std in
+  let v = int64_to_z test_case.v in
+  let fuel = int64_to_z test_case.fuel in
+  let index = int64_to_z test_case.index in
+  let ipc = int64_to_z test_case.ipc in
+  let res = int64_to_z test_case.result_expected in
+  let lp = int64_list_of_z_list test_case.lp_std in
+  let lr = int64_list_of_z_list test_case.lr_std in
+  let lm = int64_list_of_z_list test_case.lm_std in
+  let lc = int64_list_of_z_list test_case.lc_std in
   let result = step_test lp lr lm lc v fuel ipc index res in
   let color = if result then green else red in
+  (*let _ = Printf.printf "v=%Lx fuel=%Lx index=%Lx ipc=%Lx res=%Lx\n" test_case.v test_case.fuel test_case.index test_case.ipc test_case.result_expected in
+  let _ = List.iter (fun x -> Printf.printf "%Lx  " x) test_case.lp_std in
+  let _ = Printf.printf "\n" in
+  let _ = List.iter (fun x -> Printf.printf "%Lx  " x) test_case.lr_std in
+  let _ = Printf.printf "\n" in*)
   if result then (
     passed := !passed + 1;
   ) else (
@@ -53,17 +58,17 @@ let parse_test_case json =
   let ipc = json |> member "ipc" |> to_string in
   let result_expected = json |> member "result_expected" |> to_string in
 
-  let parse_int s = Int.of_string s in
+  let parse_int64 s = Stdlib.Int64.of_string s in
 
-  let lp_std = List.map parse_int lp_std in
-  let lr_std = List.map parse_int lr_std in
-  let lm_std = List.map parse_int lm_std in
-  let lc_std = List.map parse_int lc_std in
-  let v = parse_int v in
-  let fuel = parse_int fuel in
-  let index = parse_int index in
-  let ipc = parse_int ipc in
-  let result_expected = parse_int result_expected in
+  let lp_std = List.map parse_int64 lp_std in
+  let lr_std = List.map parse_int64 lr_std in
+  let lm_std = List.map parse_int64 lm_std in
+  let lc_std = List.map parse_int64 lc_std in
+  let v = parse_int64 v in
+  let fuel = parse_int64 fuel in
+  let index = parse_int64 index in
+  let ipc = parse_int64 ipc in
+  let result_expected = parse_int64 result_expected in
 
   { dis; lp_std; lr_std; lm_std; lc_std; v; fuel; ipc; index; result_expected }
 
@@ -74,7 +79,7 @@ let read_test_cases filename =
   | _ -> failwith "Expected a list of test cases"
 
 let () =
-  let test_cases = read_test_cases "./ocaml_in.json" in
+  let test_cases = read_test_cases "/home/liuhao/formal_solana/coq/test/ocaml_in3.json" in
   List.iter run_test_case test_cases;
   Printf.printf "\nSummary:\n";
   Printf.printf "%sPassed: %d%s\n" green !passed reset;

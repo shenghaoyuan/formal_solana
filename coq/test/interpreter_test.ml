@@ -1803,6 +1803,16 @@ module Int64 =
   let shru x y =
     repr (Z.shiftr (unsigned x) (unsigned y))
 
+  (** val mulhu : z -> z -> z **)
+
+  let mulhu x y =
+    repr (Z.div (Z.mul (unsigned x) (unsigned y)) modulus)
+
+  (** val mulhs : z -> z -> z **)
+
+  let mulhs x y =
+    repr (Z.div (Z.mul (signed x) (signed y)) modulus)
+
   (** val zero_ext : z -> z -> z **)
 
   let zero_ext n0 x =
@@ -1910,22 +1920,6 @@ module Wordsize_16 =
  end
 
 module Int16 = Make(Wordsize_16)
-
-module Wordsize_128 =
- struct
-  (** val wordsize : nat **)
-
-  let wordsize =
-    S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
-      (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
-      (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
-      (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
-      (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
-      (S (S (S (S (S (S (S
-      O)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
- end
-
-module Int128 = Make(Wordsize_128)
 
 type usize = z
 
@@ -9167,6 +9161,16 @@ let rbpf_decoder pc l =
 type stack_state = { call_depth : z; stack_pointer : z;
                      call_frames : callFrame list }
 
+(** val modu_64_rust : z -> z -> z **)
+
+let modu_64_rust x y =
+  Int64.repr (Z.rem (Int64.unsigned x) (Int64.unsigned y))
+
+(** val modu_32_rust : z -> z -> z **)
+
+let modu_32_rust x y =
+  Int.repr (Z.rem (Int.unsigned x) (Int.unsigned y))
+
 (** val eval_reg : bpf_ireg -> reg_map -> z **)
 
 let eval_reg =
@@ -9178,13 +9182,6 @@ let rec create_list n0 def_v =
   match n0 with
   | O -> []
   | S n' -> def_v::(create_list n' def_v)
-
-(** val mM_INPUT_START : z **)
-
-let mM_INPUT_START =
-  Int64.repr (Zpos (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO
-    (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO
-    (XO (XO XH)))))))))))))))))))))))))))))))))))
 
 (** val init_stack_state : stack_state **)
 
@@ -9225,14 +9222,14 @@ type 'a option2 =
 let eval_snd_op_u32 so rm =
   match so with
   | SOImm i -> i
-  | SOReg r -> Int.repr (Int64.signed (rm r))
+  | SOReg r -> Int.repr (Int64.unsigned (rm r))
 
 (** val eval_snd_op_i32 : snd_op -> reg_map -> z **)
 
 let eval_snd_op_i32 so rm =
   match so with
   | SOImm i -> i
-  | SOReg r -> Int.repr (Int64.unsigned (rm r))
+  | SOReg r -> Int.repr (Int64.signed (rm r))
 
 (** val eval_snd_op_u64 : snd_op -> reg_map -> z **)
 
@@ -9245,7 +9242,7 @@ let eval_snd_op_u64 so rm =
 
 let eval_snd_op_i64 so rm =
   match so with
-  | SOImm i -> Int64.repr (Int.unsigned i)
+  | SOImm i -> Int64.repr (Int.signed i)
   | SOReg r -> rm r
 
 (** val eval_alu32_aux1 :
@@ -9323,8 +9320,8 @@ let eval_alu32_aux2 bop dst sop rm =
            | SOImm _ -> NOK
            | SOReg _ -> OKN)
      else OKS
-            (Coq_reg_Map.set dst (Int64.repr (Int.unsigned (Int.modu dv sv)))
-              rm)
+            (Coq_reg_Map.set dst
+              (Int64.repr (Int.unsigned (modu_32_rust dv sv))) rm)
    | BPF_XOR ->
      OKS (Coq_reg_Map.set dst (Int64.repr (Int.unsigned (Int.xor sv dv))) rm)
    | BPF_MOV -> OKS (Coq_reg_Map.set dst (Int64.repr (Int.unsigned sv)) rm)
@@ -9399,7 +9396,7 @@ let eval_alu64_aux1 bop dst sop rm is_v1 =
      then (match sop with
            | SOImm _ -> NOK
            | SOReg _ -> OKN)
-     else OKS (Coq_reg_Map.set dst (Int64.modu dv sv) rm)
+     else OKS (Coq_reg_Map.set dst (modu_64_rust dv sv) rm)
    | BPF_XOR -> OKS (Coq_reg_Map.set dst (Int64.xor sv dv) rm)
    | BPF_MOV -> OKS (Coq_reg_Map.set dst sv rm)
    | _ -> OKN)
@@ -9476,8 +9473,8 @@ let eval_neg32 dst rm = function
   let dv = Int.repr (Int64.signed (eval_reg dst rm)) in
   OKS
   (Coq_reg_Map.set dst
-    (Int64.repr
-      (Int.signed (Int.coq_and (Int.neg dv) (Int.repr Int.max_signed)))) rm)
+    (Int64.coq_and (Int64.repr (Int.unsigned (Int.neg dv)))
+      (Int64.repr Int.max_unsigned)) rm)
 | false -> OKN
 
 (** val eval_neg64 : bpf_ireg -> reg_map -> bool -> reg_map option2 **)
@@ -9516,13 +9513,8 @@ let eval_le dst imm rm = function
                    (Z.of_nat (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
                      (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
                      (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
-                     (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
-                     (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
-                     (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
-                     (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
-                     (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
-                     (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
-                     O))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+                     (S (S (S (S (S (S (S (S (S (S
+                     O))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
             then (match int64_of_byte_list (byte_list_of_int64 dv) with
                   | Some v -> OKS (Coq_reg_Map.set dst v rm)
                   | None -> OKN)
@@ -9592,7 +9584,7 @@ let eval_pqr32_aux1 pop dst sop rm =
    | BPF_LMUL ->
      OKS (Coq_reg_Map.set dst (Int64.repr (Int.unsigned (Int.mul dv sv))) rm)
    | BPF_SDIV ->
-     if Int.eq sv Int.zero
+     if Z.eqb (Int.signed sv) Z0
      then (match sop with
            | SOImm _ -> NOK
            | SOReg _ -> OKN)
@@ -9600,7 +9592,7 @@ let eval_pqr32_aux1 pop dst sop rm =
             (Coq_reg_Map.set dst (Int64.repr (Int.unsigned (Int.divs dv sv)))
               rm)
    | BPF_SREM ->
-     if Int.eq sv Int.zero
+     if Z.eqb (Int.signed sv) Z0
      then (match sop with
            | SOImm _ -> NOK
            | SOReg _ -> OKN)
@@ -9617,7 +9609,7 @@ let eval_pqr32_aux2 pop dst sop rm =
   let sv = eval_snd_op_u32 sop rm in
   (match pop with
    | BPF_UDIV ->
-     if Int.eq sv Int.zero
+     if Z.eqb (Int.signed sv) Z0
      then (match sop with
            | SOImm _ -> NOK
            | SOReg _ -> OKN)
@@ -9625,7 +9617,7 @@ let eval_pqr32_aux2 pop dst sop rm =
             (Coq_reg_Map.set dst (Int64.repr (Int.unsigned (Int.divu dv sv)))
               rm)
    | BPF_UREM ->
-     if Int.eq sv Int.zero
+     if Z.eqb (Int.signed sv) Z0
      then (match sop with
            | SOImm _ -> NOK
            | SOReg _ -> OKN)
@@ -9654,13 +9646,13 @@ let eval_pqr64_aux1 pop dst sop rm =
   (match pop with
    | BPF_LMUL -> OKS (Coq_reg_Map.set dst (Int64.mul dv sv) rm)
    | BPF_SDIV ->
-     if Int64.eq sv Int64.zero
+     if Z.eqb (Int64.signed sv) Z0
      then (match sop with
            | SOImm _ -> NOK
            | SOReg _ -> OKN)
      else OKS (Coq_reg_Map.set dst (Int64.divu dv sv) rm)
    | BPF_SREM ->
-     if Int64.eq sv Int64.zero
+     if Z.eqb (Int64.signed sv) Z0
      then (match sop with
            | SOImm _ -> NOK
            | SOReg _ -> OKN)
@@ -9675,13 +9667,13 @@ let eval_pqr64_aux2 pop dst sop rm =
   let sv = eval_snd_op_i64 sop rm in
   (match pop with
    | BPF_SDIV ->
-     if Int64.eq sv Int64.zero
+     if Z.eqb (Int64.signed sv) Z0
      then (match sop with
            | SOImm _ -> NOK
            | SOReg _ -> OKN)
      else OKS (Coq_reg_Map.set dst (Int64.mods dv sv) rm)
    | BPF_SREM ->
-     if Int64.eq sv Int64.zero
+     if Z.eqb (Int64.signed sv) Z0
      then (match sop with
            | SOImm _ -> NOK
            | SOReg _ -> OKN)
@@ -9705,42 +9697,16 @@ let eval_pqr64 pop dst sop rm = function
 let eval_pqr64_2 pop2 dst sop rm = function
 | true -> OKN
 | false ->
-  let dv_u = Int128.repr (Int64.unsigned (eval_reg dst rm)) in
-  let sv_u = Int128.repr (Int64.unsigned (eval_snd_op_u64 sop rm)) in
-  let dv_i = Int128.repr (Int64.signed (eval_reg dst rm)) in
-  let sv_i = Int128.repr (Int64.signed (eval_snd_op_i64 sop rm)) in
+  let dv = eval_reg dst rm in
+  let sv = eval_snd_op_u64 sop rm in
   (match pop2 with
-   | BPF_UHMUL ->
-     OKS
-       (Coq_reg_Map.set dst
-         (Int64.repr
-           (Int128.unsigned
-             (Int128.shru (Int128.mul dv_u sv_u)
-               (Int128.repr
-                 (Z.of_nat (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
-                   (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
-                   (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
-                   (S (S (S (S (S (S (S (S (S
-                   O)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
-         rm)
-   | BPF_SHMUL ->
-     OKS
-       (Coq_reg_Map.set dst
-         (Int64.repr
-           (Int128.unsigned
-             (Int128.shr (Int128.mul dv_i sv_i)
-               (Int128.repr
-                 (Z.of_nat (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
-                   (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
-                   (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
-                   (S (S (S (S (S (S (S (S (S
-                   O)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
-         rm))
+   | BPF_UHMUL -> OKS (Coq_reg_Map.set dst (Int64.mulhu dv sv) rm)
+   | BPF_SHMUL -> OKS (Coq_reg_Map.set dst (Int64.mulhs dv sv) rm))
 
 (** val concrete_addr_to_abstract_addr : z -> block -> val0 **)
 
 let concrete_addr_to_abstract_addr addr b =
-  Vptr (b, (Ptrofs.of_int64u (Int64.sub addr mM_INPUT_START)))
+  Vptr (b, (Ptrofs.of_int64u addr))
 
 (** val memory_chunk_value_of_int64 : memory_chunk -> z -> val0 **)
 
@@ -9758,19 +9724,19 @@ let memory_chunk_value_of_int64 mc v =
 
 let eval_store chk dst sop off rm m b =
   let dv = eval_reg dst rm in
-  let vm_addr = Int64.add dv (Int64.repr (Int16.unsigned off)) in
+  let vm_addr = Int64.add dv (Int64.repr (Int16.signed off)) in
   let sv = eval_snd_op_u64 sop rm in
   Mem.storev chk m (concrete_addr_to_abstract_addr vm_addr b)
     (memory_chunk_value_of_int64 chk sv)
 
 (** val eval_load :
     memory_chunk -> bpf_ireg -> bpf_ireg -> off_ty -> reg_map -> Mem.mem ->
-    reg_map option **)
+    block -> reg_map option **)
 
-let eval_load chk dst src off rm m =
+let eval_load chk dst src off rm m b =
   let sv = eval_snd_op_u64 (SOReg src) rm in
-  let vm_addr = Int64.add sv (Int64.repr (Int16.unsigned off)) in
-  let v = Mem.loadv chk m (Vlong vm_addr) in
+  let vm_addr = Int64.add sv (Int64.repr (Int16.signed off)) in
+  let v = Mem.loadv chk m (concrete_addr_to_abstract_addr vm_addr b) in
   (match v with
    | Some v0 ->
      (match v0 with
@@ -9782,14 +9748,14 @@ let eval_load chk dst src off rm m =
 
 (** val eval_load_imm : bpf_ireg -> z -> z -> reg_map -> reg_map **)
 
-let eval_load_imm dst imm1 _ rm =
+let eval_load_imm dst imm1 imm2 rm =
   let v =
     Int64.coq_or
       (Int64.coq_and (Int64.repr (Int.unsigned imm1))
         (Int64.repr (Zpos (XI (XI (XI (XI (XI (XI (XI (XI (XI (XI (XI (XI (XI
           (XI (XI (XI (XI (XI (XI (XI (XI (XI (XI (XI (XI (XI (XI (XI (XI (XI
           (XI XH))))))))))))))))))))))))))))))))))
-      (bit_left_shift_int64 (Int64.repr (Int.unsigned imm1)) (S (S (S (S (S
+      (bit_left_shift_int64 (Int64.repr (Int.unsigned imm2)) (S (S (S (S (S
         (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
         (S (S (S (S O)))))))))))))))))))))))))))))))))
   in
@@ -9937,7 +9903,7 @@ let step pc ins rm m ss sv fm enable_stack_frame_gaps program_vm_addr cur_cu rem
      BPF_OK ((Int64.add pc (Int64.repr (Zpos (XO XH)))), rm', m, ss, sv, fm,
      (Int64.add cur_cu Int64.one), remain_cu)
    | BPF_LDX (chk, dst, sop, off) ->
-     (match eval_load chk dst sop off rm m with
+     (match eval_load chk dst sop off rm m b with
       | Some rm' ->
         BPF_OK ((Int64.add pc Int64.one), rm', m, ss, sv, fm,
           (Int64.add cur_cu Int64.one), remain_cu)
@@ -10026,14 +9992,14 @@ let step pc ins rm m ss sv fm enable_stack_frame_gaps program_vm_addr cur_cu rem
       | OKN -> BPF_EFlag)
    | BPF_JA off ->
      BPF_OK
-       ((Int64.add (Int64.repr (Int16.unsigned off)) (Int64.add pc Int64.one)),
+       ((Int64.add (Int64.add pc (Int64.repr (Int16.signed off))) Int64.one),
        rm, m, ss, sv, fm, (Int64.add cur_cu Int64.one), remain_cu)
    | BPF_JUMP (cond, bpf_ireg0, sop, off) ->
      if eval_jmp cond bpf_ireg0 sop rm
      then BPF_OK
-            ((Int64.add (Int64.repr (Int16.unsigned off))
-               (Int64.add pc Int64.one)), rm, m, ss, sv, fm,
-            (Int64.add cur_cu Int64.one), remain_cu)
+            ((Int64.add (Int64.add pc (Int64.repr (Int16.signed off)))
+               Int64.one), rm, m, ss, sv, fm, (Int64.add cur_cu Int64.one),
+            remain_cu)
      else BPF_OK ((Int64.add pc Int64.one), rm, m, ss, sv, fm,
             (Int64.add cur_cu Int64.one), remain_cu)
    | BPF_CALL_REG (src, imm) ->

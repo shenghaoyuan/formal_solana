@@ -1,4 +1,4 @@
-module Step_test : sig
+module Step_test2 : sig
   type num
   type myint
   type nat
@@ -44,6 +44,43 @@ let rec equal_inta x0 x1 = match x0, x1 with Neg k, Neg l -> equal_num k l
 
 type 'a equal = {equal : 'a -> 'a -> bool};;
 let equal _A = _A.equal;;
+
+let rec num_to_int (n: num) : int64 =
+  match n with
+  | One -> 1L
+  | Bit0 m -> Int64.mul 2L (num_to_int m)
+  | Bit1 m -> Int64.add (Int64.mul 2L (num_to_int m)) 1L     
+
+let myint_to_int (mi: myint) : int64 =
+  match mi with
+  | Zero_int -> 0L
+  | Pos n -> num_to_int n
+  | Neg n -> Int64.neg (num_to_int n)
+
+let rec num_of_int (n: int64) =
+  if n = 1L then One
+  else if Int64.rem n 2L = 0L then Bit0 (num_of_int (Int64.div n 2L))
+  else Bit1 (num_of_int (Int64.div n 2L))
+
+let i64_MIN
+  = (Neg (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
+   (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
+ (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
+     (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
+   (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
+ (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
+     (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
+   (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
+ (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 One))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));;
+
+let int_of_standard_int (n: int64) =
+  if n = 0L then Zero_int
+  else if n > 0L then  Pos (num_of_int (n))
+  else if n = 0x8000000000000000L then i64_MIN
+  else Neg (num_of_int (Int64.sub 0L n))
+
+let int_list_of_standard_int_list lst =
+  List.map int_of_standard_int lst
 
 let equal_int = ({equal = equal_inta} : myint equal);;
 
@@ -5187,42 +5224,7 @@ let rec u8_list_to_mem
 let rec int_to_u8_list
   lp = map (of_int (len_bit0 (len_bit0 (len_bit0 len_num1)))) lp;;
 
-let rec num_to_int (n: num) : int64 =
-  match n with
-  | One -> 1L
-  | Bit0 m -> Int64.mul 2L (num_to_int m)
-  | Bit1 m -> Int64.add (Int64.mul 2L (num_to_int m)) 1L     
 
-let myint_to_int (mi: myint) : int64 =
-  match mi with
-  | Zero_int -> 0L
-  | Pos n -> num_to_int n
-  | Neg n -> Int64.neg (num_to_int n)
-
-let rec num_of_int (n: int64) =
-  if n = 1L then One
-  else if Int64.rem n 2L = 0L then Bit0 (num_of_int (Int64.div n 2L))
-  else Bit1 (num_of_int (Int64.div n 2L))
-
-let i64_MIN
-  = (Neg (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
-   (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
- (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
-     (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
-   (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
- (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
-     (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
-   (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
- (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 One))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));;
-
-let int_of_standard_int (n: int64) =
-  if n = 0L then Zero_int
-  else if n > 0L then  Pos (num_of_int (n))
-  else if n = 0x8000000000000000L then i64_MIN
-  else Neg (num_of_int (Int64.sub 0L n))
-
-let int_list_of_standard_int_list lst =
-  List.map int_of_standard_int lst
 
 let print_regmap rs =
   let reg_list = [("R0", BR0); ("R1", BR1); ("R2", BR2); ("R3", BR3);
@@ -5309,7 +5311,7 @@ let rec step_test
                      (len_bit0 (len_bit0 (len_bit0 (len_bit0 len_num1))))))
                  (Pos (Bit1 One)))
              in
-             (*let _ = print_bpf_state st1 in*)
+             let _ = print_bpf_state st1 in
             (if equal_word (len_bit0 (len_bit0 (len_bit0 len_num1)))
                   (nth prog Zero_nat)
                   (of_int (len_bit0 (len_bit0 (len_bit0 len_num1)))
@@ -5345,26 +5347,29 @@ let rec step_test
                      | BPF_Err -> false)
               else (if equal_nat (size_list lp)
                          (nat_of_num (Bit0 (Bit0 (Bit0 (Bit0 One)))))
-                     then (match st1
+                     then
+                     	             (*let _ = print_bpf_state st1 in *)
+                     	(match st1
                             with BPF_OK (pc1, rs1, m1, ss1, sv1, fm1, _, _) ->
+                              (*let _ = print_bpf_state st1 in*)
                               (match bpf_find_instr one_nat prog
                                 with None -> false
                                 | Some ins1 ->
-                                  (match
-                                    step pc1 ins1 rs1 m1 ss1 sv1 fm1 true
+                                  let st2 = step pc1 ins1 rs1 m1 ss1 sv1 fm1 true
                                       (of_int
-(len_bit0 (len_bit0 (len_bit0 (len_bit0 (len_bit0 (len_bit0 len_num1))))))
-(Pos (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
-   (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
- (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
-     (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
-   (Bit0 (Bit0 (Bit0 One))))))))))))))))))))))))))))))))))
-                                      (one_worda
-(len_bit0 (len_bit0 (len_bit0 (len_bit0 (len_bit0 (len_bit0 len_num1)))))))
-                                      (of_int
-(len_bit0 (len_bit0 (len_bit0 (len_bit0 (len_bit0 (len_bit0 len_num1))))))
-(Pos (Bit0 One)))
-                                    with BPF_OK (pc2, rs2, _, _, _, _, _, _) ->
+					(len_bit0 (len_bit0 (len_bit0 (len_bit0 (len_bit0 (len_bit0 len_num1))))))
+					(Pos (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
+  					 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
+					 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
+  					   (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0 (Bit0
+ 						  (Bit0 (Bit0 (Bit0 One))))))))))))))))))))))))))))))))))
+                                     			 (one_worda
+							(len_bit0 (len_bit0 (len_bit0 (len_bit0 (len_bit0 (len_bit0 len_num1)))))))
+                                      			(of_int
+						(len_bit0 (len_bit0 (len_bit0 (len_bit0 (len_bit0 (len_bit0 len_num1))))))
+						(Pos (Bit0 One))) in
+                                  (*let _ = print_bpf_state st2 in*)
+                                  (match st2 with BPF_OK (pc2, rs2, _, _, _, _, _, _) ->
                                       equal_word
 (len_bit0 (len_bit0 (len_bit0 (len_bit0 (len_bit0 (len_bit0 len_num1)))))) pc2
 (of_int

@@ -1,4 +1,4 @@
-open Step_test
+open Step_test2
 open Yojson.Basic.Util
 
 type test_case = {
@@ -22,16 +22,16 @@ let passed = ref 0
 let failed = ref 0
 
 let run_test_case test_case =
-  let v = Step_test.int_of_standard_int test_case.v in
-  let fuel = Step_test.int_of_standard_int test_case.fuel in
-  let index = Step_test.int_of_standard_int test_case.index in
-  let ipc = Step_test.int_of_standard_int test_case.ipc in
-  let res = Step_test.int_of_standard_int test_case.result_expected in
-  let lp = Step_test.int_list_of_standard_int_list test_case.lp_std in
-  let lr = Step_test.int_list_of_standard_int_list test_case.lr_std in
-  let lm = Step_test.int_list_of_standard_int_list test_case.lm_std in
-  let lc = Step_test.int_list_of_standard_int_list test_case.lc_std in
-  let result = Step_test.step_test lp lr lm lc v fuel ipc index res in
+  let v = Step_test2.int_of_standard_int test_case.v in
+  let fuel = Step_test2.int_of_standard_int test_case.fuel in
+  let index = Step_test2.int_of_standard_int test_case.index in
+  let ipc = Step_test2.int_of_standard_int test_case.ipc in
+  let res = Step_test2.int_of_standard_int test_case.result_expected in
+  let lp = Step_test2.int_list_of_standard_int_list test_case.lp_std in
+  let lr = Step_test2.int_list_of_standard_int_list test_case.lr_std in
+  let lm = Step_test2.int_list_of_standard_int_list test_case.lm_std in
+  let lc = Step_test2.int_list_of_standard_int_list test_case.lc_std in
+  let result = Step_test2.step_test lp lr lm lc v fuel ipc index res in
   let color = if result then green else red in
   if result then (
     passed := !passed + 1;
@@ -74,7 +74,7 @@ let read_test_cases filename =
   | _ -> failwith "Expected a list of test cases"
 
 let () =
-  let test_cases = read_test_cases "/home/liuhao/formal_solana/coq/test/ocaml_in.json" in
+  let test_cases = read_test_cases "/home/liuhao/formal_solana/coq/test/ocaml_in4.json" in
   List.iter run_test_case test_cases;
   Printf.printf "\nSummary:\n";
   Printf.printf "%sPassed: %d%s\n" green !passed reset;
