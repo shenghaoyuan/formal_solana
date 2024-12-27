@@ -35,14 +35,13 @@ Extract Constant Z.max => "Stdlib.max". (*
 Extract Constant Z.compare =>
  "fun x y -> if x=y then 0 else if x<y then (-1) else 1". *)
 Extract Constant Z.abs_N => "Stdlib.abs".*)
-
-
+(*
 Extract Inductive int => "z" [""].
 Extract Inductive int64 => "z" [""].
 Extract Inductive Int128.int => "z" [""].
 Extract Inductive Ptrofs.int => "z" [""].
 Extract Inductive Int16.int => "z" [""].
-Extract Inductive Byte.int => "z" [""].
+Extract Inductive Byte.int => "z" [""].*)
 (*
 Extract Inductive nat => int [ "Z0" "" ] "(fun fO fS n -> if n=0 then fO () else fS (n-1))".*)
 
@@ -51,6 +50,7 @@ Extract Inductive sumbool => "bool" [ "true" "false" ].
 Extract Inductive list => "list" [ "[]" "(::)" ].
 
 Set Extraction AccessOpaque.
+
 
 Extraction TestCompile step_test.
 

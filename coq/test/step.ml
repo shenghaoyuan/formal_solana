@@ -79,7 +79,7 @@ let read_test_cases filename =
   | _ -> failwith "Expected a list of test cases"
 
 let () =
-  let test_cases = read_test_cases "/home/liuhao/formal_solana/coq/test/ocaml_in3.json" in
+  let test_cases = read_test_cases "/home/liuhao/formal_solana/coq/test/ocaml_in5.json" in
   List.iter run_test_case test_cases;
   Printf.printf "\nSummary:\n";
   Printf.printf "%sPassed: %d%s\n" green !passed reset;

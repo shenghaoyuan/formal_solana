@@ -70,19 +70,14 @@ type z =
 (* liuhao *)
 let rec int64_to_positive (n : int64) : positive =
   if n = 1L then XH
-  else
-    let rest = Stdlib.Int64.div n 2L in
-    let bit = Stdlib.Int64.rem n 2L in
-    match bit with
-    | 0L -> XO (int64_to_positive rest)
-    | 1L -> XI (int64_to_positive rest)
-    | _ -> assert false
+  else if Stdlib.Int64.rem n 2L = 0L then XO (int64_to_positive (Stdlib.Int64.div n 2L))
+  else XI (int64_to_positive (Stdlib.Int64.div n 2L))
 
 
 let int64_to_z (n : int64) : z =
   if n = 0L then Z0
   else if n > 0L then Zpos (int64_to_positive n)
-  else Zneg (int64_to_positive (Stdlib.Int64.neg n))
+  else Zneg (int64_to_positive (Stdlib.Int64.sub 0L n))
 
 let int64_list_of_z_list lst =
   List.map int64_to_z lst
@@ -98,9 +93,9 @@ let z_to_int64 (z : z) : int64 =
   match z with
   | Z0 -> 0L
   | Zpos p -> 
-  		(*let _ = Printf.printf "p" in*)
+  		(*let _ = Printf.printf "p " in*)
   		positive_to_int64 p
-  | Zneg p ->   (*let _ = Printf.printf "n" in*)
+  | Zneg p ->   (*let _ = Printf.printf "n " in*)
   		Stdlib.Int64.neg (positive_to_int64 p)
 
 
@@ -1727,10 +1722,13 @@ module Int64 =
   let min_signed =
     Z.opp half_modulus
 
-  (** val intval : z -> z **)
+  type int = z
+    (* singleton inductive, whose constructor was mkint *)
 
-  let intval = function
-  | intval0 -> intval0
+  (** val intval : int -> z **)
+
+  let intval i =
+    i
 
   (** val coq_Z_mod_modulus : z -> z **)
 
@@ -1740,127 +1738,137 @@ module Int64 =
   | Zneg p ->
     let r = p_mod_two_p p wordsize in if zeq r Z0 then Z0 else Z.sub modulus r
 
-  (** val unsigned : z -> z **)
+  (** val unsigned : int -> z **)
 
   let unsigned =
     intval
 
-  (** val signed : z -> z **)
+  (** val signed : int -> z **)
 
   let signed n0 =
     let x = unsigned n0 in if zlt x half_modulus then x else Z.sub x modulus
 
-  (** val repr : z -> z **)
+  (** val repr : z -> int **)
 
-  let repr x =
-    (coq_Z_mod_modulus x)
+  let repr =
+    coq_Z_mod_modulus
 
-  (** val zero : z **)
+  (** val zero : int **)
 
   let zero =
     repr Z0
 
-  (** val one : z **)
+  (** val one : int **)
 
   let one =
     repr (Zpos XH)
 
-  (** val eq_dec : z -> z -> bool **)
+  (** val eq_dec : int -> int -> bool **)
 
-  let eq_dec x y =
-    let intval0 = x in let intval1 = y in zeq intval0 intval1
+  let eq_dec =
+    zeq
 
-  (** val eq : z -> z -> bool **)
+  (** val eq : int -> int -> bool **)
 
   let eq x y =
     if zeq (unsigned x) (unsigned y) then true else false
 
-  (** val lt : z -> z -> bool **)
+  (** val lt : int -> int -> bool **)
 
   let lt x y =
     if zlt (signed x) (signed y) then true else false
 
-  (** val ltu : z -> z -> bool **)
+  (** val ltu : int -> int -> bool **)
 
   let ltu x y =
     if zlt (unsigned x) (unsigned y) then true else false
 
-  (** val neg : z -> z **)
+  (** val neg : int -> int **)
 
   let neg x =
     repr (Z.opp (unsigned x))
 
-  (** val add : z -> z -> z **)
+  (** val add : int -> int -> int **)
 
   let add x y =
     repr (Z.add (unsigned x) (unsigned y))
 
-  (** val sub : z -> z -> z **)
+  (** val sub : int -> int -> int **)
 
   let sub x y =
     repr (Z.sub (unsigned x) (unsigned y))
 
-  (** val mul : z -> z -> z **)
+  (** val mul : int -> int -> int **)
 
   let mul x y =
     repr (Z.mul (unsigned x) (unsigned y))
 
-  (** val mods : z -> z -> z **)
+  (** val divs : int -> int -> int **)
+
+  let divs x y =
+    repr (Z.quot (signed x) (signed y))
+
+  (** val mods : int -> int -> int **)
 
   let mods x y =
     repr (Z.rem (signed x) (signed y))
 
-  (** val divu : z -> z -> z **)
+  (** val divu : int -> int -> int **)
 
   let divu x y =
     repr (Z.div (unsigned x) (unsigned y))
 
-  (** val modu : z -> z -> z **)
+  (** val modu : int -> int -> int **)
 
   let modu x y =
     repr (Z.modulo (unsigned x) (unsigned y))
 
-  (** val coq_and : z -> z -> z **)
+  (** val coq_and : int -> int -> int **)
 
   let coq_and x y =
     repr (Z.coq_land (unsigned x) (unsigned y))
 
-  (** val coq_or : z -> z -> z **)
+  (** val coq_or : int -> int -> int **)
 
   let coq_or x y =
     repr (Z.coq_lor (unsigned x) (unsigned y))
 
-  (** val xor : z -> z -> z **)
+  (** val xor : int -> int -> int **)
 
   let xor x y =
     repr (Z.coq_lxor (unsigned x) (unsigned y))
 
-  (** val shl : z -> z -> z **)
+  (** val shl : int -> int -> int **)
 
   let shl x y =
     repr (Z.shiftl (unsigned x) (unsigned y))
 
-  (** val shru : z -> z -> z **)
+  (** val shru : int -> int -> int **)
 
   let shru x y =
     repr (Z.shiftr (unsigned x) (unsigned y))
 
-  (** val mulhu : z -> z -> z **)
+  (** val shr : int -> int -> int **)
+
+  let shr x y =
+    repr (Z.shiftr (signed x) (unsigned y))
+
+  (** val mulhu : int -> int -> int **)
 
   let mulhu x y =
     repr (Z.div (Z.mul (unsigned x) (unsigned y)) modulus)
 
-  (** val mulhs : z -> z -> z **)
+  (** val mulhs : int -> int -> int **)
 
   let mulhs x y =
     repr (Z.div (Z.mul (signed x) (signed y)) modulus)
 
-  (** val zero_ext : z -> z -> z **)
+  (** val zero_ext : z -> int -> int **)
 
   let zero_ext n0 x =
     repr (zzero_ext n0 (unsigned x))
 
-  (** val cmp : comparison0 -> z -> z -> bool **)
+  (** val cmp : comparison0 -> int -> int -> bool **)
 
   let cmp c x y =
     match c with
@@ -1871,7 +1879,7 @@ module Int64 =
     | Cgt -> lt y x
     | Cge -> negb (lt x y)
 
-  (** val cmpu : comparison0 -> z -> z -> bool **)
+  (** val cmpu : comparison0 -> int -> int -> bool **)
 
   let cmpu c x y =
     match c with
@@ -1882,7 +1890,7 @@ module Int64 =
     | Cgt -> ltu y x
     | Cge -> negb (ltu x y)
 
-  (** val unsigned_bitfield_extract : z -> z -> z -> z **)
+  (** val unsigned_bitfield_extract : z -> z -> int -> int **)
 
   let unsigned_bitfield_extract pos width n0 =
     zero_ext width (shru n0 (repr pos))
@@ -1914,10 +1922,13 @@ module Ptrofs =
   let modulus =
     two_power_nat wordsize
 
-  (** val intval : z -> z **)
+  type int = z
+    (* singleton inductive, whose constructor was mkint *)
 
-  let intval = function
-  | intval0 -> intval0
+  (** val intval : int -> z **)
+
+  let intval i =
+    i
 
   (** val coq_Z_mod_modulus : z -> z **)
 
@@ -1927,27 +1938,27 @@ module Ptrofs =
   | Zneg p ->
     let r = p_mod_two_p p wordsize in if zeq r Z0 then Z0 else Z.sub modulus r
 
-  (** val unsigned : z -> z **)
+  (** val unsigned : int -> z **)
 
   let unsigned =
     intval
 
-  (** val repr : z -> z **)
+  (** val repr : z -> int **)
 
-  let repr x =
-    (coq_Z_mod_modulus x)
+  let repr =
+    coq_Z_mod_modulus
 
-  (** val eq_dec : z -> z -> bool **)
+  (** val eq_dec : int -> int -> bool **)
 
-  let eq_dec x y =
-    let intval0 = x in let intval1 = y in zeq intval0 intval1
+  let eq_dec =
+    zeq
 
-  (** val of_int64 : z -> z **)
+  (** val of_int64 : Int64.int -> int **)
 
   let of_int64 x =
     repr (Int64.unsigned x)
 
-  (** val of_int64u : z -> z **)
+  (** val of_int64u : Int64.int -> int **)
 
   let of_int64u =
     of_int64
@@ -1963,39 +1974,39 @@ module Wordsize_16 =
 
 module Int16 = Make(Wordsize_16)
 
-type usize = z
+type usize = Int64.int
 
-(** val bit_left_shift_word : z -> nat -> z **)
+(** val bit_left_shift_word : Int16.int -> nat -> Int16.int **)
 
 let bit_left_shift_word x n0 =
   Int16.shl x (Int16.repr (Z.of_nat n0))
 
-(** val bit_right_shift_word : z -> nat -> z **)
+(** val bit_right_shift_word : Int16.int -> nat -> Int16.int **)
 
 let bit_right_shift_word x n0 =
   Int16.shru x (Int16.repr (Z.of_nat n0))
 
-(** val bit_left_shift_int : z -> nat -> z **)
+(** val bit_left_shift_int : Int.int -> nat -> Int.int **)
 
 let bit_left_shift_int x n0 =
   Int.shl x (Int.repr (Z.of_nat n0))
 
-(** val bit_right_shift_int : z -> nat -> z **)
+(** val bit_right_shift_int : Int.int -> nat -> Int.int **)
 
 let bit_right_shift_int x n0 =
   Int.shru x (Int.repr (Z.of_nat n0))
 
-(** val bit_left_shift_int64 : z -> nat -> z **)
+(** val bit_left_shift_int64 : Int64.int -> nat -> Int64.int **)
 
 let bit_left_shift_int64 x n0 =
   Int64.shl x (Int64.repr (Z.of_nat n0))
 
-(** val bit_right_shift_int64 : z -> nat -> z **)
+(** val bit_right_shift_int64 : Int64.int -> nat -> Int64.int **)
 
 let bit_right_shift_int64 x n0 =
   Int64.shru x (Int64.repr (Z.of_nat n0))
 
-(** val byte_list_of_word : z -> z list **)
+(** val byte_list_of_word : Int16.int -> Byte.int list **)
 
 let byte_list_of_word x =
   (Byte.repr
@@ -2008,7 +2019,7 @@ let byte_list_of_word x =
           (bit_right_shift_word x (S (S (S (S (S (S (S (S O)))))))))
           (Int16.repr (Zpos (XI (XI (XI (XI (XI (XI (XI XH))))))))))))::[])
 
-(** val byte_list_of_int : z -> z list **)
+(** val byte_list_of_int : Int.int -> Byte.int list **)
 
 let byte_list_of_int x =
   (Byte.repr
@@ -2032,7 +2043,7 @@ let byte_list_of_int x =
             (S (S (S (S (S (S (S (S (S O)))))))))))))))))))))))))
           (Int.repr (Zpos (XI (XI (XI (XI (XI (XI (XI XH))))))))))))::[])))
 
-(** val byte_list_of_int64 : z -> z list **)
+(** val byte_list_of_int64 : Int64.int -> Byte.int list **)
 
 let byte_list_of_int64 x =
   (Byte.repr
@@ -2087,7 +2098,7 @@ let byte_list_of_int64 x =
             O)))))))))))))))))))))))))))))))))))))))))))))))))))))))))
           (Int64.repr (Zpos (XI (XI (XI (XI (XI (XI (XI XH))))))))))))::[])))))))
 
-(** val int64_of_byte_list : z list -> z option **)
+(** val int64_of_byte_list : Byte.int list -> Int64.int option **)
 
 let int64_of_byte_list l =
   if Z.eqb (Z.of_nat (length l)) (Zpos (XO (XO (XO XH))))
@@ -2141,7 +2152,7 @@ let int64_of_byte_list l =
                        (Int64.repr (Byte.unsigned (nth O l Byte.zero))))))))))
   else None
 
-(** val int_of_byte_list : z list -> z option **)
+(** val int_of_byte_list : Byte.int list -> Int.int option **)
 
 let int_of_byte_list l =
   if Z.eqb (Z.of_nat (length l)) (Zpos (XO (XO XH)))
@@ -2162,7 +2173,7 @@ let int_of_byte_list l =
                (Int.repr (Byte.unsigned (nth O l Byte.zero))))))
   else None
 
-(** val word_of_byte_list : z list -> z option **)
+(** val word_of_byte_list : Byte.int list -> Int16.int option **)
 
 let word_of_byte_list l =
   if Z.eqb (Z.of_nat (length l)) (Zpos (XO XH))
@@ -2467,12 +2478,12 @@ module Float =
     beq_dec (Zpos (XI (XO (XI (XO (XI XH)))))) (Zpos (XO (XO (XO (XO (XO (XO
       (XO (XO (XO (XO XH)))))))))))
 
-  (** val to_bits : float -> z **)
+  (** val to_bits : float -> Int64.int **)
 
   let to_bits f =
     Int64.repr (bits_of_b64 f)
 
-  (** val of_bits : z -> float **)
+  (** val of_bits : Int64.int -> float **)
 
   let of_bits b =
     b64_of_bits (Int64.unsigned b)
@@ -2486,12 +2497,12 @@ module Float32 =
     beq_dec (Zpos (XO (XO (XO (XI XH))))) (Zpos (XO (XO (XO (XO (XO (XO (XO
       XH))))))))
 
-  (** val to_bits : float32 -> z **)
+  (** val to_bits : float32 -> Int.int **)
 
   let to_bits f =
     Int.repr (bits_of_b32 f)
 
-  (** val of_bits : z -> float32 **)
+  (** val of_bits : Int.int -> float32 **)
 
   let of_bits b =
     b32_of_bits (Int.unsigned b)
@@ -2522,10 +2533,10 @@ type bpf_ireg =
 | BR9
 | BR10
 
-type off_ty = z
+type off_ty = Int16.int
 
 type snd_op =
-| SOImm of z
+| SOImm of Int.int
 | SOReg of bpf_ireg
 
 type condition =
@@ -2571,24 +2582,24 @@ type sBPFV =
 | V2
 
 type bpf_instruction =
-| BPF_LD_IMM of bpf_ireg * z * z
-| BPF_LDX of memory_chunk * bpf_ireg * bpf_ireg * z
-| BPF_ST of memory_chunk * bpf_ireg * snd_op * z
-| BPF_ADD_STK of z
+| BPF_LD_IMM of bpf_ireg * Int.int * Int.int
+| BPF_LDX of memory_chunk * bpf_ireg * bpf_ireg * Int16.int
+| BPF_ST of memory_chunk * bpf_ireg * snd_op * Int16.int
+| BPF_ADD_STK of Int.int
 | BPF_ALU of binop * bpf_ireg * snd_op
 | BPF_NEG32_REG of bpf_ireg
-| BPF_LE of bpf_ireg * z
-| BPF_BE of bpf_ireg * z
+| BPF_LE of bpf_ireg * Int.int
+| BPF_BE of bpf_ireg * Int.int
 | BPF_ALU64 of binop * bpf_ireg * snd_op
 | BPF_NEG64_REG of bpf_ireg
-| BPF_HOR64_IMM of bpf_ireg * z
+| BPF_HOR64_IMM of bpf_ireg * Int.int
 | BPF_PQR of pqrop * bpf_ireg * snd_op
 | BPF_PQR64 of pqrop * bpf_ireg * snd_op
 | BPF_PQR2 of pqrop2 * bpf_ireg * snd_op
 | BPF_JA of off_ty
 | BPF_JUMP of condition * bpf_ireg * snd_op * off_ty
-| BPF_CALL_REG of bpf_ireg * z
-| BPF_CALL_IMM of bpf_ireg * z
+| BPF_CALL_REG of bpf_ireg * Int.int
+| BPF_CALL_IMM of bpf_ireg * Int.int
 | BPF_EXIT
 
 (** val bpf_ireg_to_nat : bpf_ireg -> nat **)
@@ -2643,22 +2654,22 @@ let nat_to_bpf_ireg dst =
 let iNSN_SIZE =
   S (S (S (S (S (S (S (S O)))))))
 
-(** val mM_STACK_START : z **)
+(** val mM_STACK_START : Int64.int **)
 
 let mM_STACK_START =
   Int64.repr (Zpos (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO
     (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO
     (XO XH))))))))))))))))))))))))))))))))))
 
-type func_key = z
+type func_key = Int.int
 
-type func_val = z
+type func_val = Int64.int
 
 module Coq_func_Eq =
  struct
   type t = func_key
 
-  (** val eq : z -> z -> bool **)
+  (** val eq : Int.int -> Int.int -> bool **)
 
   let eq =
     Int.eq_dec
@@ -2689,8 +2700,8 @@ let stack_frame_size =
   Int64.repr (Zpos (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO
     XH)))))))))))))
 
-type callFrame = { caller_saved_registers : z list; frame_pointer : z;
-                   target_pc : z }
+type callFrame = { caller_saved_registers : Int64.int list;
+                   frame_pointer : Int64.int; target_pc : Int64.int }
 
 (** val reg_eq : bpf_ireg -> bpf_ireg -> bool **)
 
@@ -2742,7 +2753,7 @@ module Coq_reg_Eq =
 
 module Coq_reg_Map = EMap(Coq_reg_Eq)
 
-type reg_map = z Coq_reg_Map.t
+type reg_map = Int64.int Coq_reg_Map.t
 
 type block = positive
 
@@ -2753,11 +2764,11 @@ let eq_block =
 
 type val0 =
 | Vundef
-| Vint of z
-| Vlong of z
+| Vint of Int.int
+| Vlong of Int64.int
 | Vfloat of float
 | Vsingle of float32
-| Vptr of block * z
+| Vptr of block * Ptrofs.int
 
 module Val =
  struct
@@ -2882,10 +2893,10 @@ let size_quantity_nat = function
 
 type memval =
 | Undef
-| Byte of z
+| Byte of Byte.int
 | Fragment of val0 * quantity * nat
 
-(** val bytes_of_int : nat -> z -> z list **)
+(** val bytes_of_int : nat -> z -> Byte.int list **)
 
 let rec bytes_of_int n0 x =
   match n0 with
@@ -2895,7 +2906,7 @@ let rec bytes_of_int n0 x =
                      (Z.div x (Zpos (XO (XO (XO (XO (XO (XO (XO (XO
                        XH)))))))))))
 
-(** val int_of_bytes : z list -> z **)
+(** val int_of_bytes : Byte.int list -> z **)
 
 let rec int_of_bytes = function
 | [] -> Z0
@@ -2904,27 +2915,27 @@ let rec int_of_bytes = function
     (Z.mul (int_of_bytes l') (Zpos (XO (XO (XO (XO (XO (XO (XO (XO
       XH))))))))))
 
-(** val rev_if_be : z list -> z list **)
+(** val rev_if_be : Byte.int list -> Byte.int list **)
 
 let rev_if_be l =
   if big_endian then rev l else l
 
-(** val encode_int : nat -> z -> z list **)
+(** val encode_int : nat -> z -> Byte.int list **)
 
 let encode_int sz x =
   rev_if_be (bytes_of_int sz x)
 
-(** val decode_int : z list -> z **)
+(** val decode_int : Byte.int list -> z **)
 
 let decode_int b =
   int_of_bytes (rev_if_be b)
 
-(** val inj_bytes : z list -> memval list **)
+(** val inj_bytes : Byte.int list -> memval list **)
 
 let inj_bytes bl =
   map (fun x -> Byte x) bl
 
-(** val proj_bytes : memval list -> z list option **)
+(** val proj_bytes : memval list -> Byte.int list option **)
 
 let rec proj_bytes = function
 | [] -> Some []
@@ -3224,13 +3235,13 @@ module Mem =
     else None
  end
 
-(** val decode_bpf : z -> nat -> nat -> z **)
+(** val decode_bpf : Int64.int -> nat -> nat -> Int64.int **)
 
 let decode_bpf ins from size0 =
   Int64.unsigned_bitfield_extract (Z.of_nat from) (Z.of_nat size0) ins
 
 (** val rbpf_decoder_one :
-    z -> nat -> nat -> z -> z -> bpf_instruction option **)
+    Byte.int -> nat -> nat -> Int16.int -> Int.int -> bpf_instruction option **)
 
 let rbpf_decoder_one opc dv sv off imm =
   if Z.eqb (Byte.unsigned opc) (Z.of_nat (S (S (S (S (S (S (S O))))))))
@@ -9166,7 +9177,7 @@ let rbpf_decoder_one opc dv sv off imm =
            | None -> None)
         | None -> None)
 
-(** val rbpf_decoder : nat -> z list -> bpf_instruction option **)
+(** val rbpf_decoder : nat -> Int64.int list -> bpf_instruction option **)
 
 let rbpf_decoder pc l =
   match nth_error l pc with
@@ -9224,20 +9235,10 @@ let rbpf_decoder pc l =
     else rbpf_decoder_one op dst src off imm
   | None -> None
 
-type stack_state = { call_depth : z; stack_pointer : z;
+type stack_state = { call_depth : Int64.int; stack_pointer : Int64.int;
                      call_frames : callFrame list }
 
-(** val modu_64_rust : z -> z -> z **)
-
-let modu_64_rust x y =
-  Int64.repr (Z.rem (Int64.unsigned x) (Int64.unsigned y))
-
-(** val modu_32_rust : z -> z -> z **)
-
-let modu_32_rust x y =
-  Int.repr (Z.rem (Int.unsigned x) (Int.unsigned y))
-
-(** val eval_reg : bpf_ireg -> reg_map -> z **)
+(** val eval_reg : bpf_ireg -> reg_map -> Int64.int **)
 
 let eval_reg =
   Coq_reg_Map.get
@@ -9260,8 +9261,9 @@ let init_stack_state =
       target_pc = (Int64.repr Z0) }) }
 
 type bpf_state =
-| BPF_OK of z * reg_map * Mem.mem * stack_state * sBPFV * func_map * z * z
-| BPF_Success of z
+| BPF_OK of Int64.int * reg_map * Mem.mem * stack_state * sBPFV * func_map
+   * Int64.int * Int64.int
+| BPF_Success of Int64.int
 | BPF_EFlag
 | BPF_Err
 
@@ -9270,28 +9272,28 @@ type 'a option2 =
 | OKS of 'a
 | OKN
 
-(** val eval_snd_op_u32 : snd_op -> reg_map -> z **)
+(** val eval_snd_op_u32 : snd_op -> reg_map -> Int.int **)
 
 let eval_snd_op_u32 so rm =
   match so with
   | SOImm i -> i
   | SOReg r -> Int.repr (Int64.unsigned (rm r))
 
-(** val eval_snd_op_i32 : snd_op -> reg_map -> z **)
+(** val eval_snd_op_i32 : snd_op -> reg_map -> Int.int **)
 
 let eval_snd_op_i32 so rm =
   match so with
   | SOImm i -> i
   | SOReg r -> Int.repr (Int64.signed (rm r))
 
-(** val eval_snd_op_u64 : snd_op -> reg_map -> z **)
+(** val eval_snd_op_u64 : snd_op -> reg_map -> Int64.int **)
 
 let eval_snd_op_u64 so rm =
   match so with
   | SOImm i -> Int64.repr (Int.signed i)
   | SOReg r -> rm r
 
-(** val eval_snd_op_i64 : snd_op -> reg_map -> z **)
+(** val eval_snd_op_i64 : snd_op -> reg_map -> Int64.int **)
 
 let eval_snd_op_i64 so rm =
   match so with
@@ -9373,8 +9375,8 @@ let eval_alu32_aux2 bop dst sop rm =
            | SOImm _ -> NOK
            | SOReg _ -> OKN)
      else OKS
-            (Coq_reg_Map.set dst
-              (Int64.repr (Int.unsigned (modu_32_rust dv sv))) rm)
+            (Coq_reg_Map.set dst (Int64.repr (Int.unsigned (Int.modu dv sv)))
+              rm)
    | BPF_XOR ->
      OKS (Coq_reg_Map.set dst (Int64.repr (Int.unsigned (Int.xor sv dv))) rm)
    | BPF_MOV -> OKS (Coq_reg_Map.set dst (Int64.repr (Int.unsigned sv)) rm)
@@ -9398,7 +9400,7 @@ let eval_alu32_aux3 bop dst sop rm =
          (Int64.repr
            (Int.unsigned
              (Int.coq_and
-               (Int.shru dv
+               (Int.shr dv
                  (Int.coq_and sv
                    (Int.repr
                      (Z.of_nat (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
@@ -9426,7 +9428,6 @@ let eval_alu32 bop dst sop rm is_v1 =
 let eval_alu64_aux1 bop dst sop rm is_v1 =
   let dv = eval_reg dst rm in
   let sv = eval_snd_op_u64 sop rm in
-  let _ = Printf.printf "dv = %Lx\ndv = %Lu\nsv = %Ld\nsv = %Lx\n " (z_to_int64 dv) (z_to_int64 dv) (z_to_int64 sv) (z_to_int64 sv) in
   (match bop with
    | BPF_ADD -> OKS (Coq_reg_Map.set dst (Int64.add dv sv) rm)
    | BPF_SUB ->
@@ -9450,10 +9451,7 @@ let eval_alu64_aux1 bop dst sop rm is_v1 =
      then (match sop with
            | SOImm _ -> NOK
            | SOReg _ -> OKN)
-     else let _ = Printf.printf "mod64 = %Lx\n" (z_to_int64 (modu_64_rust dv sv)) in
-     let _ = Printf.printf "re = %Lx\n" (z_to_int64 (Int64.modu dv sv)) in
-     let _ = Printf.printf "res = %Lx\n" (z_to_int64 (Int64.mods dv sv)) in
-     OKS (Coq_reg_Map.set dst (modu_64_rust dv sv) rm)
+     else OKS (Coq_reg_Map.set dst (Int64.modu dv sv) rm)
    | BPF_XOR -> OKS (Coq_reg_Map.set dst (Int64.xor sv dv) rm)
    | BPF_MOV -> OKS (Coq_reg_Map.set dst sv rm)
    | _ -> OKN)
@@ -9496,11 +9494,11 @@ let eval_alu64_aux3 bop dst sop rm =
   (match bop with
    | BPF_ARSH ->
      OKS
-       (Coq_reg_Map.set dst (Int64.shru dv (Int64.repr (Int.unsigned sv))) rm)
+       (Coq_reg_Map.set dst (Int64.shr dv (Int64.repr (Int.unsigned sv))) rm)
    | _ -> OKN)
 
 (** val eval_add64_imm_R10 :
-    z -> stack_state -> bool -> stack_state option **)
+    Int.int -> stack_state -> bool -> stack_state option **)
 
 let eval_add64_imm_R10 i ss is_v1 =
   let sp = ss.stack_pointer in
@@ -9519,8 +9517,7 @@ let eval_alu64 bop dst sop rm is_v1 =
   | BPF_DIV -> if is_v1 then eval_alu64_aux1 bop dst sop rm is_v1 else OKN
   | BPF_LSH -> eval_alu64_aux2 bop dst sop rm
   | BPF_RSH -> eval_alu64_aux2 bop dst sop rm
-  | BPF_MOD -> 
-  	if is_v1 then eval_alu64_aux1 bop dst sop rm is_v1 else OKN
+  | BPF_MOD -> if is_v1 then eval_alu64_aux1 bop dst sop rm is_v1 else OKN
   | BPF_ARSH -> eval_alu64_aux3 bop dst sop rm
   | _ -> eval_alu64_aux1 bop dst sop rm is_v1
 
@@ -9542,7 +9539,8 @@ let eval_neg64 dst rm = function
   let dv = eval_reg dst rm in OKS (Coq_reg_Map.set dst (Int64.neg dv) rm)
 | false -> OKN
 
-(** val eval_le : bpf_ireg -> z -> reg_map -> bool -> reg_map option2 **)
+(** val eval_le :
+    bpf_ireg -> Int.int -> reg_map -> bool -> reg_map option2 **)
 
 let eval_le dst imm rm = function
 | true ->
@@ -9579,7 +9577,8 @@ let eval_le dst imm rm = function
             else OKN
 | false -> OKN
 
-(** val eval_be : bpf_ireg -> z -> reg_map -> bool -> reg_map option2 **)
+(** val eval_be :
+    bpf_ireg -> Int.int -> reg_map -> bool -> reg_map option2 **)
 
 let eval_be dst imm rm = function
 | true ->
@@ -9616,7 +9615,8 @@ let eval_be dst imm rm = function
             else OKN
 | false -> OKN
 
-(** val eval_hor64 : bpf_ireg -> z -> reg_map -> bool -> reg_map option2 **)
+(** val eval_hor64 :
+    bpf_ireg -> Int.int -> reg_map -> bool -> reg_map option2 **)
 
 let eval_hor64 dst imm rm = function
 | true -> OKN
@@ -9647,7 +9647,7 @@ let eval_pqr32_aux1 pop dst sop rm =
            | SOImm _ -> NOK
            | SOReg _ -> OKN)
      else OKS
-            (Coq_reg_Map.set dst (Int64.repr (Int.unsigned (Int.divs dv sv)))
+            (Coq_reg_Map.set dst (Int64.repr (Int.signed (Int.divs dv sv)))
               rm)
    | BPF_SREM ->
      if Z.eqb (Int.signed sv) Z0
@@ -9655,7 +9655,7 @@ let eval_pqr32_aux1 pop dst sop rm =
            | SOImm _ -> NOK
            | SOReg _ -> OKN)
      else OKS
-            (Coq_reg_Map.set dst (Int64.repr (Int.unsigned (Int.mods dv sv)))
+            (Coq_reg_Map.set dst (Int64.repr (Int.signed (Int.mods dv sv)))
               rm)
    | _ -> OKN)
 
@@ -9703,13 +9703,13 @@ let eval_pqr64_aux1 pop dst sop rm =
   let sv = eval_snd_op_u64 sop rm in
   (match pop with
    | BPF_LMUL -> OKS (Coq_reg_Map.set dst (Int64.mul dv sv) rm)
-   | BPF_SDIV ->
+   | BPF_UDIV ->
      if Z.eqb (Int64.signed sv) Z0
      then (match sop with
            | SOImm _ -> NOK
            | SOReg _ -> OKN)
      else OKS (Coq_reg_Map.set dst (Int64.divu dv sv) rm)
-   | BPF_SREM ->
+   | BPF_UREM ->
      if Z.eqb (Int64.signed sv) Z0
      then (match sop with
            | SOImm _ -> NOK
@@ -9729,7 +9729,7 @@ let eval_pqr64_aux2 pop dst sop rm =
      then (match sop with
            | SOImm _ -> NOK
            | SOReg _ -> OKN)
-     else OKS (Coq_reg_Map.set dst (Int64.mods dv sv) rm)
+     else OKS (Coq_reg_Map.set dst (Int64.divs dv sv) rm)
    | BPF_SREM ->
      if Z.eqb (Int64.signed sv) Z0
      then (match sop with
@@ -9761,12 +9761,12 @@ let eval_pqr64_2 pop2 dst sop rm = function
    | BPF_UHMUL -> OKS (Coq_reg_Map.set dst (Int64.mulhu dv sv) rm)
    | BPF_SHMUL -> OKS (Coq_reg_Map.set dst (Int64.mulhs dv sv) rm))
 
-(** val concrete_addr_to_abstract_addr : z -> block -> val0 **)
+(** val concrete_addr_to_abstract_addr : Int64.int -> block -> val0 **)
 
 let concrete_addr_to_abstract_addr addr b =
   Vptr (b, (Ptrofs.of_int64u addr))
 
-(** val memory_chunk_value_of_int64 : memory_chunk -> z -> val0 **)
+(** val memory_chunk_value_of_int64 : memory_chunk -> Int64.int -> val0 **)
 
 let memory_chunk_value_of_int64 mc v =
   match mc with
@@ -9804,7 +9804,8 @@ let eval_load chk dst src off rm m b =
       | _ -> None)
    | None -> None)
 
-(** val eval_load_imm : bpf_ireg -> z -> z -> reg_map -> reg_map **)
+(** val eval_load_imm :
+    bpf_ireg -> Int.int -> Int.int -> reg_map -> reg_map **)
 
 let eval_load_imm dst imm1 imm2 rm =
   let v =
@@ -9845,7 +9846,7 @@ let list_update l n0 x =
   app (firstn n0 l) (app (x::[]) (skipn (S n0) l))
 
 (** val push_frame :
-    reg_map -> stack_state -> bool -> z -> bool -> stack_state
+    reg_map -> stack_state -> bool -> Int64.int -> bool -> stack_state
     option * reg_map **)
 
 let push_frame rm ss is_v1 pc enable_stack_frame_gaps =
@@ -9880,8 +9881,9 @@ let push_frame rm ss is_v1 pc enable_stack_frame_gaps =
        ((Some new_stack_state), updated_reg_map)
 
 (** val eval_call_reg :
-    bpf_ireg -> z -> reg_map -> stack_state -> bool -> z -> func_map -> bool
-    -> z -> ((z * reg_map) * stack_state) option **)
+    bpf_ireg -> Int.int -> reg_map -> stack_state -> bool -> Int64.int ->
+    func_map -> bool -> Int64.int -> ((Int64.int * reg_map) * stack_state)
+    option **)
 
 let eval_call_reg src imm rm ss is_v1 pc _ enable_stack_frame_gaps program_vm_addr =
   match nat_to_bpf_ireg (Z.to_nat (Int.unsigned imm)) with
@@ -9901,8 +9903,8 @@ let eval_call_reg src imm rm ss is_v1 pc _ enable_stack_frame_gaps program_vm_ad
   | None -> None
 
 (** val eval_call_imm :
-    z -> bpf_ireg -> z -> reg_map -> stack_state -> bool -> func_map -> bool
-    -> ((z * reg_map) * stack_state) option **)
+    Int64.int -> bpf_ireg -> Int.int -> reg_map -> stack_state -> bool ->
+    func_map -> bool -> ((Int64.int * reg_map) * stack_state) option **)
 
 let eval_call_imm pc src imm rm ss is_v1 fm enable_stack_frame_gaps =
   let pc_option =
@@ -9919,7 +9921,7 @@ let eval_call_imm pc src imm rm ss is_v1 fm enable_stack_frame_gaps =
    | None -> None)
 
 (** val eval_exit :
-    reg_map -> stack_state -> bool -> (z * reg_map) * stack_state **)
+    reg_map -> stack_state -> bool -> (Int64.int * reg_map) * stack_state **)
 
 let eval_exit rm ss is_v1 =
   let x = Int64.sub ss.call_depth Int64.one in
@@ -9965,8 +9967,9 @@ let print_bpf_state st =
 
 
 (** val step :
-    z -> bpf_instruction -> reg_map -> Mem.mem -> stack_state -> sBPFV ->
-    func_map -> bool -> z -> z -> z -> block -> bpf_state **)
+    Int64.int -> bpf_instruction -> reg_map -> Mem.mem -> stack_state ->
+    sBPFV -> func_map -> bool -> Int64.int -> Int64.int -> Int64.int -> block
+    -> bpf_state **)
 
 let step pc ins rm m ss sv fm enable_stack_frame_gaps program_vm_addr cur_cu remain_cu b =
   let is_v1 = match sv with
@@ -10105,30 +10108,36 @@ let step pc ins rm m ss sv fm enable_stack_frame_gaps program_vm_addr cur_cu rem
           BPF_OK (pc', rm', m, ss, sv, fm, (Int64.add cur_cu Int64.one),
           remain_cu))
 
-(** val int64_to_byte_list : z list -> z list **)
+(** val z_to_byte_list : z list -> Byte.int list **)
 
-let int64_to_byte_list l =
-  map (fun i -> Byte.repr (Int64.unsigned i)) l
+let z_to_byte_list l =
+  map Byte.repr l
 
-(** val get_bytes : z list -> memval list **)
+(** val get_bytes : Byte.int list -> memval list **)
 
 let rec get_bytes = function
 | [] -> []
 | h::t0 -> (Byte h)::(get_bytes t0)
 
-(** val byte_list_to_mem : z list -> Mem.mem -> block -> z -> Mem.mem **)
+(** val byte_list_to_mem :
+    Byte.int list -> Mem.mem -> block -> z -> Mem.mem **)
 
 let byte_list_to_mem l m b ofs =
   match Mem.storebytes m b ofs (get_bytes l) with
   | Some m' -> m'
   | None -> m
 
-(** val int64list_to_reg_map : z list -> reg_map **)
+(** val zlist_to_reg_map : z list -> reg_map **)
 
-let int64list_to_reg_map l i =
-  nth (bpf_ireg_to_nat i) l Int64.zero
+let zlist_to_reg_map l i =
+  Int64.repr (nth (bpf_ireg_to_nat i) l Z0)
 
-(** val int64_to_bpf_ireg : z -> bpf_ireg **)
+(** val z_to_int64_list : z list -> Int64.int list **)
+
+let z_to_int64_list l =
+  map Int64.repr l
+
+(** val int64_to_bpf_ireg : Int64.int -> bpf_ireg **)
 
 let int64_to_bpf_ireg i =
   match nat_to_bpf_ireg (Z.to_nat (Int64.unsigned i)) with
@@ -10139,21 +10148,21 @@ let int64_to_bpf_ireg i =
     z list -> z list -> z list -> z list -> z -> z -> z -> z -> z -> bool **)
 
 let step_test lp lr lm _ v _ ipc i res =
-  if Int64.eq res (Int64.repr Int64.min_signed)
+  if Z.eqb res Int64.min_signed
   then true
-  else let rm =
+  else let prog = z_to_int64_list lp in
+       let rm =
          Coq_reg_Map.set BR10
            (Int64.add mM_STACK_START
              (Int64.mul stack_frame_size max_call_depth))
-           (int64list_to_reg_map lr)
+           (zlist_to_reg_map lr)
        in
-       let _ = print_regmap rm in
        let (m1, b) =
-         Mem.alloc Mem.empty Z0 (Z.of_nat (length (int64_to_byte_list lm)))
+         Mem.alloc Mem.empty Z0 (Z.of_nat (length (z_to_byte_list lm)))
        in
-       let m = byte_list_to_mem (int64_to_byte_list lm) m1 b Z0 in
-       let sv = if Int64.eq v Int64.one then V1 else V2 in
-       (match rbpf_decoder O lp with
+       let m = byte_list_to_mem (z_to_byte_list lm) m1 b Z0 in
+       let sv = if Int64.eq (Int64.repr v) Int64.one then V1 else V2 in
+       (match rbpf_decoder O prog with
         | Some ins0 ->
           let st1 =
             step Int64.zero ins0 rm m init_stack_state sv init_func_map true
@@ -10164,22 +10173,23 @@ let step_test lp lr lm _ v _ ipc i res =
           in
           let _ = print_bpf_state st1 in
           let op =
-            decode_bpf (nth O lp Int64.zero) O (S (S (S (S (S (S (S (S
+            decode_bpf (nth O prog Int64.zero) O (S (S (S (S (S (S (S (S
               O))))))))
           in
           if (||) (Int64.eq op (Int64.repr (Zpos (XO (XO (XO (XI XH)))))))
                (Nat.eqb (length lp) (S O))
           then (match st1 with
                 | BPF_OK (pc1, rm1, _, _, _, _, _, _) ->
-                  (&&) (Z.eqb (Int64.signed pc1) (Int64.signed ipc))
+                  (&&) (Z.eqb (Int64.signed pc1) ipc)
                     (Z.eqb
-                      (Int64.signed (eval_reg (int64_to_bpf_ireg i) rm1))
-                      (Int64.signed res))
+                      (Int64.signed
+                        (eval_reg (int64_to_bpf_ireg (Int64.repr i)) rm1))
+                      res)
                 | _ -> false)
           else if Nat.eqb (length lp) (S (S O))
                then (match st1 with
                      | BPF_OK (pc1, rm1, m2, ss1, sv1, fm1, _, _) ->
-                       (match rbpf_decoder (S O) lp with
+                       (match rbpf_decoder (S O) prog with
                         | Some ins1 ->
                           let st2 =
                             step pc1 ins1 rm1 m2 ss1 sv1 fm1 true
@@ -10192,12 +10202,12 @@ let step_test lp lr lm _ v _ ipc i res =
                           in
                           (match st2 with
                            | BPF_OK (pc2, rm2, _, _, _, _, _, _) ->
-                             (&&)
-                               (Z.eqb (Int64.signed pc2) (Int64.signed ipc))
+                             (&&) (Z.eqb (Int64.signed pc2) ipc)
                                (Z.eqb
                                  (Int64.signed
-                                   (eval_reg (int64_to_bpf_ireg i) rm2))
-                                 (Int64.signed res))
+                                   (eval_reg
+                                     (int64_to_bpf_ireg (Int64.repr i)) rm2))
+                                 res)
                            | _ -> false)
                         | None -> false)
                      | _ -> false)

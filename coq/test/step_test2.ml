@@ -5311,7 +5311,7 @@ let rec step_test
                      (len_bit0 (len_bit0 (len_bit0 (len_bit0 len_num1))))))
                  (Pos (Bit1 One)))
              in
-             let _ = print_bpf_state st1 in
+             (*let _ = print_bpf_state st1 in*)
             (if equal_word (len_bit0 (len_bit0 (len_bit0 len_num1)))
                   (nth prog Zero_nat)
                   (of_int (len_bit0 (len_bit0 (len_bit0 len_num1)))

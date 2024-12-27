@@ -71,12 +71,12 @@ Definition bit_left_shift_int64 (x: int64) (n: nat) : int64 :=
 
 Definition bit_right_shift_int64 (x: int64) (n: nat) : int64 := 
       Int64.shru x (Int64.repr (Z.of_nat n)).
-
+(*
 Definition arsh32 (x : int) (n : nat) : int :=
   Int.shr x (Int.repr (Z.of_nat n)).
 
 Definition arsh64 (x : int64) (n : nat) : int64 :=
-  Int64.shr x (Int64.repr (Z.of_nat n)).
+  Int64.shr x (Int64.repr (Z.of_nat n)).*)
 
 Definition bitfield_extract_byte (pos width: nat) (n : byte) : byte :=
   Byte.unsigned_bitfield_extract (Z.of_nat pos) (Z.of_nat width) n.

@@ -12,12 +12,17 @@ Record stack_state := {
   call_frames : list CallFrame;
 }.
 
+(*
 Definition modu_64_rust (x y: int64) : int64 :=
-  Int64.repr (Z.rem (Int64.unsigned x) (Int64.unsigned y)).
+  match Int64.unsigned x, Int64.unsigned y with
+  | Zpos _, Zpos _ => Int64.modu x y
+  | _, _ => Int64.mods x y
+  end.
+
 
 Definition modu_32_rust (x y: int) : int :=
   Int.repr (Z.rem (Int.unsigned x) (Int.unsigned y)).
-
+*)
 
 Definition eval_reg (dst : bpf_ireg) (rm : reg_map) : int64 :=
    reg_Map.get dst rm.
@@ -127,7 +132,7 @@ Definition eval_alu32_aux2
                   | _       => OKN
                 end
                else
-                OKS (reg_Map.set dst (Int64.repr (Int.unsigned (modu_32_rust dv sv))) rm)
+                OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.modu dv sv))) rm)
   | BPF_XOR => OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.xor sv dv))) rm)
   | BPF_MOV => OKS (reg_Map.set dst (Int64.repr (Int.unsigned sv)) rm)
   | BPF_LSH => OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.shl dv (Int.and sv (Int.repr (Z.of_nat 31)))))) rm)
@@ -140,7 +145,7 @@ Definition eval_alu32_aux3
   let dv : int := Int.repr (Int64.signed (eval_reg dst rm)) in 
   let sv : int := Int.and (eval_snd_op_u32 sop rm) (Int.repr (Z.of_nat 31)) in
   match bop with
-  | BPF_ARSH => OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.and (Int.shru dv (Int.and sv (Int.repr (Z.of_nat 31)))) (Int.repr Int.max_unsigned)))) rm) 
+  | BPF_ARSH => OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.and (Int.shr dv (Int.and sv (Int.repr (Z.of_nat 31)))) (Int.repr Int.max_unsigned)))) rm) 
   | _        => OKN
   end.
 
@@ -199,7 +204,7 @@ Definition eval_alu64_aux1
                   | _       => OKN
                 end
                else
-                OKS (reg_Map.set dst (modu_64_rust dv sv) rm)
+                OKS (reg_Map.set dst (Int64.modu dv sv) rm)
   | BPF_XOR => OKS (reg_Map.set dst (Int64.xor sv dv) rm)
   | BPF_MOV => OKS (reg_Map.set dst sv rm)
   | _       => OKN
@@ -220,7 +225,7 @@ Definition eval_alu64_aux3
   let dv : int64 := eval_reg dst rm in 
   let sv : int := Int.and (eval_snd_op_u32 sop rm) (Int.repr (Z.of_nat 63)) in
   match bop with
-  | BPF_ARSH => OKS (reg_Map.set dst (Int64.shru dv (Int64.repr (Int.unsigned sv))) rm) 
+  | BPF_ARSH => OKS (reg_Map.set dst (Int64.shr dv (Int64.repr (Int.unsigned sv))) rm) 
   | _        => OKN
   end.
 
@@ -349,7 +354,7 @@ Definition eval_pqr32_aux1
         | _ => OKN
         end
       else
-        OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.divs dv sv))) rm)
+        OKS (reg_Map.set dst (Int64.repr (Int.signed (Int.divs dv sv))) rm)
   | BPF_SREM => 
       if Z.eqb (Int.signed sv) Z0 then
         match sop with
@@ -357,7 +362,7 @@ Definition eval_pqr32_aux1
         | _ => OKN
         end
       else
-        OKS (reg_Map.set dst (Int64.repr (Int.unsigned (Int.mods dv sv))) rm)
+        OKS (reg_Map.set dst (Int64.repr (Int.signed (Int.mods dv sv))) rm)
   | _ => OKN
   end.
 
@@ -404,7 +409,7 @@ Definition eval_pqr64_aux1
   let sv : int64 := eval_snd_op_u64 sop rm in
   match pop with
   | BPF_LMUL => OKS (reg_Map.set dst (Int64.mul dv sv) rm)
-  | BPF_SDIV => 
+  | BPF_UDIV => 
       if Z.eqb (Int64.signed sv) Z0 then
         match sop with
         | SOImm _ => NOK
@@ -412,7 +417,7 @@ Definition eval_pqr64_aux1
         end
       else
         OKS (reg_Map.set dst (Int64.divu dv sv) rm)
-  | BPF_SREM => 
+  | BPF_UREM => 
       if Z.eqb (Int64.signed sv) Z0 then
         match sop with
         | SOImm _ => NOK
@@ -435,7 +440,7 @@ Definition eval_pqr64_aux2
         | _ => OKN
         end
       else
-        OKS (reg_Map.set dst (Int64.mods dv sv) rm)
+        OKS (reg_Map.set dst (Int64.divs dv sv) rm)
   | BPF_SREM => 
       if Z.eqb (Int64.signed sv) Z0 then
         match sop with
@@ -787,8 +792,8 @@ Fixpoint bpf_interp
       end
   end.
 
-Definition int64_to_byte_list (l : list int64) : list byte :=
-  map (fun i => Byte.repr (Int64.unsigned i)) l.
+Definition Z_to_byte_list (l : list Z) : list byte :=
+  map (fun i => Byte.repr i) l.
 
 Definition int_to_int64_list (l : list int) : list int64 :=
   map (fun i => Int64.repr (Int.unsigned i)) l.
@@ -806,17 +811,20 @@ Definition byte_list_to_mem (l : list byte) (m : mem) (b : block) (ofs : Z): mem
   end.
 
 
-Definition int64list_to_reg_map (l : list int64) : reg_map :=
-  fun i => (List.nth (bpf_ireg_to_nat i) l Int64.zero).
+Definition Zlist_to_reg_map (l : list Z) : reg_map :=
+  fun i => Int64.repr (List.nth (bpf_ireg_to_nat i) l Z0).
+
+Definition Z_to_int64_list (l : list Z) : list int64 :=
+  map (fun i => Int64.repr i) l.
 
 Definition bpf_interp_test
-  (lp : list int64) (lm : list int64) (lc : list int64) (v : int64) (fuel : int64) (res : int64) (is_ok : bool) : bool :=
-  let st1 := bpf_interp (Z.to_nat (Int64.unsigned (Int64.add fuel Int64.one))) lp
-                (init_bpf_state init_reg_map (byte_list_to_mem (int64_to_byte_list lm) Mem.empty 1%positive 0) (Int64.add fuel Int64.one)
-                  (if Int64.eq v Int64.one then V1 else V2)) true (Int64.repr 0x100000000%Z) 1%positive in
+  (lp : list Z) (lm : list Z) (lc : list Z) (v : Z) (fuel : Z) (res : Z) (is_ok : bool) : bool :=
+  let st1 := bpf_interp (Z.to_nat (Int64.unsigned (Int64.add (Int64.repr fuel) Int64.one))) (Z_to_int64_list lp)
+                (init_bpf_state init_reg_map (byte_list_to_mem (Z_to_byte_list lm) Mem.empty 1%positive 0) (Int64.add (Int64.repr fuel) Int64.one)
+                  (if Int64.eq (Int64.repr v) Int64.one then V1 else V2)) true (Int64.repr 0x100000000%Z) 1%positive in
   if is_ok then
     match st1 with
-    | BPF_Success v' => Int64.eq v' res
+    | BPF_Success v' => Z.eqb (Int64.unsigned v') res
     | _              => false
     end
   else
@@ -831,26 +839,27 @@ Definition int64_to_bpf_ireg (i : int64) : bpf_ireg :=
   | Some v => v
   end.
 
-Definition step_test (lp : list int64) (lr : list int64) (lm : list int64) 
-  (lc : list int64) (v : int64) (fuel : int64) (ipc : int64) (i : int64) (res : int64) : bool :=
-  if Int64.eq res (Int64.repr Int64.min_signed) then
+Definition step_test (lp : list Z) (lr : list Z) (lm : list Z) 
+  (lc : list Z) (v : Z) (fuel : Z) (ipc : Z) (i : Z) (res : Z) : bool :=
+  if Z.eqb res Int64.min_signed then
     true
   else
-    let prog := lp in
-    let rm := reg_Map.set BR10 (Int64.add MM_STACK_START (Int64.mul stack_frame_size max_call_depth)) (int64list_to_reg_map lr) in
-    let (m1, b) := Mem.alloc Mem.empty 0%Z (Z.of_nat (List.length (int64_to_byte_list lm))) in
-    let m := byte_list_to_mem (int64_to_byte_list lm) m1 b 0 in
+    let prog := Z_to_int64_list lp in
+    let rm := reg_Map.set BR10 (Int64.add MM_STACK_START (Int64.mul stack_frame_size max_call_depth)) (Zlist_to_reg_map lr) in
+    let (m1, b) := Mem.alloc Mem.empty 0%Z (Z.of_nat (List.length (Z_to_byte_list lm))) in
+    let m := byte_list_to_mem (Z_to_byte_list lm) m1 b 0 in
     let stk := init_stack_state in
-    let sv := if Int64.eq v Int64.one then V1 else V2 in
+    let sv := if Int64.eq (Int64.repr v) Int64.one then V1 else V2 in
     let fm := init_func_map in
     match rbpf_decoder 0 prog with
     | None => false
     | Some ins0 =>
+        let y : Z := 0x8000000000000000%Z in
         let st1 := step Int64.zero ins0 rm m stk sv fm true (Int64.repr 0x100000000%Z) Int64.zero (Int64.repr 3%Z) b in
         let op : int64 := decode_bpf (List.nth 0 prog Int64.zero) 0 8 in
         if orb (Int64.eq op (Int64.repr 0x18%Z)) (Nat.eqb (List.length lp) 1) then
           match st1 with
-          | BPF_OK pc1 rm1 _ _ _ _ _ _ => andb (Z.eqb (Int64.signed pc1) (Int64.signed ipc)) (Z.eqb (Int64.signed (eval_reg (int64_to_bpf_ireg i) rm1)) (Int64.signed res))
+          | BPF_OK pc1 rm1 _ _ _ _ _ _ => andb (Z.eqb (Int64.signed pc1) ipc) (Z.eqb (Int64.signed (eval_reg (int64_to_bpf_ireg (Int64.repr i)) rm1)) res)
           | _ => false
           end
         else if Nat.eqb (List.length lp) 2 then
@@ -861,7 +870,7 @@ Definition step_test (lp : list int64) (lr : list int64) (lm : list int64)
               | Some ins1 =>
                   let st2 := step pc1 ins1 rm1 m1 ss1 sv1 fm1 true (Int64.repr 0x100000000%Z) Int64.one (Int64.add Int64.one Int64.one) b in
                   match st2 with
-                  | BPF_OK pc2 rm2 _ _ _ _ _ _ => andb (Z.eqb (Int64.signed pc2) (Int64.signed ipc)) (Z.eqb (Int64.signed (eval_reg (int64_to_bpf_ireg i) rm2)) (Int64.signed res))
+                  | BPF_OK pc2 rm2 _ _ _ _ _ _ => andb (Z.eqb (Int64.signed pc2) ipc) (Z.eqb (Int64.signed (eval_reg (int64_to_bpf_ireg (Int64.repr i)) rm2)) res)
                   | _ => false
                   end
               end
@@ -871,4 +880,20 @@ Definition step_test (lp : list int64) (lr : list int64) (lm : list int64)
           false
     end.
 
-Print Mem.range_perm_dec.
+(*
+Print Z.gt.
+
+Compute (Z.rem (-11%Z) (10%Z)).
+Compute (Int64.mods (Int64.repr (-11)%Z) (Int64.repr 10%Z)).
+Compute (modu_64_rust (Int64.repr (-11)%Z) (Int64.repr 10%Z)).
+Compute (Int64.repr (-11)%Z).
+Print Int64.intrange.*)
+(*
+Print Z.rem.
+Compute (Z.rem (9802974527853709567%Z) (1624185344%Z)).
+Compute (Int64.mods (Int64.repr 9802974527853709567) (Int64.repr 1624185344)).
+Compute (modu_64_rust (Int64.repr 9802974527853709567) (Int64.repr 1624185344)).
+
+Compute Int64.min_signed.
+Print Z.
+Print Mem.range_perm_dec.*)
