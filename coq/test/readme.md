@@ -1,6 +1,7 @@
-# (Int64.eq pc1 ipc) exist question that pc1 is positive and ipc is nagetive although their value is corresopnd. We find that it is because the function eq_dec which compare two value based on their sign. In the meanwhile, when Int64.one is positive, pc is Z0 and offset is negtive,their added result is positive although the real value is negtive which makes the compare of two same value is false.
+# Questions
+## (Int64.eq pc1 ipc) exist question that pc1 is positive and ipc is nagetive although their value is corresopnd. We find that it is because the function eq_dec which compare two value based on their sign. In the meanwhile, when Int64.one is positive, pc is Z0 and offset is negtive,their added result is positive although the real value is negtive which makes the compare of two same value is false.
 
-# Refer to address in compcert, there exists a vmaddress which needs block and computing offset. However, because of the address provided by testcase is offset, we modified the rule of obtaining address from computing offset to applying provided address as offset directlt. Some day we may correct the logic of code.
+## Refer to address in compcert, there exists a vmaddress which needs block and computing offset. However, because of the address provided by testcase is offset, we modified the rule of obtaining address from computing offset to applying provided address as offset directlt. Some day we may correct the logic of code.
 
 # The unique testcase is above:
 	[
