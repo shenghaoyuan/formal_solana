@@ -2,7 +2,7 @@
 
 # Refer to address in compcert, there exists a vmaddress which needs block and computing offset. However, because of the address provided by testcase is offset, we modified the rule of obtaining address from computing offset to applying provided address as offset directlt. Some day we may correct the logic of code.
 
-# The unique testcase is abbow:
+# The unique testcase is above:
 	[
 	  {
 	    "dis": "srem64 r1, 10",
@@ -31,4 +31,5 @@
 	  }
 	]
 	
-# note: Sometimes, you need to run `eval $(opam env)` before run `make compile`
+# Note
+## Sometimes, you need to run `eval $(opam env)` before run `make compile`
