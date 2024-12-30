@@ -52,9 +52,9 @@ Extract Inductive list => "list" [ "[]" "(::)" ].
 Set Extraction AccessOpaque.
 
 
-Extraction TestCompile step_test.
+Extraction TestCompile bpf_interp_test.
 
-Extraction "/home/liuhao/formal_solana/coq/test/interpreter_test.ml" bpf_interp_test.
-Extraction "/home/liuhao/formal_solana/coq/test/step_test.ml" step_test.
+Extraction "/home/liuhao/formal_solana/coq/test/interpreter_test1.ml" bpf_interp_test.
+(*Extraction "/home/liuhao/formal_solana/coq/test/step_test.ml" step_test.*)
 
 

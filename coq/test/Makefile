@@ -1,12 +1,14 @@
 solve:
-	rm step_test.mli
-	rm interpreter_test.mli
+	find . -name "step_test.mli" -exec rm {} \;
+	find . -name "interpreter_test.mli" -exec rm {} \;
 
-compile:
+stepcomp:
 	ocamlc -c step_test.ml
-	ocamlc -c step_test2.ml
 	ocamlfind ocamlc -o step -package yojson -linkpkg step_test.cmo step.ml
-	ocamlfind ocamlc -o step2 -package yojson -linkpkg step_test2.cmo step2.ml
+
+interpretercomp:
+	ocamlc -c interpreter_test.ml
+	ocamlfind ocamlc -o test -package yojson -linkpkg interpreter_test.cmo test.ml
 
 trans:
 	ocamlfind ocamlc -o solve -package yojson -linkpkg solve.ml
@@ -18,26 +20,17 @@ trans:
 clean:
 	@echo $@
 	find . -name "step" -exec rm {} \;
-	find . -name "step2" -exec rm {} \;
-	find . -name "solve" -exec rm {} \;
+	find . -name "test" -exec rm {} \;
 	find . -name "*\.cmi" -exec rm {} \;
 	find . -name "*\.cmo" -exec rm {} \;
-	find . -name "*\.cmx" -exec rm {} \;
-
-test:
-	ocamlc -c step_test1.ml
-	ocamlfind ocamlc -o step1 -package yojson -linkpkg step_test1.cmo step1.ml
-	./step1
-	find . -name "step1" -exec rm {} \;
-	find . -name "step_test1.cmi" -exec rm {} \;
-	find . -name "step_test1.cmo" -exec rm {} \;
 	
-run:
+step:
 	@echo "run step"
 	./step
-	@echo "\nrun step2"
-	./step2
 
+interpreter:
+	@echo "run test"
+	./test
 
-.PHONY: compile clean run solve test trans
+.PHONY: stepcomp interpretercomp clean step interpreter solve interpretertest steptest trans testtemp $(opam env)
 

@@ -62,8 +62,8 @@ Inductive bpf_state : Type :=
 Definition init_reg_map : reg_map := reg_Map.init (Int64.repr 0).
 
 Definition init_bpf_state (rm : reg_map) (m : mem) (v : int64) (sbpfv : SBPFV) : bpf_state :=
-  BPF_OK (Int64.repr 0) (reg_Map.set BR10 (Int64.add MM_STACK_START (Int64.mul stack_frame_size max_call_depth)) rm)
-            m init_stack_state sbpfv init_func_map (Int64.repr 0) v.
+  BPF_OK (Int64.repr 0%Z) (reg_Map.set BR10 (Int64.add MM_STACK_START (Int64.mul stack_frame_size max_call_depth)) rm)
+            m init_stack_state sbpfv init_func_map (Int64.repr 0%Z) v.
 
 Polymorphic Inductive option2 {A : Type} : Type :=
   | NOK : option2
@@ -526,7 +526,7 @@ Definition eval_jmp
   | Ge  => Int64.cmpu Cge udv usv
   | Lt  => Int64.cmpu Clt udv usv
   | Le  => Int64.cmpu Cle udv usv
-  | SEt => negb (orb (Int64.eq udv Int64.zero) (Int64.eq usv Int64.zero))
+  | SEt => negb (Int64.eq (Int64.and udv usv) Int64.zero)
   | Ne  => negb (Int64.eq udv usv)
   | SGt  => Int64.cmp Cgt sdv ssv
   | SGe  => Int64.cmp Cge sdv ssv
@@ -672,7 +672,7 @@ Definition step (pc : int64) (ins : bpf_instruction) (rm : reg_map) (m : mem) (s
   | BPF_ADD_STK i =>
       match eval_add64_imm_R10 i ss is_v1 with
       | None => BPF_Err
-      | Some ss' => BPF_OK (Int64.add pc Int64.one) rm m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
+      | Some ss' => BPF_OK (Int64.add pc Int64.one) rm m ss' sv fm (Int64.add cur_cu Int64.one) remain_cu
       end
   | BPF_LE dst imm =>
       match eval_le dst imm rm is_v1 with
@@ -700,12 +700,12 @@ Definition step (pc : int64) (ins : bpf_instruction) (rm : reg_map) (m : mem) (s
       end
   | BPF_LDX chk dst sop off =>
       match eval_load chk dst sop off rm m b with
-      | None => BPF_Err
+      | None => BPF_EFlag
       | Some rm' => BPF_OK (Int64.add pc Int64.one) rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
       end
   | BPF_ST chk dst sop off =>
       match eval_store chk dst sop off rm m b with
-      | None => BPF_Err
+      | None => BPF_EFlag
       | Some m' => BPF_OK (Int64.add pc Int64.one) rm m' ss sv fm (Int64.add cur_cu Int64.one) remain_cu
       end
   | BPF_LD_IMM dst imm1 imm2 =>
@@ -747,7 +747,7 @@ Definition step (pc : int64) (ins : bpf_instruction) (rm : reg_map) (m : mem) (s
   | BPF_CALL_IMM src imm =>
       match eval_call_imm pc src imm rm ss is_v1 fm enable_stack_frame_gaps with
       | None => BPF_EFlag
-      | Some (pc', rm', ss') => BPF_OK pc' rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
+      | Some (pc', rm', ss') => BPF_OK pc' rm' m ss' sv fm (Int64.add cur_cu Int64.one) remain_cu
       end
   | BPF_CALL_REG src imm =>
       match eval_call_reg src imm rm ss is_v1 pc fm enable_stack_frame_gaps program_vm_addr with
@@ -764,7 +764,7 @@ Definition step (pc : int64) (ins : bpf_instruction) (rm : reg_map) (m : mem) (s
         let result := eval_exit rm ss is_v1 in
         match result with
         | (pc', rm', ss') =>
-            BPF_OK pc' rm' m ss sv fm (Int64.add cur_cu Int64.one) remain_cu
+            BPF_OK pc' rm' m ss' sv fm (Int64.add cur_cu Int64.one) remain_cu
         end
   end.
 
@@ -819,12 +819,16 @@ Definition Z_to_int64_list (l : list Z) : list int64 :=
 
 Definition bpf_interp_test
   (lp : list Z) (lm : list Z) (lc : list Z) (v : Z) (fuel : Z) (res : Z) (is_ok : bool) : bool :=
-  let st1 := bpf_interp (Z.to_nat (Int64.unsigned (Int64.add (Int64.repr fuel) Int64.one))) (Z_to_int64_list lp)
-                (init_bpf_state init_reg_map (byte_list_to_mem (Z_to_byte_list lm) Mem.empty 1%positive 0) (Int64.add (Int64.repr fuel) Int64.one)
-                  (if Int64.eq (Int64.repr v) Int64.one then V1 else V2)) true (Int64.repr 0x100000000%Z) 1%positive in
+  let prog := Z_to_int64_list lp in
+  let (m1, b) := Mem.alloc Mem.empty 0%Z 8590196736 in
+  let m := byte_list_to_mem (Z_to_byte_list lm) m1 b 0 in
+  let stk := init_stack_state in
+  let sv := if Int64.eq (Int64.repr v) Int64.one then V1 else V2 in
+  let st1 := bpf_interp (Z.to_nat (Z.add fuel 1%Z)) prog
+                (init_bpf_state init_reg_map m (Int64.add (Int64.repr fuel) Int64.one) sv) true (Int64.repr 0x100000000%Z) b in
   if is_ok then
     match st1 with
-    | BPF_Success v' => Z.eqb (Int64.unsigned v') res
+    | BPF_Success v' => Int64.eq v' (Int64.repr res)
     | _              => false
     end
   else

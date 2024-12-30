@@ -10171,7 +10171,7 @@ let step_test lp lr lm _ v _ ipc i res =
                 (XO (XO (XO (XO (XO (XO XH))))))))))))))))))))))))))))))))))
               Int64.zero (Int64.repr (Zpos (XI XH))) b
           in
-          let _ = print_bpf_state st1 in
+          (*let _ = print_bpf_state st1 in*)
           let op =
             decode_bpf (nth O prog Int64.zero) O (S (S (S (S (S (S (S (S
               O))))))))

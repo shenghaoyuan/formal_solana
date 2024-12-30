@@ -67,6 +67,38 @@ type z =
 | Zpos of positive
 | Zneg of positive
 
+(* liuhao *)
+let rec int64_to_positive (n : int64) : positive =
+  if n = 1L then XH
+  else if Stdlib.Int64.rem n 2L = 0L then XO (int64_to_positive (Stdlib.Int64.div n 2L))
+  else XI (int64_to_positive (Stdlib.Int64.div n 2L))
+
+
+let int64_to_z (n : int64) : z =
+  if n = 0L then Z0
+  else if n > 0L then Zpos (int64_to_positive n)
+  else Zneg (int64_to_positive (Stdlib.Int64.sub 0L n))
+
+let int64_list_of_z_list lst =
+  List.map int64_to_z lst
+  
+let rec positive_to_int64 (p : positive) : int64 =
+  match p with
+  | XH -> 1L
+  | XO p' -> Stdlib.Int64.mul 2L (positive_to_int64 p')
+  | XI p' -> Stdlib.Int64.add (Stdlib.Int64.mul 2L (positive_to_int64 p')) 1L   
+
+
+let z_to_int64 (z : z) : int64 =
+  match z with
+  | Z0 -> 0L
+  | Zpos p -> 
+  		(*let _ = Printf.printf "p " in*)
+  		positive_to_int64 p
+  | Zneg p ->   (*let _ = Printf.printf "n " in*)
+  		Stdlib.Int64.neg (positive_to_int64 p)
+
+
 module Nat =
  struct
   (** val eqb : nat -> nat -> bool **)
@@ -3114,6 +3146,17 @@ module Mem =
   let empty =
     { mem_contents = (PMap.init (ZMap.init Undef)); mem_access =
       (PMap.init (fun _ _ -> None)); nextblock = XH }
+
+  (** val alloc : mem -> z -> z -> mem' * block **)
+
+  let alloc m lo hi =
+    ({ mem_contents =
+      (PMap.set m.nextblock (ZMap.init Undef) m.mem_contents); mem_access =
+      (PMap.set m.nextblock (fun ofs _ ->
+        if (&&) (proj_sumbool (zle lo ofs)) (proj_sumbool (zlt ofs hi))
+        then Some Freeable
+        else None) m.mem_access); nextblock = (Coq_Pos.succ m.nextblock) },
+      m.nextblock)
 
   (** val getN : nat -> z -> memval ZMap.t -> memval list **)
 
@@ -9786,7 +9829,7 @@ let eval_jmp cond dst sop rm =
    | Ge -> Int64.cmpu Cge udv usv
    | Lt0 -> Int64.cmpu Clt udv usv
    | Le -> Int64.cmpu Cle udv usv
-   | SEt -> negb ((||) (Int64.eq udv Int64.zero) (Int64.eq usv Int64.zero))
+   | SEt -> negb (Int64.eq (Int64.coq_and udv usv) Int64.zero)
    | Ne -> negb (Int64.eq udv usv)
    | SGt -> Int64.cmp Cgt sdv ssv
    | SGe -> Int64.cmp Cge sdv ssv
@@ -9902,6 +9945,24 @@ let eval_exit rm ss is_v1 =
      let pc = frame.target_pc in ((pc, rm'), ss')
    | None -> ((Int64.zero, rm), ss))
 
+let print_regmap rs =
+  let reg_list = [("R0", BR0); ("R1", BR1); ("R2", BR2); ("R3", BR3);
+                  ("R4", BR4); ("R5", BR5); ("R6", BR6); ("R7", BR7);
+                  ("R8", BR8); ("R9", BR9); ("R10", BR10)] in
+  List.iter (fun (name, reg) ->
+    Printf.printf "%s: %Lx\n" name (z_to_int64 (eval_reg reg rs))
+  ) reg_list
+
+let print_bpf_state st =
+  match st with
+    BPF_OK (pc, rs, m, ss, sv, fm, cur_cu, remain_cu) -> 
+    let _ = print_regmap rs in
+      Printf.printf "PC: %Lx\n" (z_to_int64 pc)
+  | BPF_Success _ -> print_endline("success")
+  | _ -> print_endline("error")
+
+
+
 (** val step :
     Int64.int -> bpf_instruction -> reg_map -> Mem.mem -> stack_state ->
     sBPFV -> func_map -> bool -> Int64.int -> Int64.int -> Int64.int -> block
@@ -9921,17 +9982,17 @@ let step pc ins rm m ss sv fm enable_stack_frame_gaps program_vm_addr cur_cu rem
       | Some rm' ->
         BPF_OK ((Int64.add pc Int64.one), rm', m, ss, sv, fm,
           (Int64.add cur_cu Int64.one), remain_cu)
-      | None -> BPF_Err)
+      | None -> BPF_EFlag)
    | BPF_ST (chk, dst, sop, off) ->
      (match eval_store chk dst sop off rm m b with
       | Some m' ->
         BPF_OK ((Int64.add pc Int64.one), rm, m', ss, sv, fm,
           (Int64.add cur_cu Int64.one), remain_cu)
-      | None -> BPF_Err)
+      | None -> BPF_EFlag)
    | BPF_ADD_STK i ->
      (match eval_add64_imm_R10 i ss is_v1 with
-      | Some _ ->
-        BPF_OK ((Int64.add pc Int64.one), rm, m, ss, sv, fm,
+      | Some ss' ->
+        BPF_OK ((Int64.add pc Int64.one), rm, m, ss', sv, fm,
           (Int64.add cur_cu Int64.one), remain_cu)
       | None -> BPF_Err)
    | BPF_ALU (bop, d, sop) ->
@@ -10028,20 +10089,21 @@ let step pc ins rm m ss sv fm enable_stack_frame_gaps program_vm_addr cur_cu rem
    | BPF_CALL_IMM (src, imm) ->
      (match eval_call_imm pc src imm rm ss is_v1 fm enable_stack_frame_gaps with
       | Some p ->
-        let (p0, _) = p in
+        let (p0, ss') = p in
         let (pc', rm') = p0 in
-        BPF_OK (pc', rm', m, ss, sv, fm, (Int64.add cur_cu Int64.one),
+        BPF_OK (pc', rm', m, ss', sv, fm, (Int64.add cur_cu Int64.one),
         remain_cu)
       | None -> BPF_EFlag)
    | BPF_EXIT ->
+     (*let _ = Printf.printf "asdfad\n" in*)
      if Int64.eq ss.call_depth Int64.zero
      then if Int64.cmpu Cgt cur_cu remain_cu
           then BPF_EFlag
           else BPF_Success (rm BR0)
      else let result = eval_exit rm ss is_v1 in
-          let (p, _) = result in
+          let (p, ss') = result in
           let (pc', rm') = p in
-          BPF_OK (pc', rm', m, ss, sv, fm, (Int64.add cur_cu Int64.one),
+          BPF_OK (pc', rm', m, ss', sv, fm, (Int64.add cur_cu Int64.one),
           remain_cu))
 
 (** val bpf_interp :
@@ -10062,6 +10124,8 @@ let rec bpf_interp n0 prog st enable_stack_frame_gaps program_vm_addr b =
                       step pc ins rm m ss sv fm enable_stack_frame_gaps
                         program_vm_addr cur_cu remain_cu b
                     in
+                    (*let _ = print_bpf_state st in
+                    let _ = Printf.printf "\n" in*)
                     bpf_interp n' prog st1 enable_stack_frame_gaps
                       program_vm_addr b
                   | None -> BPF_EFlag)
@@ -10096,22 +10160,35 @@ let z_to_int64_list l =
     z list -> z list -> z list -> z -> z -> z -> bool -> bool **)
 
 let bpf_interp_test lp lm _ v fuel res is_ok =
+  let prog = z_to_int64_list lp in
+  let (m1, b) =
+    Mem.alloc Mem.empty Z0 (Zpos (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO
+      (XO (XO (XO (XO (XO (XO (XO (XI (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO
+      (XO (XO (XO (XO XH))))))))))))))))))))))))))))))))))
+  in
+  let m = byte_list_to_mem (z_to_byte_list lm) m1 b Z0 in
+  let sv = if Int64.eq (Int64.repr v) Int64.one then V1 else V2 in
   let st1 =
-    bpf_interp
-      (Z.to_nat (Int64.unsigned (Int64.add (Int64.repr fuel) Int64.one)))
-      (z_to_int64_list lp)
-      (init_bpf_state init_reg_map
-        (byte_list_to_mem (z_to_byte_list lm) Mem.empty XH Z0)
-        (Int64.add (Int64.repr fuel) Int64.one)
-        (if Int64.eq (Int64.repr v) Int64.one then V1 else V2)) true
+    bpf_interp (Z.to_nat (Z.add fuel (Zpos XH))) prog
+      (init_bpf_state init_reg_map m (Int64.add (Int64.repr fuel) Int64.one)
+        sv) true
       (Int64.repr (Zpos (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO
         (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO
-        (XO (XO XH)))))))))))))))))))))))))))))))))) XH
+        (XO (XO XH)))))))))))))))))))))))))))))))))) b
   in
+  (*let _ = print_bpf_state st1 in*)
   if is_ok
   then (match st1 with
-        | BPF_Success v' -> Z.eqb (Int64.unsigned v') res
+        | BPF_Success v' -> 
+        (*let _ = Printf.printf "res = %Lx\nexr = %Lx\n" (z_to_int64 (Int64.unsigned v')) (z_to_int64 res) in*)
+        Int64.eq v' (Int64.repr res)
         | _ -> false)
-  else (match st1 with
-        | BPF_EFlag -> true
-        | _ -> false)
+  else 
+  	(*let _ = Printf.printf "asdfad\n" in*)
+  	(match st1 with
+        | BPF_EFlag -> 
+        	(*let _ = Printf.printf "test1\n" in*)
+        	true
+        | _ -> 
+        	(*let _ = Printf.printf "test2\n" in*)
+        false)
