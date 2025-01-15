@@ -13,8 +13,8 @@ Definition binary_to_int64
   let v1 := encode_bpf (Int64.repr (Byte.unsigned opc)) (Int64.repr 0%Z) 0 8 in
   let v2 := encode_bpf (Int64.repr (Z.of_nat dv)) v1 8 4 in
   let v3 := encode_bpf (Int64.repr (Z.of_nat sv)) v2 12 4 in
-  let v4 := encode_bpf (Int64.repr (Int16.signed off)) v3 16 16 in
-    encode_bpf (Int64.repr (Int.signed imm)) v4 32 32.
+  let v4 := encode_bpf (Int64.repr (Int16.unsigned off)) v3 16 16 in
+    encode_bpf (Int64.repr (Int.unsigned imm)) v4 32 32.
 
 Definition rbpf_encoder (ins : bpf_instruction) : list int64 :=
   let l : list int64 := [] in
