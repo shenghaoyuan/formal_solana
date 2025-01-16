@@ -25,31 +25,31 @@ Definition rbpf_decoder_one
       | None => None
       | Some src =>
         if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x71) then
-          Some (BPF_LDX Mint8unsigned dst src off)
+          Some (BPF_LDX M8 dst src off)
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x69) then
-          Some (BPF_LDX Mint16unsigned dst src off)
+          Some (BPF_LDX M16 dst src off)
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x61) then
-          Some (BPF_LDX Mint32 dst src off)
+          Some (BPF_LDX M32 dst src off)
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x79) then
-          Some (BPF_LDX Mint64 dst src off)
+          Some (BPF_LDX M64 dst src off)
 
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x72) then
-          Some (BPF_ST Mint8unsigned dst (SOImm imm) off)
+          Some (BPF_ST M8 dst (SOImm imm) off)
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x6a) then
-          Some (BPF_ST Mint16unsigned dst (SOImm imm) off)
+          Some (BPF_ST M16 dst (SOImm imm) off)
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x62) then
-          Some (BPF_ST Mint32 dst (SOImm imm) off)
+          Some (BPF_ST M32 dst (SOImm imm) off)
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x7a) then
-          Some (BPF_ST Mint64 dst (SOImm imm) off)
+          Some (BPF_ST M64 dst (SOImm imm) off)
 
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x73) then
-          Some (BPF_ST Mint8unsigned dst  (SOReg src) off)
+          Some (BPF_ST M8 dst  (SOReg src) off)
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x6b) then
-          Some (BPF_ST Mint16unsigned dst (SOReg src) off)
+          Some (BPF_ST M16 dst (SOReg src) off)
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x63) then
-          Some (BPF_ST Mint32 dst (SOReg src) off)
+          Some (BPF_ST M32 dst (SOReg src) off)
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x7b) then
-          Some (BPF_ST Mint64 dst (SOReg src) off)
+          Some (BPF_ST M64 dst (SOReg src) off)
 
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x04) then
           Some (BPF_ALU BPF_ADD dst (SOImm imm))

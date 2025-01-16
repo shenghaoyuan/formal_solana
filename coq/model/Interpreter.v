@@ -490,17 +490,19 @@ Definition memory_chunk_value_of_int64 (mc : memory_chunk) (v : int64) : val :=
   end.
 
 Definition eval_store
-  (chk : memory_chunk) (dst : bpf_ireg) (sop : snd_op) (off : off_ty) (rm : reg_map) (m : mem) (b : block) : option mem :=
+  (chk : MChunk) (dst : bpf_ireg) (sop : snd_op) (off : off_ty) (rm : reg_map) (m : mem) (b : block) : option mem :=
   let dv : int64 := eval_reg dst rm in
   let vm_addr : int64 := Int64.add dv (Int64.repr (Int16.signed off)) in
   let sv : int64 :=  eval_snd_op_u64 sop rm in
-  Mem.storev chk m (concrete_addr_to_abstract_addr vm_addr b) (memory_chunk_value_of_int64 chk sv).
+  let mc : memory_chunk := memory_chunk_of_MChunk chk in
+  Mem.storev mc m (concrete_addr_to_abstract_addr vm_addr b) (memory_chunk_value_of_int64 mc sv).
 
 Definition eval_load 
-  (chk : memory_chunk) (dst : bpf_ireg) (src : bpf_ireg) (off : off_ty) (rm : reg_map) (m : mem) (b : block) : option reg_map :=
+  (chk : MChunk) (dst : bpf_ireg) (src : bpf_ireg) (off : off_ty) (rm : reg_map) (m : mem) (b : block) : option reg_map :=
   let sv : int64 := eval_snd_op_u64 (SOReg src) rm in
   let vm_addr : int64 := Int64.add sv (Int64.repr (Int16.signed off)) in
-  let v :=  Mem.loadv chk m (concrete_addr_to_abstract_addr vm_addr b) in
+  let mc : memory_chunk := memory_chunk_of_MChunk chk in
+  let v :=  Mem.loadv mc m (concrete_addr_to_abstract_addr vm_addr b) in
   match v with
   | Some Vundef => None
   | Some (Vint v') => Some (reg_Map.set dst (Int64.repr (Int.unsigned v')) rm)

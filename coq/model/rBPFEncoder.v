@@ -25,32 +25,29 @@ Definition rbpf_encoder (ins : bpf_instruction) : list int64 :=
       (binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) imm1) :: ((binary_to_int64 (Byte.repr 0%Z) 0 0 (Int16.repr 0%Z) imm2) :: l)
   | BPF_LDX mc dst src off =>
       let opc : byte := Byte.repr (match mc with
-                                 | Mint8unsigned => 0x71%Z
-                                 | Mint16unsigned => 0x69%Z
-                                 | Mint32 => 0x61%Z
-                                 | Mint64 => 0x79%Z
-                                 | _ => 0x0%Z
+                                 | M8 => 0x71%Z
+                                 | M16 => 0x69%Z
+                                 | M32 => 0x61%Z
+                                 | M64 => 0x79%Z
                                 end) in
       let dst_i : nat := bpf_ireg_to_nat dst in
       let src_i : nat := bpf_ireg_to_nat src in
       (binary_to_int64 opc dst_i src_i off (Int.repr 0%Z)) :: (Int64.repr 0%Z) :: l
   | BPF_ST mc dst (SOImm imm) off =>
       let opc : byte := Byte.repr (match mc with
-                                 | Mint8unsigned => 0x72%Z
-                                 | Mint16unsigned => 0x6a%Z
-                                 | Mint32 => 0x62%Z
-                                 | Mint64 => 0x7a%Z
-                                 | _ => 0x0%Z
+                                 | M8 => 0x72%Z
+                                 | M16 => 0x6a%Z
+                                 | M32 => 0x62%Z
+                                 | M64 => 0x7a%Z
                                 end) in
       let dst_i : nat := bpf_ireg_to_nat dst in
       (binary_to_int64 opc dst_i 0 off imm) :: (Int64.repr 0%Z) :: l
   | BPF_ST mc dst (SOReg src) off =>
       let opc : byte := Byte.repr (match mc with
-                                 | Mint8unsigned => 0x72%Z
-                                 | Mint16unsigned => 0x6a%Z
-                                 | Mint32 => 0x62%Z
-                                 | Mint64 => 0x7a%Z
-                                 | _ => 0x0%Z
+                                 | M8 => 0x73%Z
+                                 | M16 => 0x6b%Z
+                                 | M32 => 0x63%Z
+                                 | M64 => 0x7b%Z
                                 end) in
       let dst_i : nat := bpf_ireg_to_nat dst in
       let src_i : nat := bpf_ireg_to_nat src in
@@ -58,7 +55,7 @@ Definition rbpf_encoder (ins : bpf_instruction) : list int64 :=
 
   | BPF_ADD_STK imm => 
       let opc : byte := Byte.repr 0x07%Z in
-      (binary_to_int64 opc 11 0 (Int16.repr 0%Z) (Int.repr 0%Z)) :: (Int64.repr 0%Z) :: l
+      (binary_to_int64 opc 11 0 (Int16.repr 0%Z) imm) :: (Int64.repr 0%Z) :: l
 
   | BPF_ALU bop dst (SOImm imm) =>
       let opc : byte := Byte.repr (match bop with
@@ -262,7 +259,7 @@ Definition rbpf_encoder (ins : bpf_instruction) : list int64 :=
       (binary_to_int64 opc 0 src_i (Int16.repr 0%Z) imm) :: (Int64.repr 0%Z) :: l
   
   | BPF_EXIT =>
-      let opc : byte := Byte.repr 0x85%Z in
+      let opc : byte := Byte.repr 0x95%Z in
       (binary_to_int64 opc 0 0 (Int16.repr 0%Z) (Int.repr 0%Z)) :: (Int64.repr 0%Z) :: l
   end.
 

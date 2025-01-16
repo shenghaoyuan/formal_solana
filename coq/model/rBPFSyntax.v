@@ -88,10 +88,21 @@ Inductive SBPFV : Type :=
   (* | V3 : SBPFV *) (* The future format with BTF support *)
 .
 
+Inductive MChunk := M8 | M16 | M32 | M64.
+
+Definition memory_chunk_of_MChunk (mc : MChunk) : memory_chunk :=
+  match mc with
+  | M8  => Mint8unsigned
+  | M16 => Mint16unsigned
+  | M32 => Mint32
+  | M64 => Mint64
+  end.
+
+
 Inductive bpf_instruction : Type :=
   | BPF_LD_IMM : bpf_ireg -> int -> int -> bpf_instruction
-  | BPF_LDX : memory_chunk -> bpf_ireg -> bpf_ireg -> int16 -> bpf_instruction
-  | BPF_ST : memory_chunk -> bpf_ireg -> snd_op -> int16 -> bpf_instruction
+  | BPF_LDX : MChunk -> bpf_ireg -> bpf_ireg -> int16 -> bpf_instruction
+  | BPF_ST : MChunk -> bpf_ireg -> snd_op -> int16 -> bpf_instruction
   | BPF_ADD_STK : int -> bpf_instruction
   | BPF_ALU : binop -> bpf_ireg -> snd_op -> bpf_instruction
   | BPF_NEG32_REG : bpf_ireg -> bpf_instruction
