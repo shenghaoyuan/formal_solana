@@ -20,7 +20,7 @@ all:
 	@echo $@
 	@$(MAKE) model
    
-MODEL= rBPFCommType.v rBPFSyntax.v vm.v vm_state.v ebpf.v rBPFDecoder.v Interpreter.v rBPFEncoder.v BitfieldLemma.v BinSolver.v Consistency1.v Consistency2.v
+MODEL= rBPFCommType.v rBPFSyntax.v vm.v vm_state.v ebpf.v rBPFDecoder.v Interpreter.v rBPFEncoder.v BitfieldLemma.v BinSolver.v MyTactic.v Consistency1.v Consistency2.v 
 
 COQMODEL =  $(addprefix model/, $(MODEL))
 
