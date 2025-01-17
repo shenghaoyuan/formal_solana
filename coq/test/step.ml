@@ -31,13 +31,14 @@ let run_test_case test_case =
   let lr = int64_list_of_z_list test_case.lr_std in
   let lm = int64_list_of_z_list test_case.lm_std in
   let lc = int64_list_of_z_list test_case.lc_std in
-  let result = step_test lp lr lm lc v fuel ipc index res in
-  let color = if result then green else red in
   (*let _ = Printf.printf "v=%Lx fuel=%Lx index=%Lx ipc=%Lx res=%Lx\n" test_case.v test_case.fuel test_case.index test_case.ipc test_case.result_expected in
   let _ = List.iter (fun x -> Printf.printf "%Lx  " x) test_case.lp_std in
   let _ = Printf.printf "\n" in
   let _ = List.iter (fun x -> Printf.printf "%Lx  " x) test_case.lr_std in
   let _ = Printf.printf "\n" in*)
+  let result = step_test lp lr lm lc v fuel ipc index res in
+  let color = if result then green else red in
+
   if result then (
     passed := !passed + 1;
   ) else (

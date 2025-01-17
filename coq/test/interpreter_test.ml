@@ -67,7 +67,17 @@ type z =
 | Zpos of positive
 | Zneg of positive
 
+
 (* liuhao *)
+let i64_MIN = (XO (XO (XO (XO (XO (XO (XO (XO 
+		(XO (XO (XO (XO (XO (XO (XO (XO 
+		  (XO (XO (XO (XO (XO (XO (XO (XO 
+		    (XO (XO (XO (XO (XO (XO (XO (XO 
+		      (XO (XO (XO (XO (XO (XO (XO (XO 
+		      	(XO (XO (XO (XO (XO (XO (XO (XO 
+		      	  (XO (XO (XO (XO (XO (XO (XO (XO 
+		      	    (XO (XO (XO (XO (XO (XO (XO XH)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));;
+
 let rec int64_to_positive (n : int64) : positive =
   if n = 1L then XH
   else if Stdlib.Int64.rem n 2L = 0L then XO (int64_to_positive (Stdlib.Int64.div n 2L))
@@ -77,6 +87,7 @@ let rec int64_to_positive (n : int64) : positive =
 let int64_to_z (n : int64) : z =
   if n = 0L then Z0
   else if n > 0L then Zpos (int64_to_positive n)
+  else if n = 0x8000000000000000L then Zneg i64_MIN
   else Zneg (int64_to_positive (Stdlib.Int64.sub 0L n))
 
 let int64_list_of_z_list lst =
@@ -97,7 +108,6 @@ let z_to_int64 (z : z) : int64 =
   		positive_to_int64 p
   | Zneg p ->   (*let _ = Printf.printf "n " in*)
   		Stdlib.Int64.neg (positive_to_int64 p)
-
 
 module Nat =
  struct
@@ -2576,10 +2586,24 @@ type sBPFV =
 | V1
 | V2
 
+type mChunk =
+| M8
+| M16
+| M32
+| M64
+
+(** val memory_chunk_of_MChunk : mChunk -> memory_chunk **)
+
+let memory_chunk_of_MChunk = function
+| M8 -> Mint8unsigned
+| M16 -> Mint16unsigned
+| M32 -> Mint32
+| M64 -> Mint64
+
 type bpf_instruction =
 | BPF_LD_IMM of bpf_ireg * Int.int * Int.int
-| BPF_LDX of memory_chunk * bpf_ireg * bpf_ireg * Int16.int
-| BPF_ST of memory_chunk * bpf_ireg * snd_op * Int16.int
+| BPF_LDX of mChunk * bpf_ireg * bpf_ireg * Int16.int
+| BPF_ST of mChunk * bpf_ireg * snd_op * Int16.int
 | BPF_ADD_STK of Int.int
 | BPF_ALU of binop * bpf_ireg * snd_op
 | BPF_NEG32_REG of bpf_ireg
@@ -3245,7 +3269,7 @@ let rbpf_decoder_one opc dv sv off imm =
                     (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
                     (S (S
                     O))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
-             then Some (BPF_LDX (Mint8unsigned, dst, src, off))
+             then Some (BPF_LDX (M8, dst, src, off))
              else if Z.eqb (Byte.unsigned opc)
                        (Z.of_nat (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
                          (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
@@ -3255,7 +3279,7 @@ let rbpf_decoder_one opc dv sv off imm =
                          (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
                          (S (S (S (S (S
                          O))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
-                  then Some (BPF_LDX (Mint16unsigned, dst, src, off))
+                  then Some (BPF_LDX (M16, dst, src, off))
                   else if Z.eqb (Byte.unsigned opc)
                             (Z.of_nat (S (S (S (S (S (S (S (S (S (S (S (S (S
                               (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
@@ -3265,7 +3289,7 @@ let rbpf_decoder_one opc dv sv off imm =
                               (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
                               (S (S (S (S
                               O))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
-                       then Some (BPF_LDX (Mint32, dst, src, off))
+                       then Some (BPF_LDX (M32, dst, src, off))
                        else if Z.eqb (Byte.unsigned opc)
                                  (Z.of_nat (S (S (S (S (S (S (S (S (S (S (S
                                    (S (S (S (S (S (S (S (S (S (S (S (S (S (S
@@ -3277,7 +3301,7 @@ let rbpf_decoder_one opc dv sv off imm =
                                    (S (S (S (S (S (S (S (S (S (S (S (S (S (S
                                    (S (S (S (S (S (S (S (S (S (S (S (S
                                    O))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
-                            then Some (BPF_LDX (Mint64, dst, src, off))
+                            then Some (BPF_LDX (M64, dst, src, off))
                             else if Z.eqb (Byte.unsigned opc)
                                       (Z.of_nat (S (S (S (S (S (S (S (S (S (S
                                         (S (S (S (S (S (S (S (S (S (S (S (S
@@ -3290,8 +3314,8 @@ let rbpf_decoder_one opc dv sv off imm =
                                         (S (S (S (S (S (S (S (S (S (S (S (S
                                         (S (S (S (S (S (S (S (S
                                         O)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
-                                 then Some (BPF_ST (Mint8unsigned, dst,
-                                        (SOImm imm), off))
+                                 then Some (BPF_ST (M8, dst, (SOImm imm),
+                                        off))
                                  else if Z.eqb (Byte.unsigned opc)
                                            (Z.of_nat (S (S (S (S (S (S (S (S
                                              (S (S (S (S (S (S (S (S (S (S (S
@@ -3304,8 +3328,8 @@ let rbpf_decoder_one opc dv sv off imm =
                                              (S (S (S (S (S (S (S (S (S (S (S
                                              (S (S (S (S (S (S (S (S (S (S
                                              O)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
-                                      then Some (BPF_ST (Mint16unsigned, dst,
-                                             (SOImm imm), off))
+                                      then Some (BPF_ST (M16, dst, (SOImm
+                                             imm), off))
                                       else if Z.eqb (Byte.unsigned opc)
                                                 (Z.of_nat (S (S (S (S (S (S
                                                   (S (S (S (S (S (S (S (S (S
@@ -3320,7 +3344,7 @@ let rbpf_decoder_one opc dv sv off imm =
                                                   (S (S (S (S (S (S (S (S (S
                                                   (S (S
                                                   O)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
-                                           then Some (BPF_ST (Mint32, dst,
+                                           then Some (BPF_ST (M32, dst,
                                                   (SOImm imm), off))
                                            else if Z.eqb (Byte.unsigned opc)
                                                      (Z.of_nat (S (S (S (S (S
@@ -3342,8 +3366,8 @@ let rbpf_decoder_one opc dv sv off imm =
                                                        (S (S (S (S (S (S (S
                                                        (S (S (S (S (S
                                                        O)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
-                                                then Some (BPF_ST (Mint64,
-                                                       dst, (SOImm imm), off))
+                                                then Some (BPF_ST (M64, dst,
+                                                       (SOImm imm), off))
                                                 else if Z.eqb
                                                           (Byte.unsigned opc)
                                                           (Z.of_nat (S (S (S
@@ -3367,8 +3391,7 @@ let rbpf_decoder_one opc dv sv off imm =
                                                             (S (S (S (S (S (S
                                                             (S (S (S (S
                                                             O))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
-                                                     then Some (BPF_ST
-                                                            (Mint8unsigned,
+                                                     then Some (BPF_ST (M8,
                                                             dst, (SOReg src),
                                                             off))
                                                      else if Z.eqb
@@ -3404,9 +3427,9 @@ let rbpf_decoder_one opc dv sv off imm =
                                                                  (S (S
                                                                  O))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
                                                           then Some (BPF_ST
-                                                                 (Mint16unsigned,
-                                                                 dst, (SOReg
-                                                                 src), off))
+                                                                 (M16, dst,
+                                                                 (SOReg src),
+                                                                 off))
                                                           else if Z.eqb
                                                                     (Byte.unsigned
                                                                     opc)
@@ -3447,7 +3470,7 @@ let rbpf_decoder_one opc dv sv off imm =
                                                                     O))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
                                                                then Some
                                                                     (BPF_ST
-                                                                    (Mint32,
+                                                                    (M32,
                                                                     dst,
                                                                     (SOReg
                                                                     src),
@@ -3502,7 +3525,7 @@ let rbpf_decoder_one opc dv sv off imm =
                                                                     then 
                                                                     Some
                                                                     (BPF_ST
-                                                                    (Mint64,
+                                                                    (M64,
                                                                     dst,
                                                                     (SOReg
                                                                     src),
@@ -9196,9 +9219,7 @@ let rbpf_decoder pc l =
             (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
             O))))))))))))))))))))))))))))))))))
     in
-    if Z.eqb (Byte.unsigned op)
-         (Z.of_nat (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S
-           (S (S (S (S (S O)))))))))))))))))))))))))
+    if Z.eqb (Byte.unsigned op) (Zpos (XO (XO (XO (XI XH)))))
     then (match nth_error l (S pc) with
           | Some data2 ->
             let imm2 =
@@ -9773,24 +9794,26 @@ let memory_chunk_value_of_int64 mc v =
   | _ -> Vundef
 
 (** val eval_store :
-    memory_chunk -> bpf_ireg -> snd_op -> off_ty -> reg_map -> Mem.mem ->
-    block -> Mem.mem option **)
+    mChunk -> bpf_ireg -> snd_op -> off_ty -> reg_map -> Mem.mem -> block ->
+    Mem.mem option **)
 
 let eval_store chk dst sop off rm m b =
   let dv = eval_reg dst rm in
   let vm_addr = Int64.add dv (Int64.repr (Int16.signed off)) in
   let sv = eval_snd_op_u64 sop rm in
-  Mem.storev chk m (concrete_addr_to_abstract_addr vm_addr b)
-    (memory_chunk_value_of_int64 chk sv)
+  let mc = memory_chunk_of_MChunk chk in
+  Mem.storev mc m (concrete_addr_to_abstract_addr vm_addr b)
+    (memory_chunk_value_of_int64 mc sv)
 
 (** val eval_load :
-    memory_chunk -> bpf_ireg -> bpf_ireg -> off_ty -> reg_map -> Mem.mem ->
-    block -> reg_map option **)
+    mChunk -> bpf_ireg -> bpf_ireg -> off_ty -> reg_map -> Mem.mem -> block
+    -> reg_map option **)
 
 let eval_load chk dst src off rm m b =
   let sv = eval_snd_op_u64 (SOReg src) rm in
   let vm_addr = Int64.add sv (Int64.repr (Int16.signed off)) in
-  let v = Mem.loadv chk m (concrete_addr_to_abstract_addr vm_addr b) in
+  let mc = memory_chunk_of_MChunk chk in
+  let v = Mem.loadv mc m (concrete_addr_to_abstract_addr vm_addr b) in
   (match v with
    | Some v0 ->
      (match v0 with
@@ -10095,7 +10118,6 @@ let step pc ins rm m ss sv fm enable_stack_frame_gaps program_vm_addr cur_cu rem
         remain_cu)
       | None -> BPF_EFlag)
    | BPF_EXIT ->
-     (*let _ = Printf.printf "asdfad\n" in*)
      if Int64.eq ss.call_depth Int64.zero
      then if Int64.cmpu Cgt cur_cu remain_cu
           then BPF_EFlag
@@ -10124,8 +10146,6 @@ let rec bpf_interp n0 prog st enable_stack_frame_gaps program_vm_addr b =
                       step pc ins rm m ss sv fm enable_stack_frame_gaps
                         program_vm_addr cur_cu remain_cu b
                     in
-                    (*let _ = print_bpf_state st in
-                    let _ = Printf.printf "\n" in*)
                     bpf_interp n' prog st1 enable_stack_frame_gaps
                       program_vm_addr b
                   | None -> BPF_EFlag)
@@ -10176,19 +10196,10 @@ let bpf_interp_test lp lm _ v fuel res is_ok =
         (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO (XO
         (XO (XO XH)))))))))))))))))))))))))))))))))) b
   in
-  (*let _ = print_bpf_state st1 in*)
   if is_ok
   then (match st1 with
-        | BPF_Success v' -> 
-        (*let _ = Printf.printf "res = %Lx\nexr = %Lx\n" (z_to_int64 (Int64.unsigned v')) (z_to_int64 res) in*)
-        Int64.eq v' (Int64.repr res)
+        | BPF_Success v' -> Int64.eq v' (Int64.repr res)
         | _ -> false)
-  else 
-  	(*let _ = Printf.printf "asdfad\n" in*)
-  	(match st1 with
-        | BPF_EFlag -> 
-        	(*let _ = Printf.printf "test1\n" in*)
-        	true
-        | _ -> 
-        	(*let _ = Printf.printf "test2\n" in*)
-        false)
+  else (match st1 with
+        | BPF_EFlag -> true
+        | _ -> false)

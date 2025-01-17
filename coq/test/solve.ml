@@ -1,16 +1,10 @@
 open Yojson.Basic
 
-let string_to_hex str =
-  let decimal = Int64.of_string str in
-  Printf.sprintf "%Lx" decimal
-  
-  
 let merge_lp_std l =
   let rec func acc current_string = function
     | [] -> acc
     | h::t -> 
-    	let h' = string_to_hex h in
-        let new_string = [h'] @ current_string in
+        let new_string = [String.sub h 2 2] @ current_string in
         if List.length new_string = 8 then
           func (acc @ ["0x" ^ String.concat "" new_string]) [] t
         else
@@ -50,9 +44,9 @@ let modify_json_lp json =
 let modify_file filename =
   let json = Yojson.Basic.from_file filename in
   let updated_json = modify_json_lp json in
-  Yojson.Basic.to_file "ocaml_in2.json" updated_json
+  Yojson.Basic.to_file "ocaml_in1.json" updated_json
 
 
 let () =
-  modify_file "ocaml_in3.json"
+  modify_file "ocaml_in.json"
 
