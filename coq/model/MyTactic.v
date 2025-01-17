@@ -80,7 +80,7 @@ Global Hint Resolve int64_size_int_unsign_le32 : int_size.
 Global Hint Resolve int64_size_int16_unsign_le16 : int16_size.
 Global Hint Resolve int64_size_byte_unsign_le8 : byte_size.
 
-Ltac bsolver := unfold_bin; simpl; repeat bin_solver; auto with int_size, int16_size, byte_size.
+Ltac bsolver := unfold_bin; simpl; repeat bin_solver; auto with int_size int16_size byte_size.
 
 
 Lemma int64_range_int_range_unsign_le: forall i,
