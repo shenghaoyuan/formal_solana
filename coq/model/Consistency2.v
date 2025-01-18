@@ -10,9 +10,8 @@ Lemma rbpf_decode_encode_consistency:
     (Hdecode: rbpf_decoder pc l = Some ins),
       rbpf_encoder ins = l_bin.
 Proof.
-  intros. 
+  intros.
   unfold rbpf_encoder, rbpf_decoder in *.
-  destruct ins.
-  - bsolver.
-destruct nth_error as [ins |] eqn :Hnth in Hdecode.
-    + 
+  destruct ins. 
+  - unfold_bin. simpl.
+Admitted.

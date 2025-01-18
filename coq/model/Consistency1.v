@@ -24,7 +24,7 @@ Proof.
     rewrite Bool.andb_true_iff in HL.
     destruct HL as (Hins0 & _).
     apply Int64.same_if_eq in Hins, Hins0.
-    subst. unfold_bin.
+    subst. 
     bsolver.
     change (Byte.unsigned (Byte.repr (Int64.unsigned (Int64.repr (Byte.unsigned (Byte.repr 24))))) =? 24) with true.
     simpl.
@@ -44,13 +44,6 @@ Proof.
       lia.
     + rewrite bpf_ireg_to_nat_size_le4.
       lia.
-    + rewrite Byte.unsigned_repr.
-      * unfold Int64.size, Zsize. 
-        rewrite Int64.unsigned_repr;
-        [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
-      * unfold Byte.max_unsigned.
-        simpl.
-        lia.
 (*       BPF_LDX       *)
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
@@ -68,13 +61,10 @@ Proof.
     rewrite bpf_ireg_nat_trans_cons; rewrite int16_int64_eq;
     reflexivity.
     + destruct m; lia.
-    + rewrite int64_size_int16_unsign_le16.
-      lia.
     + rewrite bpf_ireg_to_nat_size_le4.
       lia.
     + rewrite bpf_ireg_to_nat_size_le4.
       lia.
-    + destruct m; rewrite int64_size_byte_unsign_le8; lia.
 (*       BPF_ST       *)
   - destruct s as [SOi | SOr] eqn: Hseq in HL, Hencode; simpl in HL.
     + destruct nth_error as [ins |]; [| inversion HL].
@@ -99,12 +89,9 @@ Proof.
         rewrite Int.repr_unsigned, Int16.repr_unsigned;
         reflexivity ).
       * destruct m; lia.
-      * apply int64_size_int16_unsign_le16.
       * unfold Int64.size, Zsize; rewrite Int64.unsigned_repr;
         [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
       * apply bpf_ireg_to_nat_size_le4.
-      * rewrite int64_size_byte_unsign_le8.
-        lia.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
       destruct HL as (Hins & HL).
@@ -125,11 +112,8 @@ Proof.
         rewrite Int16.repr_unsigned;
         reflexivity ).
       * destruct m; lia.
-      * apply int64_size_int16_unsign_le16.
       * apply bpf_ireg_to_nat_size_le4.
       * apply bpf_ireg_to_nat_size_le4.
-      * rewrite int64_size_byte_unsign_le8.
-        lia.
 (*       BPF_ADD_STK       *)
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
@@ -159,7 +143,6 @@ Proof.
     + unfold Int64.size.
       rewrite Int64.unsigned_repr;
       try (unfold Int64.max_unsigned); simpl; lia.
-    + apply int64_size_byte_unsign_le8.
 (*       BPF_ALU       *)
   - destruct s as [SOi | SOr] eqn: Hseq in HL, Hencode; simpl in HL.
     + destruct nth_error as [ins |]; [| inversion HL].
@@ -188,8 +171,6 @@ Proof.
       * unfold Int64.size, Zsize; rewrite Int64.unsigned_repr;
         [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
       * apply bpf_ireg_to_nat_size_le4.
-      * rewrite int64_size_byte_unsign_le8.
-        lia.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
       destruct HL as (Hins & HL).
@@ -212,8 +193,6 @@ Proof.
         [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
       * apply bpf_ireg_to_nat_size_le4.
       * apply bpf_ireg_to_nat_size_le4.
-      * rewrite int64_size_byte_unsign_le8.
-        lia.
 (*       BPF_NEG32_REG       *)
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
@@ -238,8 +217,6 @@ Proof.
     + unfold Int64.size, Zsize; rewrite Int64.unsigned_repr;
       [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
     + apply bpf_ireg_to_nat_size_le4.
-    + rewrite int64_size_byte_unsign_le8.
-      lia.
 (*       BPF_LE       *)  
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
@@ -266,8 +243,6 @@ Proof.
     + unfold Int64.size, Zsize; rewrite Int64.unsigned_repr;
       [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
     + apply bpf_ireg_to_nat_size_le4.
-    + rewrite int64_size_byte_unsign_le8.
-      lia.
 (*       BPF_BE       *)  
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
@@ -294,8 +269,6 @@ Proof.
     + unfold Int64.size, Zsize; rewrite Int64.unsigned_repr;
       [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
     + apply bpf_ireg_to_nat_size_le4.
-    + rewrite int64_size_byte_unsign_le8.
-      lia.
 (*       BPF_ALU64       *)
   - destruct s as [SOi | SOr] eqn: Hseq in HL, Hencode; simpl in HL.
     + destruct nth_error as [ins |]; [| inversion HL].
@@ -333,8 +306,6 @@ Proof.
       * unfold Int64.size, Zsize; rewrite Int64.unsigned_repr;
         [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
       * apply bpf_ireg_to_nat_size_le4.
-      * rewrite int64_size_byte_unsign_le8.
-        lia.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
       destruct HL as (Hins & HL).
@@ -357,8 +328,6 @@ Proof.
         [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
       * apply bpf_ireg_to_nat_size_le4.
       * apply bpf_ireg_to_nat_size_le4.
-      * rewrite int64_size_byte_unsign_le8.
-        lia.
 (*       BPF_NEG64_REG       *)
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
@@ -383,8 +352,6 @@ Proof.
     + unfold Int64.size, Zsize; rewrite Int64.unsigned_repr;
       [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
     + apply bpf_ireg_to_nat_size_le4.
-    + rewrite int64_size_byte_unsign_le8.
-      lia.
 (*       BPF_HOR64_IMM       *)
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
@@ -411,8 +378,6 @@ Proof.
     + unfold Int64.size, Zsize; rewrite Int64.unsigned_repr;
       [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
     + apply bpf_ireg_to_nat_size_le4.
-    + rewrite int64_size_byte_unsign_le8.
-      lia.
 (*       BPF_PQR       *)
   - destruct s as [SOi | SOr] eqn: Hseq in HL, Hencode; simpl in HL.
     + destruct nth_error as [ins |]; [| inversion HL].
@@ -441,8 +406,6 @@ Proof.
       * unfold Int64.size, Zsize; rewrite Int64.unsigned_repr;
         [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
       * apply bpf_ireg_to_nat_size_le4.
-      * rewrite int64_size_byte_unsign_le8.
-        lia.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
       destruct HL as (Hins & HL).
@@ -465,8 +428,6 @@ Proof.
         [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
       * apply bpf_ireg_to_nat_size_le4.
       * apply bpf_ireg_to_nat_size_le4.
-      * rewrite int64_size_byte_unsign_le8.
-        lia.
 (*       BPF_PQR64       *)
   - destruct s as [SOi | SOr] eqn: Hseq in HL, Hencode; simpl in HL.
     + destruct nth_error as [ins |]; [| inversion HL].
@@ -495,8 +456,6 @@ Proof.
       * unfold Int64.size, Zsize; rewrite Int64.unsigned_repr;
         [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
       * apply bpf_ireg_to_nat_size_le4.
-      * rewrite int64_size_byte_unsign_le8.
-        lia.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
       destruct HL as (Hins & HL).
@@ -519,8 +478,6 @@ Proof.
         [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
       * apply bpf_ireg_to_nat_size_le4.
       * apply bpf_ireg_to_nat_size_le4.
-      * rewrite int64_size_byte_unsign_le8.
-        lia.
 (*       BPF_PQR2       *)
   - destruct s as [SOi | SOr] eqn: Hseq in HL, Hencode; simpl in HL.
     + destruct nth_error as [ins |]; [| inversion HL].
@@ -549,8 +506,6 @@ Proof.
       * unfold Int64.size, Zsize; rewrite Int64.unsigned_repr;
         [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
       * apply bpf_ireg_to_nat_size_le4.
-      * rewrite int64_size_byte_unsign_le8.
-        lia.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
       destruct HL as (Hins & HL).
@@ -573,8 +528,6 @@ Proof.
         [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
       * apply bpf_ireg_to_nat_size_le4.
       * apply bpf_ireg_to_nat_size_le4.
-      * rewrite int64_size_byte_unsign_le8.
-        lia.
 (*       BPF_JA       *)
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
@@ -595,13 +548,10 @@ Proof.
       rewrite Int16.repr_unsigned.
       reflexivity.
     + lia.
-    + apply int64_size_int16_unsign_le16.
     + unfold Int64.size, Zsize; rewrite Int64.unsigned_repr;
       [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
     + unfold Int64.size, Zsize; rewrite Int64.unsigned_repr;
       [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
-    + rewrite int64_size_byte_unsign_le8.
-      lia.
 (*       BPF_JUMP       *)
   - destruct s as [SOi | SOr] eqn: Hseq in HL, Hencode; simpl in HL.
     + destruct nth_error as [ins |]; [| inversion HL].
@@ -626,12 +576,9 @@ Proof.
         rewrite Int.repr_unsigned, Int16.repr_unsigned;
         reflexivity ).
       * destruct c; lia.
-      * apply int64_size_int16_unsign_le16.
       * unfold Int64.size, Zsize; rewrite Int64.unsigned_repr;
         [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
       * apply bpf_ireg_to_nat_size_le4.
-      * rewrite int64_size_byte_unsign_le8.
-        lia.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
       destruct HL as (Hins & HL).
@@ -652,11 +599,8 @@ Proof.
         rewrite Int16.repr_unsigned;
         reflexivity ).
       * destruct c; lia.
-      * apply int64_size_int16_unsign_le16.
       * apply bpf_ireg_to_nat_size_le4.
       * apply bpf_ireg_to_nat_size_le4.
-      * rewrite int64_size_byte_unsign_le8.
-        lia.
 (*       BPF_CALL_REG       *)
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
@@ -683,8 +627,6 @@ Proof.
     + apply bpf_ireg_to_nat_size_le4.
     + unfold Int64.size, Zsize; rewrite Int64.unsigned_repr;
       [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
-    + rewrite int64_size_byte_unsign_le8.
-      lia.
 (*       BPF_CALL_IMM       *)
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
@@ -711,8 +653,6 @@ Proof.
     + apply bpf_ireg_to_nat_size_le4.
     + unfold Int64.size, Zsize; rewrite Int64.unsigned_repr;
       [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ].
-    + rewrite int64_size_byte_unsign_le8.
-      lia.
 (*       BPF_EXIT       *)
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.

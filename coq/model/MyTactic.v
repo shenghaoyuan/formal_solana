@@ -36,6 +36,39 @@ Ltac bin_solver :=
       [ try reflexivity | try lia | try (replace Int64.zwordsize with 64%Z by reflexivity; lia) ]
       end)
   end.
+(*
+Ltac bin_solver2 :=
+  match goal with
+
+
+  | |- context[Int64.bitfield_insert ?p0 ?w0 ?i0 ?v0] =>
+    erewrite bitfield_insert_over_size_zero with (pos := p0) (width := w0) ;
+    [ match goal with
+      | |- context [Int64.bitfield_insert] => idtac
+      | |- ?X = ?X => reflexivity
+      | |- _ => idtac
+      end
+      | replace Int64.zwordsize with 64%Z by reflexivity; lia
+      |]
+
+
+  | |- context[Int64.bitfield_insert ?p0 ?w0 ?i0 _] =>
+    ( match eval compute in (p0 + w0 - p1)%Z with
+      | Zpos _ => idtac
+      | _ =>
+        erewrite unsigned_bitfield_extract_bitfield_insert_same_2 with
+        (pos0 := p0) (width0 := w0) (pos1 := p1) (width1 := w1) (i := i0);
+      [ try reflexivity | try lia | try (replace Int64.zwordsize with 64%Z by reflexivity; lia) ]
+      end ||
+      match eval compute in (p1 + w1 - p0)%Z with
+      | Zpos _ => idtac
+      | _ =>
+        erewrite unsigned_bitfield_extract_bitfield_insert_same_2 with
+        (pos0 := p0) (width0 := w0) (pos1 := p1) (width1 := w1) (i := i0);
+      [ try reflexivity | try lia | try (replace Int64.zwordsize with 64%Z by reflexivity; lia) ]
+      end)
+  end.*)
+
 
 Ltac unfold_bin := unfold binary_to_int64, decode_bpf, encode_bpf.
 
