@@ -22,7 +22,7 @@ Definition rbpf_encoder (ins : bpf_instruction) : list int64 :=
   | BPF_LD_IMM dst imm1 imm2 =>
       let opc : byte := Byte.repr 0x18%Z in
       let dst_i : nat := bpf_ireg_to_nat dst in
-      (binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) imm1) :: ((binary_to_int64 (Byte.repr 0%Z) 0 0 (Int16.repr 0%Z) imm2) :: l)
+      [binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) imm1 ; binary_to_int64 (Byte.repr 0%Z) 0 0 (Int16.repr 0%Z) imm2]
   | BPF_LDX mc dst src off =>
       let opc : byte := Byte.repr (match mc with
                                  | M8 => 0x71%Z
@@ -32,7 +32,7 @@ Definition rbpf_encoder (ins : bpf_instruction) : list int64 :=
                                 end) in
       let dst_i : nat := bpf_ireg_to_nat dst in
       let src_i : nat := bpf_ireg_to_nat src in
-      (binary_to_int64 opc dst_i src_i off (Int.repr 0%Z)) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i src_i off (Int.repr 0%Z) ; Int64.repr 0%Z]
   | BPF_ST mc dst (SOImm imm) off =>
       let opc : byte := Byte.repr (match mc with
                                  | M8 => 0x72%Z
@@ -41,7 +41,7 @@ Definition rbpf_encoder (ins : bpf_instruction) : list int64 :=
                                  | M64 => 0x7a%Z
                                 end) in
       let dst_i : nat := bpf_ireg_to_nat dst in
-      (binary_to_int64 opc dst_i 0 off imm) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i 0 off imm ; Int64.repr 0%Z]
   | BPF_ST mc dst (SOReg src) off =>
       let opc : byte := Byte.repr (match mc with
                                  | M8 => 0x73%Z
@@ -51,11 +51,11 @@ Definition rbpf_encoder (ins : bpf_instruction) : list int64 :=
                                 end) in
       let dst_i : nat := bpf_ireg_to_nat dst in
       let src_i : nat := bpf_ireg_to_nat src in
-      (binary_to_int64 opc dst_i src_i off (Int.repr 0%Z)) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i src_i off (Int.repr 0%Z) ; Int64.repr 0%Z]
 
   | BPF_ADD_STK imm => 
       let opc : byte := Byte.repr 0x07%Z in
-      (binary_to_int64 opc 11 0 (Int16.repr 0%Z) imm) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc 11 0 (Int16.repr 0%Z) imm ; Int64.repr 0%Z]
 
   | BPF_ALU bop dst (SOImm imm) =>
       let opc : byte := Byte.repr (match bop with
@@ -73,7 +73,7 @@ Definition rbpf_encoder (ins : bpf_instruction) : list int64 :=
                                 | BPF_ARSH => 0xc4
                                 end) in
       let dst_i : nat := bpf_ireg_to_nat dst in
-      (binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) imm) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) imm ; Int64.repr 0%Z]
   | BPF_ALU bop dst (SOReg src) =>
       let opc : byte := Byte.repr (match bop with
                                 | BPF_ADD  => 0x0c
@@ -91,21 +91,21 @@ Definition rbpf_encoder (ins : bpf_instruction) : list int64 :=
                                 end) in
       let dst_i : nat := bpf_ireg_to_nat dst in
       let src_i : nat := bpf_ireg_to_nat src in
-      (binary_to_int64 opc dst_i src_i (Int16.repr 0%Z) (Int.repr 0%Z)) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i src_i (Int16.repr 0%Z) (Int.repr 0%Z) ; Int64.repr 0%Z]
 
   | BPF_NEG32_REG dst =>
       let opc : byte := Byte.repr 0x84%Z in
       let dst_i : nat := bpf_ireg_to_nat dst in
-      (binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) (Int.repr 0%Z)) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) (Int.repr 0%Z) ; Int64.repr 0%Z]
 
   | BPF_LE dst imm => 
       let opc : byte := Byte.repr 0xd4%Z in
       let dst_i : nat := bpf_ireg_to_nat dst in
-      (binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) imm) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) imm ; Int64.repr 0%Z]
   | BPF_BE dst imm => 
       let opc : byte := Byte.repr 0xdc%Z in
       let dst_i : nat := bpf_ireg_to_nat dst in
-      (binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) imm) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) imm ; Int64.repr 0%Z]
 
   | BPF_ALU64 bop dst (SOImm imm) =>
       let opc : byte := Byte.repr (match bop with
@@ -123,7 +123,7 @@ Definition rbpf_encoder (ins : bpf_instruction) : list int64 :=
                                 | BPF_ARSH => 0xc7
                                 end) in
       let dst_i : nat := bpf_ireg_to_nat dst in
-      (binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) imm) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) imm ; Int64.repr 0%Z]
   | BPF_ALU64 bop dst (SOReg src) =>
       let opc : byte := Byte.repr (match bop with
                                 | BPF_ADD  => 0x0f
@@ -141,17 +141,17 @@ Definition rbpf_encoder (ins : bpf_instruction) : list int64 :=
                                 end) in
       let dst_i : nat := bpf_ireg_to_nat dst in
       let src_i : nat := bpf_ireg_to_nat src in
-      (binary_to_int64 opc dst_i src_i (Int16.repr 0%Z) (Int.repr 0%Z)) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i src_i (Int16.repr 0%Z) (Int.repr 0%Z) ; Int64.repr 0%Z]
 
   | BPF_NEG64_REG dst =>
       let opc : byte := Byte.repr 0x87%Z in
       let dst_i : nat := bpf_ireg_to_nat dst in
-      (binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) (Int.repr 0%Z)) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) (Int.repr 0%Z) ; Int64.repr 0%Z]
 
   | BPF_HOR64_IMM dst imm =>
       let opc : byte := Byte.repr 0xf7%Z in
       let dst_i : nat := bpf_ireg_to_nat dst in
-      (binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) imm) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) imm ; Int64.repr 0%Z]
 
   | BPF_PQR pop dst (SOImm imm) =>
       let opc : byte := Byte.repr (match pop with
@@ -162,7 +162,7 @@ Definition rbpf_encoder (ins : bpf_instruction) : list int64 :=
                                 | BPF_SREM => 0xe6
                                 end) in
       let dst_i : nat := bpf_ireg_to_nat dst in
-      (binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) imm) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) imm ; Int64.repr 0%Z]
   | BPF_PQR pop dst (SOReg src) =>
       let opc : byte := Byte.repr (match pop with
                                 | BPF_LMUL => 0x8e
@@ -173,7 +173,7 @@ Definition rbpf_encoder (ins : bpf_instruction) : list int64 :=
                                 end) in
       let dst_i : nat := bpf_ireg_to_nat dst in
       let src_i : nat := bpf_ireg_to_nat src in
-      (binary_to_int64 opc dst_i src_i (Int16.repr 0%Z) (Int.repr 0%Z)) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i src_i (Int16.repr 0%Z) (Int.repr 0%Z) ; Int64.repr 0%Z]
   | BPF_PQR64 pop dst (SOImm imm) =>
       let opc : byte := Byte.repr (match pop with
                                 | BPF_LMUL => 0x96
@@ -183,7 +183,7 @@ Definition rbpf_encoder (ins : bpf_instruction) : list int64 :=
                                 | BPF_SREM => 0xf6
                                 end) in
       let dst_i : nat := bpf_ireg_to_nat dst in
-      (binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) imm) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) imm ; Int64.repr 0%Z]
   | BPF_PQR64 pop dst (SOReg src) =>
       let opc : byte := Byte.repr (match pop with
                                 | BPF_LMUL => 0x9e
@@ -194,14 +194,14 @@ Definition rbpf_encoder (ins : bpf_instruction) : list int64 :=
                                 end) in
       let dst_i : nat := bpf_ireg_to_nat dst in
       let src_i : nat := bpf_ireg_to_nat src in
-      (binary_to_int64 opc dst_i src_i (Int16.repr 0%Z) (Int.repr 0%Z)) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i src_i (Int16.repr 0%Z) (Int.repr 0%Z) ; Int64.repr 0%Z]
   | BPF_PQR2 pop2 dst (SOImm imm) =>
       let opc : byte := Byte.repr (match pop2 with
                                 | BPF_UHMUL => 0x36
                                 | BPF_SHMUL => 0xb6
                                 end) in
       let dst_i : nat := bpf_ireg_to_nat dst in
-      (binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) imm) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i 0 (Int16.repr 0%Z) imm ; Int64.repr 0%Z]
   | BPF_PQR2 pop2 dst (SOReg src) =>
       let opc : byte := Byte.repr (match pop2 with
                                 | BPF_UHMUL => 0x3e
@@ -209,11 +209,11 @@ Definition rbpf_encoder (ins : bpf_instruction) : list int64 :=
                                 end) in
       let dst_i : nat := bpf_ireg_to_nat dst in
       let src_i : nat := bpf_ireg_to_nat src in
-      (binary_to_int64 opc dst_i src_i (Int16.repr 0%Z) (Int.repr 0%Z)) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i src_i (Int16.repr 0%Z) (Int.repr 0%Z) ; Int64.repr 0%Z]
 
   | BPF_JA off =>
       let opc : byte := Byte.repr 0x05%Z in
-      (binary_to_int64 opc 0 0 off (Int.repr 0%Z)) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc 0 0 off (Int.repr 0%Z) ; Int64.repr 0%Z]
 
   | BPF_JUMP cond dst (SOImm imm) off =>
       let opc : byte := Byte.repr (match cond with
@@ -230,7 +230,7 @@ Definition rbpf_encoder (ins : bpf_instruction) : list int64 :=
                                 | SLe => 0xd5
                                 end) in
       let dst_i : nat := bpf_ireg_to_nat dst in
-      (binary_to_int64 opc dst_i 0 off imm) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i 0 off imm ; Int64.repr 0%Z]
   | BPF_JUMP cond dst (SOReg src) off =>
       let opc : byte := Byte.repr (match cond with
                                 | Eq  => 0x1d
@@ -247,20 +247,20 @@ Definition rbpf_encoder (ins : bpf_instruction) : list int64 :=
                                 end) in
       let dst_i : nat := bpf_ireg_to_nat dst in
       let src_i : nat := bpf_ireg_to_nat src in
-      (binary_to_int64 opc dst_i src_i off (Int.repr 0%Z)) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc dst_i src_i off (Int.repr 0%Z) ; Int64.repr 0%Z]
 
   | BPF_CALL_REG src imm =>
       let opc : byte := Byte.repr 0x8d%Z in
       let src_i : nat := bpf_ireg_to_nat src in
-      (binary_to_int64 opc 0 src_i (Int16.repr 0%Z) imm) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc 0 src_i (Int16.repr 0%Z) imm ; Int64.repr 0%Z]
   | BPF_CALL_IMM src imm =>
       let opc : byte := Byte.repr 0x85%Z in
       let src_i : nat := bpf_ireg_to_nat src in
-      (binary_to_int64 opc 0 src_i (Int16.repr 0%Z) imm) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc 0 src_i (Int16.repr 0%Z) imm ; Int64.repr 0%Z]
   
   | BPF_EXIT =>
       let opc : byte := Byte.repr 0x95%Z in
-      (binary_to_int64 opc 0 0 (Int16.repr 0%Z) (Int.repr 0%Z)) :: (Int64.repr 0%Z) :: l
+      [binary_to_int64 opc 0 0 (Int16.repr 0%Z) (Int.repr 0%Z) ; Int64.repr 0%Z]
   end.
 
 
