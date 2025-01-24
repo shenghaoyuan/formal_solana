@@ -282,18 +282,28 @@ Definition rbpf_decoder_one
 Definition rbpf_decoder (pc : nat) (l : list int64) : option bpf_instruction :=
   match nth_error l pc with
   | Some data =>
-      let op : byte := Byte.repr (Int64.unsigned (decode_bpf data 0 8)) in
-      let dst : nat := Z.to_nat (Int64.unsigned (decode_bpf data 8 4)) in
-      let src : nat := Z.to_nat (Int64.unsigned (decode_bpf data 12 4)) in
-      let off : int16 := Int16.repr (Int64.signed (decode_bpf data 16 16)) in
-      let imm : int := Int.repr (Int64.signed (decode_bpf data 32 32)) in
+      let op  := Byte.repr (Int64.unsigned (decode_bpf data 0 8)) in
+      let dst := Z.to_nat (Int64.unsigned (decode_bpf data 8 4)) in
+      let src := Z.to_nat (Int64.unsigned (decode_bpf data 12 4)) in
+      let off := Int16.repr (Int64.signed (decode_bpf data 16 16)) in
+      let imm := Int.repr (Int64.signed (decode_bpf data 32 32)) in
       if Z.eqb (Byte.unsigned op) 0x18%Z then
         match nth_error l (S pc) with
         | Some data2 =>
-            let imm2 : int := Int.repr (Int64.signed (decode_bpf data2 32 32)) in
+            let op2  := Byte.repr (Int64.unsigned (decode_bpf data2 0 8)) in
+            let dst2 := Z.to_nat (Int64.unsigned (decode_bpf data2 8 4)) in
+            let src2 := Z.to_nat (Int64.unsigned (decode_bpf data2 12 4)) in
+            let off2 := Int16.repr (Int64.signed (decode_bpf data2 16 16)) in
+            let imm2 := Int.repr (Int64.signed (decode_bpf data2 32 32)) in
             match nat_to_bpf_ireg dst with
             | None => None
-            | Some dst_r => Some (BPF_LD_IMM dst_r imm imm2)
+            | Some dst_r =>
+              if (Nat.eqb src 0 && Int16.eq off (Int16.repr 0) &&
+                 Byte.eq op2 (Byte.repr 0) && Nat.eqb dst2 0 && Nat.eqb src2 0 &&
+                 Int16.eq off2 (Int16.repr 0))%bool then
+                Some (BPF_LD_IMM dst_r imm imm2)
+              else
+                None
             end
         | None => None
         end

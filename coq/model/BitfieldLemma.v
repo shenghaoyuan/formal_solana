@@ -148,6 +148,44 @@ Qed.
 
 (**r other *)
 
+Lemma unsigned_bitfield_insert_extract_zero_eq:
+  forall i width
+    (Hrange: 0 < width /\ width <= Int64.zwordsize),
+    (Int64.bitfield_insert 0 width (Int64.repr 0)
+              (Int64.unsigned_bitfield_extract 0 width i)) =
+      Int64.unsigned_bitfield_extract 0 width i.
+Proof.
+  intros.
+  apply Int64.same_bits_eq; intros.
+  rewrite Int64.bits_bitfield_insert; try lia.
+  rewrite ! Int64.bits_unsigned_bitfield_extract; try lia.
+  rewrite Z.add_0_r, Z.add_0_l, Z.sub_0_r.
+  fold Int64.zero.
+  destruct (_ && _) eqn: Hc.
+  - rewrite Bool.andb_true_iff in Hc.
+    rewrite <- zle_true_iff in Hc.
+    destruct Hc as (HT & Hc).
+    destruct (zlt i0 width) as [HF | HF] eqn: HL; [| inversion Hc].
+    rewrite Z.add_0_r; reflexivity.
+  - rewrite Bool.andb_false_iff in Hc.
+    rewrite <- zle_false_iff in Hc.
+    rewrite <- zlt_false_iff in Hc.
+    destruct Hc as [HF | HF]; [lia |].
+    destruct zlt as [Hd | Hd]; [lia |].
+    apply Int64.bits_zero.
+Qed.
+
+Lemma int64_extract_same:
+  forall i,
+    Int64.unsigned_bitfield_extract 0 64 i = i.
+Proof.
+  intros.
+  apply Int64.same_bits_eq; intros.
+  rewrite Int64.bits_unsigned_bitfield_extract; change Int64.zwordsize with 64 in *; try lia.
+  destruct zlt as [Hd | Hd]; [| lia].
+  rewrite Z.add_0_r; reflexivity.
+Qed.
+
 Lemma unsigned_bitfield_extract_extend:
   forall i pos width
     (Hrange: 0 < pos /\ 0 < width /\ pos+width <= Int64.zwordsize),

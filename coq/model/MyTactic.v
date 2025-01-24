@@ -6,7 +6,15 @@ From bpf.model Require Import rBPFDecoder rBPFEncoder BitfieldLemma BinSolver.
 
 Ltac bin_solver :=
   match goal with
+  | |- context [Int64.unsigned_bitfield_extract 0 64 _] =>
+     erewrite int64_extract_same; eauto
 
+  | |- context [Int64.bitfield_insert 0 ?w (Int64.repr 0) (Int64.unsigned_bitfield_extract 0 ?w ?i)] =>
+      erewrite unsigned_bitfield_insert_extract_zero_eq;
+      [| change Int64.zwordsize with 64; lia]
+  | |- context [Int64.bitfield_insert ?p ?w  (Int64.unsigned_bitfield_extract 0 ?p ?i) (Int64.unsigned_bitfield_extract ?p ?w ?i)] =>
+      erewrite unsigned_bitfield_extract_extend;
+      [simpl | change Int64.zwordsize with 64; lia]
 
   | |- context[Int64.unsigned_bitfield_extract ?p0 ?w0 (Int64.bitfield_insert ?p0 ?w0 ?i0 ?v0)] =>
     erewrite unsigned_bitfield_extract_bitfield_insert_same_1 with (pos := p0) (width := w0);
