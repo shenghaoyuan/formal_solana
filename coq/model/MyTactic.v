@@ -214,3 +214,12 @@ Proof.
   try ( simpl; unfold Int64.size, Zsize; rewrite Int64.unsigned_repr;
   [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ] ).
 Qed.
+
+Lemma int64_zero_to_nat :
+  Int64.size (Int64.repr 0) = 0.
+Proof.
+  fold Int64.zero.
+  rewrite Int64.size_zero.
+  reflexivity.
+Qed.
+
