@@ -83,6 +83,7 @@ Proof.
   apply Byte.eq_true.
 Qed.
 
+
 Lemma int64_sign_int_extract_32_eq:
   forall i,
     (Int64.repr
@@ -91,24 +92,42 @@ Lemma int64_sign_int_extract_32_eq:
            (Int64.signed
               (Int64.unsigned_bitfield_extract 32 32 i))))) = (Int64.unsigned_bitfield_extract 32 32 i).
 Proof.
+  intros.
+  unfold Int64.unsigned_bitfield_extract. simpl.
+  rewrite Int.unsigned_repr; [rewrite Int64.repr_signed; reflexivity |]. 
+  rewrite Int64.signed_eq_unsigned;
+  pose proof Int64.zero_ext_range 32 (Int64.shru i (Int64.repr 32)) as Hrange;
+  unfold Int64.zwordsize, two_p, two_power_pos in Hrange;
+  simpl in Hrange.
+  - change Int.max_unsigned with 4294967295.
+    lia.
+  - change Int64.max_signed with 9223372036854775807.
+    lia.
+Qed.
 
-Admitted.
 
 Lemma int64_unsign_byte_extract_8_eq:
   forall i,
     (Int64.repr
-                 (Byte.unsigned
-                    (Byte.repr
-                       (Int64.unsigned
-                          (Int64.unsigned_bitfield_extract
-                             (Z.of_nat 0) 
-                             (Z.of_nat 8) i))))) =
+       (Byte.unsigned
+          (Byte.repr
+             (Int64.unsigned
+                (Int64.unsigned_bitfield_extract
+                   (Z.of_nat 0) 
+                   (Z.of_nat 8) i))))) =
     (Int64.unsigned_bitfield_extract
                              (Z.of_nat 0) 
                              (Z.of_nat 8) i).
 Proof.
-
-Admitted.
+  intros.
+  unfold Int64.unsigned_bitfield_extract. simpl.
+  rewrite Byte.unsigned_repr; [rewrite Int64.repr_unsigned; reflexivity |].
+  pose proof Int64.zero_ext_range 8 (Int64.shru i (Int64.repr 0)) as Hrange.
+  unfold Int64.zwordsize, two_p, two_power_pos in Hrange.
+  simpl in Hrange.
+  change Byte.max_unsigned with 255.
+  lia.
+Qed.
 
 
 Lemma int64_sign_int16_extract_16_eq:
@@ -122,8 +141,19 @@ Lemma int64_sign_int16_extract_16_eq:
     (Int64.unsigned_bitfield_extract
                     (Z.of_nat 16) (Z.of_nat 16) i).
 Proof.
-
-Admitted.
+  intros.
+  unfold Int64.unsigned_bitfield_extract.
+  rewrite Int16.unsigned_repr; [rewrite Int64.repr_signed; reflexivity |].
+  simpl.
+  rewrite Int64.signed_eq_unsigned;
+  pose proof Int64.zero_ext_range 16 (Int64.shru i (Int64.repr 16)) as Hrange;
+  unfold Int64.zwordsize, two_p, two_power_pos in Hrange;
+  simpl in Hrange.
+  - change Int16.max_unsigned with 65535.
+    lia.
+  - change Int64.max_signed with 9223372036854775807.
+    lia.
+Qed.
 
 Lemma int64_unsign_z_nat_16_eq :
   forall i,
@@ -132,8 +162,14 @@ Lemma int64_unsign_z_nat_16_eq :
               (Z.to_nat
                  (Int64.unsigned i)))) = i.
 Proof.
-
-Admitted.
+  intros.
+  rewrite Z2Nat.id.
+  - rewrite Int64.repr_unsigned.
+    reflexivity.
+  - pose proof Int64.unsigned_range i as Hrange.
+    destruct Hrange as [H1 H2].
+    apply H1.
+Qed.
 
 
 Lemma rbpf_decode_encode_consistency:
@@ -173,4 +209,68 @@ Proof.
         rewrite ! Int64.repr_unsigned, Byte.repr_unsigned.
         rewrite ! int64_sign_int_extract_32_eq, int64_sign_int16_extract_16_eq,  int64_unsign_byte_extract_8_eq, int64_unsign_z_nat_16_eq.
         bsolver.
+      * apply andb_true_intro.
+        split; [| reflexivity].
+        apply int64_eq_iff.
+        rewrite ! int64_sign_int_extract_32_eq, int64_sign_int16_extract_16_eq,  int64_unsign_byte_extract_8_eq, int64_unsign_z_nat_16_eq, int64_unsign_z_nat_16_eq.
+        bsolver.
+    + exfalso.
+      clear Hlddw Hnth.
+      unfold rbpf_decoder_one, binary_to_int64, decode_bpf, encode_bpf in Hdecode.
+      simpl in *.
+      destruct (_ =? _)%Z eqn:Heq1 in Hdecode.
+      * destruct (_ =? _)%nat eqn:Hstk in Hdecode; [inversion Hdecode |].
+        destruct (nat_to_bpf_ireg (Z.to_nat (Int64.unsigned (Int64.unsigned_bitfield_extract 8 4 i)))) eqn:Hnat in Hdecode;
+        inversion Hdecode.
+      * repeat (destruct (nat_to_bpf_ireg _) in Hdecode; [| inversion Hdecode]).
+        repeat (destruct (_ =? _) in Hdecode; [inversion Hdecode |]).
+        inversion Hdecode.
+  - destruct (_ =? _)%Z eqn: Hlddw in Hdecode.
+    + destruct nth_error eqn:Hnth1 in Hdecode; [| inversion Hdecode].
+      destruct (nat_to_bpf_ireg _) as [dst | ] eqn: Hdst; [| inversion Hdecode].
+      destruct (_ && _)%bool eqn: Hlddwb in Hdecode; inversion Hdecode.
+    + unfold rbpf_decoder_one, binary_to_int64, decode_bpf, encode_bpf in *.
+      simpl in *.
+      clear Hlddw.
+      destruct (_ =? _)%Z eqn:Heq1 in Hdecode.
+      * destruct (_ =? _)%nat eqn:Hstk in Hdecode; [inversion Hdecode |].
+        destruct (nat_to_bpf_ireg (Z.to_nat (Int64.unsigned (Int64.unsigned_bitfield_extract 8 4 i)))) eqn:Hnat in Hdecode;
+        inversion Hdecode.
+      * destruct (nat_to_bpf_ireg _) eqn:Hdst in Hdecode; [| inversion Hdecode].
+        destruct (nat_to_bpf_ireg _) eqn:Hsrc in Hdecode; [| inversion Hdecode].
+        destruct m.
+        destruct (_ =? _) eqn:Heq in Hdecode.
+        -- inversion Hdecode.
+           subst.
+           rewrite Hnth.
+           apply andb_true_intro.
+           split.
+           --- apply int64_eq_iff.
+               rewrite ! Byte.unsigned_repr in *; try (unfold Byte.max_unsigned; simpl; lia).
+               rewrite Z.eqb_eq in Heq.
+               rewrite <- Heq.
+               
+               bsolver.
+               Search Int64.bitfield_insert.
+               rewrite Z.eqb_neq in *.
+               admit.
+
+
+
+        rewrite Hnth.
+        -- apply andb_true_intro.
+           split.
+           --- apply int64_eq_iff.
+               rewrite ! Byte.unsigned_repr; [| unfold Byte.max_unsigned; simpl; lia].
+               rewrite ! Int.unsigned_repr; [| unfold Int.max_unsigned; simpl; lia].
+               Search Int64.bitfield_insert.
+               bsolver. 
+               rewrite Z.eqb_neq in *.
+               admit.
+           --- destruct l as [| h0 l0]; [rewrite Coqlib.nth_error_nil in Hnth; inversion Hnth |].
+               destruct (nth_error l0 pc) eqn:Hnth2. ---- apply andb_true_intro. split. apply int64_eq_iff.
+
+
+
 Admitted.
+    

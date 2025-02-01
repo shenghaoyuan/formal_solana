@@ -77,7 +77,6 @@ Ltac bin_solver2 :=
       end)
   end.*)
 
-
 Ltac unfold_bin := unfold binary_to_int64, decode_bpf, encode_bpf.
 
 Lemma int64_size_int_unsign_le32: forall i,
