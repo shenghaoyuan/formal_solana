@@ -245,36 +245,29 @@ Proof.
       apply Int64.same_if_eq in Hins, Hins0.
       unfold rbpf_decoder_one.
       subst.
-      bsolver; try (rewrite int64_zero_to_nat; lia).
-      rewrite byte_int64_eq. destruct b; simpl; rewrite bpf_ireg_nat_trans_cons.
-      rewrite Int64.unsigned_repr. [| unfold Int64.max_unsigned; try (destruct b0; simpl; lia); try lia ].
-          rewrite Nat2Z.id. destruct b0; simpl; try(
-          rewrite Int64.signed_repr; [| apply int64_range_int_range_unsign_le ];
-          rewrite Int.repr_unsigned; reflexivity).
-  [| unfold Int64.max_unsigned; simpl; lia].
-          simpl;
-      destruct b; try ( 
-        simpl; 
+      bsolver; try (rewrite int64_zero_to_nat; lia); try (apply bpf_ireg_to_nat_size_le4).
+      rewrite byte_int64_eq; [| destruct b; lia].
+      destruct b; simpl; rewrite bpf_ireg_nat_trans_cons;
+      rewrite Int64.unsigned_repr; 
+      try( 
+        unfold Int64.max_unsigned; try (destruct b0; simpl; lia); try lia; simpl 
+      ); 
+      try (
+        simpl; rewrite Int64.signed_repr; 
+        try( unfold Int64.min_signed, Int64.max_signed; simpl; lia );
+        simpl;
         try (
-          rewrite bpf_ireg_nat_trans_cons;
-          rewrite Int64.unsigned_repr; [| unfold Int64.max_unsigned; simpl; lia];
-          simpl;
-          rewrite Int64.signed_repr; [| apply int64_range_int_range_unsign_le ];
-          rewrite Int.repr_unsigned;
-          reflexivity )).
-      * rewrite bpf_ireg_nat_trans_cons.
-        rewrite Int64.unsigned_repr.
-        -- rewrite Nat2Z.id.
-           destruct b0; simpl;
-           try ( 
-             rewrite Int64.signed_repr; [| apply int64_range_int_range_unsign_le ];
-             rewrite Int.repr_unsigned; 
-             reflexivity).
-        -- destruct b0; unfold Int64.max_unsigned; simpl; lia.
-      * destruct b; lia.
-      * destruct b0; simpl; unfold Int64.size, Zsize;
-        try( rewrite Int64.unsigned_repr;
-        [ simpl; lia | unfold Int64.max_unsigned; simpl; lia ]).
+          rewrite Int64.signed_repr; [| apply int64_range_int_range_unsign_le]; 
+          rewrite Int.repr_unsigned
+        );
+        reflexivity
+      ).
+      rewrite Nat2Z.id. destruct b0; simpl;
+      try (
+        rewrite Int64.signed_repr; [| apply int64_range_int_range_unsign_le]; 
+        rewrite Int.repr_unsigned
+      );
+      reflexivity.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
       destruct HL as (Hins & HL).
@@ -329,6 +322,7 @@ Proof.
     + rewrite bpf_ireg_nat_trans_cons.
       rewrite Int64.unsigned_repr; [| unfold Int64.max_unsigned; simpl; lia].
       simpl.
+      rewrite Int64.signed_repr; [| unfold Int64.min_signed, Int64.max_signed; simpl; lia ].
       rewrite Int64.signed_repr; [| apply int64_range_int_range_unsign_le ].
       rewrite Int.repr_unsigned.
       reflexivity.
@@ -352,6 +346,7 @@ Proof.
         rewrite bpf_ireg_nat_trans_cons;
         rewrite Int64.unsigned_repr; [| unfold Int64.max_unsigned; simpl; lia];
         simpl;
+        rewrite Int64.signed_repr; [| unfold Int64.min_signed, Int64.max_signed; simpl; lia ];
         rewrite Int64.signed_repr; [| apply int64_range_int_range_unsign_le ];
         rewrite Int.repr_unsigned;
         reflexivity ).
@@ -393,6 +388,7 @@ Proof.
         rewrite bpf_ireg_nat_trans_cons;
         rewrite Int64.unsigned_repr; [| unfold Int64.max_unsigned; simpl; lia];
         simpl;
+        rewrite Int64.signed_repr; [| unfold Int64.min_signed, Int64.max_signed; simpl; lia ];
         rewrite Int64.signed_repr; [| apply int64_range_int_range_unsign_le ];
         rewrite Int.repr_unsigned;
         reflexivity ).
@@ -434,6 +430,7 @@ Proof.
         rewrite bpf_ireg_nat_trans_cons;
         rewrite Int64.unsigned_repr; [| unfold Int64.max_unsigned; simpl; lia];
         simpl;
+        rewrite Int64.signed_repr; [| unfold Int64.min_signed, Int64.max_signed; simpl; lia ];
         rewrite Int64.signed_repr; [| apply int64_range_int_range_unsign_le ];
         rewrite Int.repr_unsigned;
         reflexivity ).
@@ -512,14 +509,17 @@ Proof.
       subst.
       bsolver; try (apply bpf_ireg_to_nat_size_le4).
       rewrite byte_int64_eq.
-      destruct c; simpl;
-      try ( 
+      * destruct c; simpl;
         rewrite bpf_ireg_nat_trans_cons;
         rewrite bpf_ireg_nat_trans_cons;
-        rewrite Int64.signed_repr; [| apply int64_range_int16_range_unsign_le ];
+        rewrite Int64.signed_repr; try (apply int64_range_int_range_unsign_le );
+        rewrite Int.repr_unsigned; fold Int.zero; rewrite Int.eq_true;
+        try (
+          rewrite Int64.signed_repr; [| apply int64_range_int16_range_unsign_le ]
+        );
         rewrite Int16.repr_unsigned;
-        reflexivity ).
-      destruct c; lia.
+        reflexivity.
+      * destruct c; lia.
 (*       BPF_CALL_REG       *)
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
@@ -537,6 +537,7 @@ Proof.
     + rewrite Int64.unsigned_repr; [| unfold Int64.max_unsigned; simpl; lia].
       rewrite bpf_ireg_nat_trans_cons.
       simpl.
+      rewrite Int64.signed_repr; [| unfold Int64.min_signed, Int64.max_signed; simpl; lia ].
       rewrite Int64.signed_repr; [| apply int64_range_int_range_unsign_le ].
       rewrite Int.repr_unsigned.
       reflexivity.
@@ -558,6 +559,7 @@ Proof.
     + rewrite Int64.unsigned_repr; [| unfold Int64.max_unsigned; simpl; lia].
       rewrite bpf_ireg_nat_trans_cons.
       simpl.
+      rewrite Int64.signed_repr; [| unfold Int64.min_signed, Int64.max_signed; simpl; lia ].
       rewrite Int64.signed_repr; [| apply int64_range_int_range_unsign_le ].
       rewrite Int.repr_unsigned.
       reflexivity.

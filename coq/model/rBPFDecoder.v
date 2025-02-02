@@ -398,7 +398,7 @@ Definition rbpf_decoder_one
           else None
 
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x05) then
-          if (Nat.eqb sv 0 && Int16.eq off Int16.zero && Nat.eqb dv 0 )%bool then
+          if (Nat.eqb sv 0 && Nat.eqb dv 0 )%bool then
             Some (BPF_JA off)
           else None
 
