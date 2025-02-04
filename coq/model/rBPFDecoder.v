@@ -11,12 +11,16 @@ Definition rbpf_decoder_one
   (opc : byte) (dv : nat) (sv : nat) (off : int16) (imm : int) : option bpf_instruction :=
   if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x07) then
     if dv =? 11 then
-      Some (BPF_ADD_STK imm)
+      if (Nat.eqb sv 0 && Int16.eq off Int16.zero)%bool then
+        Some (BPF_ADD_STK imm)
+      else None
     else 
-      match nat_to_bpf_ireg dv with
-      | None => None
-      | Some dst => Some (BPF_ALU64 BPF_ADD dst (SOImm imm))
-      end
+      if (Nat.eqb sv 0 && Int16.eq off Int16.zero)%bool then
+        match nat_to_bpf_ireg dv with
+        | None => None
+        | Some dst => Some (BPF_ALU64 BPF_ADD dst (SOImm imm))
+        end
+      else None
   else
     match nat_to_bpf_ireg dv with
     | None => None
@@ -398,7 +402,7 @@ Definition rbpf_decoder_one
           else None
 
         else if Z.eqb (Byte.unsigned opc) (Z.of_nat 0x05) then
-          if (Nat.eqb sv 0 && Nat.eqb dv 0 )%bool then
+          if (Nat.eqb sv 0 && Nat.eqb dv 0 && Int.eq imm Int.zero)%bool then
             Some (BPF_JA off)
           else None
 

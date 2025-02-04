@@ -39,12 +39,8 @@ Proof.
 (*       BPF_LDX       *)
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins & HL).
-    destruct l as [| h0 l0]; [inversion HL |].
-    destruct nth_error as [ins0 |] in HL; [| inversion HL].
-    rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins0 & _).
-    apply Int64.same_if_eq in Hins, Hins0.
+    destruct HL as (Hins & _).
+    apply Int64.same_if_eq in Hins.
     unfold rbpf_decoder_one.
     subst.
     bsolver; try (rewrite bpf_ireg_to_nat_size_le4; lia).
@@ -57,12 +53,8 @@ Proof.
   - destruct s as [SOi | SOr] eqn: Hseq in HL, Hencode; simpl in HL.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins & HL).
-      destruct l as [| h0 l0]; [inversion HL |].
-      destruct nth_error as [ins0 |] in HL; [| inversion HL].
-      rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins0 & _).
-      apply Int64.same_if_eq in Hins, Hins0.
+      destruct HL as (Hins & _).
+      apply Int64.same_if_eq in Hins.
       unfold rbpf_decoder_one.
       subst.
       bsolver.
@@ -82,12 +74,8 @@ Proof.
       * apply bpf_ireg_to_nat_size_le4.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins & HL).
-      destruct l as [| h0 l0]; [inversion HL |].
-      destruct nth_error as [ins0 |] in HL; [| inversion HL].
-      rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins0 & _).
-      apply Int64.same_if_eq in Hins, Hins0.
+      destruct HL as (Hins & _).
+      apply Int64.same_if_eq in Hins.
       unfold rbpf_decoder_one.
       subst.
       bsolver; try (apply bpf_ireg_to_nat_size_le4).
@@ -104,12 +92,8 @@ Proof.
 (*       BPF_ADD_STK       *)
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins & HL).
-    destruct l as [| h0 l0]; [inversion HL |].
-    destruct nth_error as [ins0 |] in HL; [| inversion HL].
-    rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins0 & _).
-    apply Int64.same_if_eq in Hins, Hins0.
+    destruct HL as (Hins & _).
+    apply Int64.same_if_eq in Hins.
     unfold rbpf_decoder_one.
     subst.
     bsolver; try (rewrite int64_zero_to_nat; lia).
@@ -117,6 +101,7 @@ Proof.
     simpl.
     + rewrite Int64.unsigned_repr; [| unfold Int64.max_unsigned; simpl; lia ]. 
       simpl.
+      destruct (_ && _)%bool eqn:Haddstk; [| inversion Haddstk].
       rewrite Int64.signed_repr; [| apply int64_range_int_range_unsign_le ].
       rewrite Int.repr_unsigned.
       reflexivity.
@@ -128,12 +113,8 @@ Proof.
   - destruct s as [SOi | SOr] eqn: Hseq in HL, Hencode; simpl in HL.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins & HL).
-      destruct l as [| h0 l0]; [inversion HL |].
-      destruct nth_error as [ins0 |] in HL; [| inversion HL].
-      rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins0 & _).
-      apply Int64.same_if_eq in Hins, Hins0.
+      destruct HL as (Hins & _).
+      apply Int64.same_if_eq in Hins.
       unfold rbpf_decoder_one.
       subst.
       bsolver; try (rewrite int64_zero_to_nat; lia).
@@ -151,12 +132,8 @@ Proof.
       * apply bpf_ireg_to_nat_size_le4.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins & HL).
-      destruct l as [| h0 l0]; [inversion HL |].
-      destruct nth_error as [ins0 |] in HL; [| inversion HL].
-      rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins0 & _).
-      apply Int64.same_if_eq in Hins, Hins0.
+      destruct HL as (Hins & _).
+      apply Int64.same_if_eq in Hins.
       unfold rbpf_decoder_one.
       subst.
       bsolver; try (rewrite int64_zero_to_nat; lia); try (apply bpf_ireg_to_nat_size_le4).
@@ -170,12 +147,8 @@ Proof.
 (*       BPF_NEG32_REG       *)
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins & HL).
-    destruct l as [| h0 l0]; [inversion HL |].
-    destruct nth_error as [ins0 |] in HL; [| inversion HL].
-    rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins0 & _).
-    apply Int64.same_if_eq in Hins, Hins0.
+    destruct HL as (Hins & _).
+    apply Int64.same_if_eq in Hins.
     unfold rbpf_decoder_one.
     subst.
     bsolver; try (rewrite int64_zero_to_nat; lia).
@@ -190,12 +163,8 @@ Proof.
 (*       BPF_LE       *)  
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins & HL).
-    destruct l as [| h0 l0]; [inversion HL |].
-    destruct nth_error as [ins0 |] in HL; [| inversion HL].
-    rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins0 & _).
-    apply Int64.same_if_eq in Hins, Hins0.
+    destruct HL as (Hins & _).
+    apply Int64.same_if_eq in Hins.
     unfold rbpf_decoder_one.
     subst.
     bsolver; try (rewrite int64_zero_to_nat; lia).
@@ -213,12 +182,8 @@ Proof.
 (*       BPF_BE       *)  
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins & HL).
-    destruct l as [| h0 l0]; [inversion HL |].
-    destruct nth_error as [ins0 |] in HL; [| inversion HL].
-    rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins0 & _).
-    apply Int64.same_if_eq in Hins, Hins0.
+    destruct HL as (Hins & _).
+    apply Int64.same_if_eq in Hins.
     unfold rbpf_decoder_one.
     subst.
     bsolver; try (rewrite int64_zero_to_nat; lia).
@@ -237,21 +202,13 @@ Proof.
   - destruct s as [SOi | SOr] eqn: Hseq in HL, Hencode; simpl in HL.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins & HL).
-      destruct l as [| h0 l0]; [inversion HL |].
-      destruct nth_error as [ins0 |] in HL; [| inversion HL].
-      rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins0 & _).
-      apply Int64.same_if_eq in Hins, Hins0.
+      destruct HL as (Hins & _).
+      apply Int64.same_if_eq in Hins.
       unfold rbpf_decoder_one.
       subst.
       bsolver; try (rewrite int64_zero_to_nat; lia); try (apply bpf_ireg_to_nat_size_le4).
       rewrite byte_int64_eq; [| destruct b; lia].
       destruct b; simpl; rewrite bpf_ireg_nat_trans_cons;
-      rewrite Int64.unsigned_repr; 
-      try( 
-        unfold Int64.max_unsigned; try (destruct b0; simpl; lia); try lia; simpl 
-      ); 
       try (
         simpl; rewrite Int64.signed_repr; 
         try( unfold Int64.min_signed, Int64.max_signed; simpl; lia );
@@ -262,20 +219,19 @@ Proof.
         );
         reflexivity
       ).
-      rewrite Nat2Z.id. destruct b0; simpl;
-      try (
-        rewrite Int64.signed_repr; [| apply int64_range_int_range_unsign_le]; 
-        rewrite Int.repr_unsigned
-      );
+      rewrite Int64.unsigned_repr;
+      try( 
+        unfold Int64.max_unsigned; try (destruct b0; simpl; lia); try lia; simpl 
+      ).
+      destruct b0; simpl;
+      destruct (_ && _)%bool eqn:Hadd; inversion Hadd;
+      rewrite Int64.signed_repr; try (apply int64_range_int_range_unsign_le);
+      rewrite Int.repr_unsigned;
       reflexivity.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins & HL).
-      destruct l as [| h0 l0]; [inversion HL |].
-      destruct nth_error as [ins0 |] in HL; [| inversion HL].
-      rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins0 & _).
-      apply Int64.same_if_eq in Hins, Hins0.
+      destruct HL as (Hins & _).
+      apply Int64.same_if_eq in Hins.
       unfold rbpf_decoder_one.
       subst.
       bsolver; try (rewrite int64_zero_to_nat; lia); try (apply bpf_ireg_to_nat_size_le4).
@@ -289,12 +245,8 @@ Proof.
 (*       BPF_NEG64_REG       *)
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins & HL).
-    destruct l as [| h0 l0]; [inversion HL |].
-    destruct nth_error as [ins0 |] in HL; [| inversion HL].
-    rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins0 & _).
-    apply Int64.same_if_eq in Hins, Hins0.
+    destruct HL as (Hins & _).
+    apply Int64.same_if_eq in Hins.
     unfold rbpf_decoder_one.
     subst.
     bsolver; try (rewrite int64_zero_to_nat; lia); try (apply bpf_ireg_to_nat_size_le4).
@@ -308,12 +260,8 @@ Proof.
 (*       BPF_HOR64_IMM       *)
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins & HL).
-    destruct l as [| h0 l0]; [inversion HL |].
-    destruct nth_error as [ins0 |] in HL; [| inversion HL].
-    rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins0 & _).
-    apply Int64.same_if_eq in Hins, Hins0.
+    destruct HL as (Hins & _).
+    apply Int64.same_if_eq in Hins.
     unfold rbpf_decoder_one.
     subst.
     bsolver; try (rewrite int64_zero_to_nat; lia); try (apply bpf_ireg_to_nat_size_le4).
@@ -331,12 +279,8 @@ Proof.
   - destruct s as [SOi | SOr] eqn: Hseq in HL, Hencode; simpl in HL.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins & HL).
-      destruct l as [| h0 l0]; [inversion HL |].
-      destruct nth_error as [ins0 |] in HL; [| inversion HL].
-      rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins0 & _).
-      apply Int64.same_if_eq in Hins, Hins0.
+      destruct HL as (Hins & _).
+      apply Int64.same_if_eq in Hins.
       unfold rbpf_decoder_one.
       subst.
       bsolver; try (rewrite int64_zero_to_nat; lia); try (apply bpf_ireg_to_nat_size_le4).
@@ -353,12 +297,8 @@ Proof.
       destruct p; lia.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins & HL).
-      destruct l as [| h0 l0]; [inversion HL |].
-      destruct nth_error as [ins0 |] in HL; [| inversion HL].
-      rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins0 & _).
-      apply Int64.same_if_eq in Hins, Hins0.
+      destruct HL as (Hins & _).
+      apply Int64.same_if_eq in Hins.
       unfold rbpf_decoder_one.
       subst.
       bsolver; try (rewrite int64_zero_to_nat; lia); try (apply bpf_ireg_to_nat_size_le4).
@@ -373,12 +313,8 @@ Proof.
   - destruct s as [SOi | SOr] eqn: Hseq in HL, Hencode; simpl in HL.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins & HL).
-      destruct l as [| h0 l0]; [inversion HL |].
-      destruct nth_error as [ins0 |] in HL; [| inversion HL].
-      rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins0 & _).
-      apply Int64.same_if_eq in Hins, Hins0.
+      destruct HL as (Hins & _).
+      apply Int64.same_if_eq in Hins.
       unfold rbpf_decoder_one.
       subst.
       bsolver; try (rewrite int64_zero_to_nat; lia); try (apply bpf_ireg_to_nat_size_le4).
@@ -395,12 +331,8 @@ Proof.
       destruct p; lia.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins & HL).
-      destruct l as [| h0 l0]; [inversion HL |].
-      destruct nth_error as [ins0 |] in HL; [| inversion HL].
-      rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins0 & _).
-      apply Int64.same_if_eq in Hins, Hins0.
+      destruct HL as (Hins & _).
+      apply Int64.same_if_eq in Hins.
       unfold rbpf_decoder_one.
       subst.
       bsolver; try (rewrite int64_zero_to_nat; lia); try (apply bpf_ireg_to_nat_size_le4).
@@ -415,12 +347,8 @@ Proof.
   - destruct s as [SOi | SOr] eqn: Hseq in HL, Hencode; simpl in HL.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins & HL).
-      destruct l as [| h0 l0]; [inversion HL |].
-      destruct nth_error as [ins0 |] in HL; [| inversion HL].
-      rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins0 & _).
-      apply Int64.same_if_eq in Hins, Hins0.
+      destruct HL as (Hins & _).
+      apply Int64.same_if_eq in Hins.
       unfold rbpf_decoder_one.
       subst.
       bsolver; try (rewrite int64_zero_to_nat; lia); try (apply bpf_ireg_to_nat_size_le4).
@@ -437,12 +365,8 @@ Proof.
       destruct p; lia.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins & HL).
-      destruct l as [| h0 l0]; [inversion HL |].
-      destruct nth_error as [ins0 |] in HL; [| inversion HL].
-      rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins0 & _).
-      apply Int64.same_if_eq in Hins, Hins0.
+      destruct HL as (Hins & _).
+      apply Int64.same_if_eq in Hins.
       unfold rbpf_decoder_one.
       subst.
       bsolver; try (rewrite int64_zero_to_nat; lia); try (apply bpf_ireg_to_nat_size_le4).
@@ -456,12 +380,8 @@ Proof.
 (*       BPF_JA       *)
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins & HL).
-    destruct l as [| h0 l0]; [inversion HL |].
-    destruct nth_error as [ins0 |] in HL; [| inversion HL].
-    rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins0 & _).
-    apply Int64.same_if_eq in Hins, Hins0.
+    destruct HL as (Hins & _).
+    apply Int64.same_if_eq in Hins.
     unfold rbpf_decoder_one.
     subst.
     bsolver; try (rewrite int64_zero_to_nat; lia); try (apply bpf_ireg_to_nat_size_le4).
@@ -469,6 +389,7 @@ Proof.
     simpl.
     + rewrite Int64.unsigned_repr; [| unfold Int64.max_unsigned; simpl; lia].
       simpl.
+      rewrite Int64.signed_repr; [| apply int64_range_int_range_unsign_le ].
       rewrite Int64.signed_repr; [| apply int64_range_int16_range_unsign_le ].
       rewrite Int16.repr_unsigned.
       reflexivity.
@@ -477,12 +398,8 @@ Proof.
   - destruct s as [SOi | SOr] eqn: Hseq in HL, Hencode; simpl in HL.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins & HL).
-      destruct l as [| h0 l0]; [inversion HL |].
-      destruct nth_error as [ins0 |] in HL; [| inversion HL].
-      rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins0 & _).
-      apply Int64.same_if_eq in Hins, Hins0.
+      destruct HL as (Hins & _).
+      apply Int64.same_if_eq in Hins.
       unfold rbpf_decoder_one.
       subst.
       bsolver; try (rewrite int64_zero_to_nat; lia); try (apply bpf_ireg_to_nat_size_le4).
@@ -499,12 +416,8 @@ Proof.
       destruct c; lia.
     + destruct nth_error as [ins |]; [| inversion HL].
       rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins & HL).
-      destruct l as [| h0 l0]; [inversion HL |].
-      destruct nth_error as [ins0 |] in HL; [| inversion HL].
-      rewrite Bool.andb_true_iff in HL.
-      destruct HL as (Hins0 & _).
-      apply Int64.same_if_eq in Hins, Hins0.
+      destruct HL as (Hins & _).
+      apply Int64.same_if_eq in Hins.
       unfold rbpf_decoder_one.
       subst.
       bsolver; try (apply bpf_ireg_to_nat_size_le4).
@@ -523,12 +436,8 @@ Proof.
 (*       BPF_CALL_REG       *)
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins & HL).
-    destruct l as [| h0 l0]; [inversion HL |].
-    destruct nth_error as [ins0 |] in HL; [| inversion HL].
-    rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins0 & _).
-    apply Int64.same_if_eq in Hins, Hins0.
+    destruct HL as (Hins & _).
+    apply Int64.same_if_eq in Hins.
     unfold rbpf_decoder_one.
     subst.
     bsolver; try (rewrite int64_zero_to_nat; lia); try (apply bpf_ireg_to_nat_size_le4).
@@ -545,12 +454,8 @@ Proof.
 (*       BPF_CALL_IMM       *)
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins & HL).
-    destruct l as [| h0 l0]; [inversion HL |].
-    destruct nth_error as [ins0 |] in HL; [| inversion HL].
-    rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins0 & _).
-    apply Int64.same_if_eq in Hins, Hins0.
+    destruct HL as (Hins & _).
+    apply Int64.same_if_eq in Hins.
     unfold rbpf_decoder_one.
     subst.
     bsolver; try (rewrite int64_zero_to_nat; lia); try (apply bpf_ireg_to_nat_size_le4).
@@ -567,12 +472,8 @@ Proof.
 (*       BPF_EXIT       *)
   - destruct nth_error as [ins |]; [| inversion HL].
     rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins & HL).
-    destruct l as [| h0 l0]; [inversion HL |].
-    destruct nth_error as [ins0 |] in HL; [| inversion HL].
-    rewrite Bool.andb_true_iff in HL.
-    destruct HL as (Hins0 & _).
-    apply Int64.same_if_eq in Hins, Hins0.
+    destruct HL as (Hins & _).
+    apply Int64.same_if_eq in Hins.
     unfold rbpf_decoder_one.
     subst.
     bsolver.

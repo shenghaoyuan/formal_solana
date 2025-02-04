@@ -222,3 +222,180 @@ Proof.
   reflexivity.
 Qed.
 
+Lemma some_eq_eq: forall {A:Type} (a b:A),
+  Some a = Some b -> a = b.
+Proof.
+  intros.
+  inversion H.
+  reflexivity.
+Qed.
+
+Ltac simp_if_context_false :=
+  let K := fresh "K" in
+  match goal with
+    | H: (if ?A then _ else _) = _ |- _ => destruct A eqn: K; [ inversion H | simp_if_context_false]
+    | H: None = Some _ |- _ => inversion H
+    end.
+
+Ltac simp_if_context_post :=
+    match goal with
+    | K: (Z.to_nat ?v =? ?n)%nat = true |- Z.of_nat ?n = ?v  =>
+  rewrite Nat.eqb_eq in K;
+rewrite <- K;
+rewrite Z2Nat.id; [reflexivity | assumption]
+    end.
+
+Ltac simp_if_context :=
+  simp_if_context_false; simp_if_context_post.
+
+Lemma bpf_reg_decode_eq:
+  forall v r
+   (HZ: (0 <= v)%Z)
+    (HR: nat_to_bpf_ireg (Z.to_nat v) = Some r),
+    Z.of_nat (bpf_ireg_to_nat r) = v.
+Proof.
+  intros.
+  unfold nat_to_bpf_ireg, bpf_ireg_to_nat in *.
+  destruct r; simp_if_context.
+Qed.
+
+Lemma int64_unsigned_ge_0:
+  forall v,
+    0 <= Int64.unsigned v.
+Proof.
+  intros.
+  pose proof (Int64.unsigned_range_2 v) as H.
+  lia.
+Qed.
+
+Lemma int64_eq_iff:
+  forall x y,
+    Int64.eq x y = true <-> x = y.
+Proof.
+  intros.
+  split.
+  apply Int64.same_if_eq.
+  intro Heq; subst.
+  apply Int64.eq_true.
+Qed.
+
+Lemma int16_eq_iff:
+  forall x y,
+    Int16.eq x y = true <-> x = y.
+Proof.
+  intros.
+  split.
+  apply Int16.same_if_eq.
+  intro Heq; subst.
+  apply Int16.eq_true.
+Qed.
+
+Lemma int_eq_iff:
+  forall x y,
+    Int.eq x y = true <-> x = y.
+Proof.
+  intros.
+  split.
+  apply Int.same_if_eq.
+  intro Heq; subst.
+  apply Int.eq_true.
+Qed.
+
+Lemma byte_eq_iff:
+  forall x y,
+    Byte.eq x y = true <-> x = y.
+Proof.
+  intros.
+  split.
+  apply Byte.same_if_eq.
+  intro Heq; subst.
+  apply Byte.eq_true.
+Qed.
+
+
+Lemma int64_sign_int_extract_32_eq:
+  forall i,
+    (Int64.repr
+     (Int.unsigned
+        (Int.repr
+           (Int64.signed
+              (Int64.unsigned_bitfield_extract 32 32 i))))) = (Int64.unsigned_bitfield_extract 32 32 i).
+Proof.
+  intros.
+  unfold Int64.unsigned_bitfield_extract. simpl.
+  rewrite Int.unsigned_repr; [rewrite Int64.repr_signed; reflexivity |]. 
+  rewrite Int64.signed_eq_unsigned;
+  pose proof Int64.zero_ext_range 32 (Int64.shru i (Int64.repr 32)) as Hrange;
+  unfold Int64.zwordsize, two_p, two_power_pos in Hrange;
+  simpl in Hrange.
+  - change Int.max_unsigned with 4294967295.
+    lia.
+  - change Int64.max_signed with 9223372036854775807.
+    lia.
+Qed.
+
+
+Lemma int64_unsign_byte_extract_8_eq:
+  forall i,
+    (Int64.repr
+       (Byte.unsigned
+          (Byte.repr
+             (Int64.unsigned
+                (Int64.unsigned_bitfield_extract
+                   (Z.of_nat 0) 
+                   (Z.of_nat 8) i))))) =
+    (Int64.unsigned_bitfield_extract
+                             (Z.of_nat 0) 
+                             (Z.of_nat 8) i).
+Proof.
+  intros.
+  unfold Int64.unsigned_bitfield_extract. simpl.
+  rewrite Byte.unsigned_repr; [rewrite Int64.repr_unsigned; reflexivity |].
+  pose proof Int64.zero_ext_range 8 (Int64.shru i (Int64.repr 0)) as Hrange.
+  unfold Int64.zwordsize, two_p, two_power_pos in Hrange.
+  simpl in Hrange.
+  change Byte.max_unsigned with 255.
+  lia.
+Qed.
+
+
+Lemma int64_sign_int16_extract_16_eq:
+  forall i,
+    (Int64.repr
+        (Int16.unsigned
+           (Int16.repr
+              (Int64.signed
+                 (Int64.unsigned_bitfield_extract
+                    (Z.of_nat 16) (Z.of_nat 16) i))))) =
+    (Int64.unsigned_bitfield_extract
+                    (Z.of_nat 16) (Z.of_nat 16) i).
+Proof.
+  intros.
+  unfold Int64.unsigned_bitfield_extract.
+  rewrite Int16.unsigned_repr; [rewrite Int64.repr_signed; reflexivity |].
+  simpl.
+  rewrite Int64.signed_eq_unsigned;
+  pose proof Int64.zero_ext_range 16 (Int64.shru i (Int64.repr 16)) as Hrange;
+  unfold Int64.zwordsize, two_p, two_power_pos in Hrange;
+  simpl in Hrange.
+  - change Int16.max_unsigned with 65535.
+    lia.
+  - change Int64.max_signed with 9223372036854775807.
+    lia.
+Qed.
+
+Lemma int64_unsign_z_nat_16_eq :
+  forall i,
+    (Int64.repr
+           (Z.of_nat
+              (Z.to_nat
+                 (Int64.unsigned i)))) = i.
+Proof.
+  intros.
+  rewrite Z2Nat.id.
+  - rewrite Int64.repr_unsigned.
+    reflexivity.
+  - pose proof Int64.unsigned_range i as Hrange.
+    destruct Hrange as [H1 H2].
+    apply H1.
+Qed.
