@@ -66,7 +66,7 @@ rustc --version
 # rustc 1.85.0
 ```
 
-- **OCaml, Coq, Compcert and Related Packages**
+- **OCaml and Related Packages**
 
 ```shell
 # install opam
