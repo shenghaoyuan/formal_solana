@@ -12,14 +12,14 @@ generator:
 
 
 micro-test:
-	@cd ./tests/exec_semantics && \
+	@cd ../test/exec_semantics/isabelle_test && \
 	eval $$(opam env) && \
 	ocamlc -c step_test.ml && \
 	ocamlfind ocamlc -o step -package yojson -linkpkg step_test.cmo step.ml && \
 	./step
 
 macro-test:
-	@cd ./tests/exec_semantics && \
+	@cd ../test/exec_semantics/isabelle_test && \
 	ocamlc -c interp_test.ml && \
 	ocamlc -o test interp_test.cmo test.ml && \
 	./test

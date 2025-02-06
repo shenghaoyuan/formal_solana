@@ -38,6 +38,19 @@ model:
 CoqProject:
 	@echo $(COQINCLUDES) > _CoqProject
 
+micro-test:
+	@cd ../test/exec_semantics/coq_test && \
+	eval $$(opam env) && \
+	ocamlc -c step_test.ml && \
+	ocamlfind ocamlc -o step -package yojson -linkpkg step_test.cmo step.ml && \
+	./step
+
+macro-test:
+	@cd ../test/exec_semantics/coq_test && \
+	ocamlc -c interpreter_test.ml && \
+	ocamlc -o test interpreter_test.cmo test.ml && \
+	./test
+
 clean :
 	@echo $@
 	make -f CoqMakefile clean
@@ -52,4 +65,4 @@ clean :
 
 .SECONDARY:
 
-.PHONY: all model CoqProject clean
+.PHONY: all model CoqProject clean micro-test macro-test
